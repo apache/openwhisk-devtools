@@ -1,6 +1,12 @@
 Developer tools for OpenWhisk
 =============================
 
-### Docker-compose
-Deploy OpenWhisk using docker-compose.
+### Installing OpenWhisk
+
+* Using Docker-Compose. See the [README](docker-compose/README.md) for more details. 
+  ```bash
+  cd docker-compose
+  make quick-start
+  ```
+  
 

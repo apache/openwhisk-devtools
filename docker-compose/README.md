@@ -23,12 +23,10 @@ Available Ports:
 # Quick Start
 
 ```bash
-cd ./tools/docker-compose/
-
 make quick-start
 ```
 
-This command builds OpenWhisk, the docker containers, it starts the system and it executes a simple `hello-world` function.
+This command downloads the `master` branch from the [OpenWhisk](https://github.com/openwhisk/openwhisk) repo, it  builds OpenWhisk, the docker containers, it starts the system and it executes a simple `hello-world` function.
 At the end of the execution it prints the output of the function:
 ```javascript
 {
