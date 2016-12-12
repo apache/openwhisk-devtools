@@ -7,7 +7,7 @@ OPEN_WHISK_DB_PORT ?= 5984
 OPEN_WHISK_DB_PROVIDER ?= CouchDB
 OPEN_WHISK_DB_USERNAME ?= whisk_admin
 OPEN_WHISK_DB_PASSWORD ?= some_passw0rd
-DB_IMMORTAL_DBS ?= subjects
+DB_SUBJECTS_DBS ?= subjects
 OPEN_WHISK_DB_ACTIONS ?= whisk_actions
 OPEN_WHISK_DB_GW ?= whisk_gateway
 
@@ -62,28 +62,20 @@ init-couchdb:
 	until $$(curl --output /dev/null --silent --head --fail http://localhost:5984/_all_dbs); do printf '.'; sleep 5; done
 
 	echo "initializing the database ... "
-	# the folder config/keys is referenced from createImmortalsDBs.sh
-	mkdir -p $(PROJECT_HOME)/config/keys
-	cp $(PROJECT_HOME)/ansible/files/auth.* $(PROJECT_HOME)/config/keys
-	touch $(PROJECT_HOME)/config/dbSetup.sh
+	# the folder config/keys is referenced from createSubjects.sh
+	mkdir -p db/config/keys
+	cp $(PROJECT_HOME)/ansible/files/auth.* db/config/keys
 
-	# temporary: until https://github.com/openwhisk/openwhisk/pull/1622 is merged
-	echo "Fixing createImmortalDBs.sh ..."
-	sed -i -n '82,90 d' ./openwhisk-master/tools/db/createImmortalDBs.sh
- 
-	cd $(PROJECT_HOME)/ && \
-	    OPEN_WHISK_DB_PROVIDER=$(OPEN_WHISK_DB_PROVIDER) \
+	OPEN_WHISK_DB_PROVIDER=$(OPEN_WHISK_DB_PROVIDER) \
 	    OPEN_WHISK_DB_PROTOCOL=$(OPEN_WHISK_DB_PROTOCOL) \
 	    OPEN_WHISK_DB_HOST=$(OPEN_WHISK_DB_HOST) OPEN_WHISK_DB_PORT=$(OPEN_WHISK_DB_PORT) \
 	    OPEN_WHISK_DB_USERNAME=$(OPEN_WHISK_DB_USERNAME) OPEN_WHISK_DB_PASSWORD=$(OPEN_WHISK_DB_PASSWORD) \
-	    DB_IMMORTAL_DBS=$(DB_IMMORTAL_DBS) DB_WHISK_AUTHS=$(DB_IMMORTAL_DBS) \
-	    tools/db/createImmortalDBs.sh --dropit
+	    DB_SUBJECTS_DBS=$(DB_SUBJECTS_DBS) DB_WHISK_AUTHS=$(DB_SUBJECTS_DBS) \
+	    PROJECT_HOME=$(PROJECT_HOME) \
+	    db/createSubjects.sh
 
-	# temporary: until https://github.com/openwhisk/openwhisk/pull/1622 is merged
-	curl -s -k --user $(OPEN_WHISK_DB_USERNAME):$(OPEN_WHISK_DB_PASSWORD) -X POST http://localhost:5984/$(DB_IMMORTAL_DBS) -d @$(PROJECT_HOME)/ansible/files/auth_index.json -H "Content-Type: application/json"
-
-	# cleanup the files referenced by createImmortalDBs.sh
-	rm -rf $(PROJECT_HOME)/config/keys
+	# cleanup the files referenced by createSubjects.sh
+	rm -rf db/config/keys
 
 .PHONY: init-couchdb-actions
 init-couchdb-actions:
