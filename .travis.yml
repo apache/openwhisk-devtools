@@ -1,0 +1,18 @@
+sudo: required
+
+env:
+  DOCKER_COMPOSE_VERSION: 1.8.1
+  TEST_SUITE: docker-compose
+
+services:
+  - docker
+
+before_install:
+  - ${TEST_SUITE}/.travis/setup.sh
+
+script:
+  - ${TEST_SUITE}/.travis/build.sh
+
+matrix:
+  include:
+  - env: TEST_SUITE=docker-compose
