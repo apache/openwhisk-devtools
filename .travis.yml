@@ -14,8 +14,3 @@ before_install:
 
 script:
   - ${TOOL}/.travis/build.sh
-
-matrix:
-  include:
-  - env:
-    TOOL: docker-compose
