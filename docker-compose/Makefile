@@ -49,8 +49,7 @@ setup:
 	mkdir -p ~/tmp/openwhisk/apigateway/ssl
 	cd $(PROJECT_HOME)/ansible/roles/nginx/files/ && ./genssl.sh localhost
 	cp $(PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/apigateway/ssl
-	mkdir -p ~/tmp/openwhisk/apigateway/conf
-	cp $(PROJECT_HOME)/../apigateway/conf/whisk-docker-compose.conf ~/tmp/openwhisk/apigateway/conf/
+	cp -r $(PROJECT_HOME)/../apigateway/* ~/tmp/openwhisk/apigateway/
 
 .PHONY: start-docker-compose
 start-docker-compose:

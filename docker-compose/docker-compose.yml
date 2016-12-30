@@ -131,16 +131,23 @@ services:
       - "8085:8085"
 
   # The API Gateway is currently used to expose the Controller API
-  #   see tools/apigateway/whisk-docker-compose.conf
+  #   see apigateway/conf/whisk-docker-compose.conf
+  redis:
+    image: redis:2.8
+    expose:
+      - "6379"
   apigateway:
     image: adobeapiplatform/apigateway:1.1.0
     links:
       - controller:whisk.controller
+      - redis:redis.docker
     depends_on:
       - controller
+      - redis
     volumes:
       - ~/tmp/openwhisk/apigateway/ssl:/etc/ssl:ro
       - ~/tmp/openwhisk/apigateway/conf:/etc/api-gateway/generated-conf.d:ro
+      - ~/tmp/openwhisk/apigateway/env.conf:/etc/api-gateway/environment.conf.d:ro
     ports:
       - "80:80"
       - "443:443"
