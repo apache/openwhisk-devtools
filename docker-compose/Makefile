@@ -26,7 +26,7 @@ quick-start: download docker run quick-start-pause hello-world quick-start-info
 .PHONY: download
 download:
 	rm -rf ./openwhisk-master*
-	if [ "$(PROJECT_HOME)" == "openwhisk-master" ]; then \
+	if [ "$(PROJECT_HOME)" = "openwhisk-master" ]; then \
 	    curl -O ./openwhisk-master.tar.gz -L https://api.github.com/repos/openwhisk/openwhisk/tarball/master > ./openwhisk-master.tar.gz; \
 	    mkdir openwhisk-master; \
 	    tar -xvf ./openwhisk-master.tar.gz --strip 1 -C openwhisk-master; \
