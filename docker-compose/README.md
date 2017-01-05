@@ -7,7 +7,7 @@ An easy way to try OpenWhisk locally is to use Docker Compose.
 The following are required to build and deploy OpenWhisk with Docker Compose:
 
 - [Docker 1.12+](https://www.docker.com/products/docker) 
-- [Docker Compose](https://docs.docker.com/compose/install/)
+- [Docker Compose 1.6+](https://docs.docker.com/compose/install/)
 - [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
 Available Ports:
