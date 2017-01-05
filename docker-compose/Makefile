@@ -12,6 +12,10 @@ DB_SUBJECTS_DBS ?= subjects
 OPEN_WHISK_DB_ACTIONS ?= whisk_actions
 OPEN_WHISK_DB_GW ?= whisk_gateway
 
+ifndef VERBOSE
+.SILENT:
+endif
+
 # Quick-Start is a simple way to get started with OpenWhisk locally
 #   1. at start it builds the project and the docker containers
 #   2. then it starts all components using docker-compose
@@ -43,7 +47,16 @@ docker:
 	    ./gradlew distdocker -x :core:swift3Action:distDocker -x :core:swiftAction:distDocker
 
 .PHONY: run
-run: setup start-docker-compose init-couchdb init-couchdb-actions init-whisk-cli
+run: check-required-ports setup start-docker-compose init-couchdb init-couchdb-actions init-whisk-cli
+
+.PHONY: check-required-ports
+check-required-ports:
+	echo "checking required ports ... "
+	for port in 80 443 2888 5984 8085 8888 9092 2888 8400 8500 8600 8302; do \
+		pid=`lsof -Pi :$$port -sTCP:LISTEN -t` ; \
+		if [ ! -z "$$pid" ];  then echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; exit 1; fi; \
+	done
+	echo " ... OK"
 
 .PHONY: setup
 setup:
