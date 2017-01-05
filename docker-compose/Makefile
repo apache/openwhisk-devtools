@@ -26,9 +26,13 @@ quick-start: download docker run quick-start-pause hello-world quick-start-info
 .PHONY: download
 download:
 	rm -rf ./openwhisk-master*
-	curl -O ./openwhisk-master.tar.gz -L https://api.github.com/repos/openwhisk/openwhisk/tarball/master > ./openwhisk-master.tar.gz
-	mkdir openwhisk-master
-	tar -xvf ./openwhisk-master.tar.gz --strip 1 -C openwhisk-master
+	if [ "$(PROJECT_HOME)" == "./openwhisk-master/" ]; then \
+	    curl -O ./openwhisk-master.tar.gz -L https://api.github.com/repos/openwhisk/openwhisk/tarball/master > ./openwhisk-master.tar.gz; \
+	    mkdir openwhisk-master; \
+	    tar -xvf ./openwhisk-master.tar.gz --strip 1 -C openwhisk-master; \
+	else \
+	     echo "Skipping downloading the code from git as PROJECT_HOME is not default:" $(PROJECT_HOME); \
+	fi
 
 .PHONY: quick-start-pause
 quick-start-pause:
@@ -63,7 +67,7 @@ setup:
 	mkdir -p ~/tmp/openwhisk/apigateway/ssl
 	cd $(PROJECT_HOME)/ansible/roles/nginx/files/ && ./genssl.sh $(DOCKER_HOST_IP)
 	cp $(PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/apigateway/ssl
-	cp -r $(PROJECT_HOME)/../apigateway/* ~/tmp/openwhisk/apigateway/
+	cp -r ./apigateway/* ~/tmp/openwhisk/apigateway/
 
 .PHONY: start-docker-compose
 start-docker-compose:
@@ -124,6 +128,7 @@ destroy: stop
 	echo "cleaning dangling docker volumes ... "
 	docker volume ls -qf dangling=true | xargs docker volume rm
 	rm -rf ~/tmp/openwhisk
+	rm -rf ./openwhisk-master*
 
 # This task runs a hello-world function
 #   1. It creates the function

@@ -13,6 +13,12 @@ Developer tools for OpenWhisk
   make quick-start
   ```
   
+  This is useful for creating local development environments. 
+  The build downloads by default the latest code from the master branch, but it also allows developers to work with their local clones by providing the local path to the OpenWhisk repo:
+      
+  ```bash
+  PROJECT_HOME=/path/to/openwhisk make quick-start
+  ```    
 
 ### Travis builds
 
