@@ -78,7 +78,7 @@ services:
       DB_USERNAME: whisk_admin
       DB_PASSWORD: some_passw0rd
 
-      LOADBALANCER_HOST: localhost
+      LOADBALANCER_HOST: ${DOCKER_COMPOSE_HOST}
       LOADBALANCER_HOST_PORT: 443
     volumes:
       - ~/tmp/openwhisk/controller/logs:/logs
@@ -88,7 +88,7 @@ services:
   # WHISK INVOKER AGENT
   invoker:
     image: whisk/invoker:latest
-    command: /bin/sh -c "/invoker/bin/invoker 0 >> /logs/invoker-localhost_logs.log 2>&1"
+    command: /bin/sh -c "/invoker/bin/invoker 0 >> /logs/invoker-local_logs.log 2>&1"
     links:
       - consul:consul.docker
       - db:db.docker
@@ -117,7 +117,7 @@ services:
       DB_USERNAME: whisk_admin
       DB_PASSWORD: some_passw0rd
 
-      EDGE_HOST: localhost
+      EDGE_HOST: ${DOCKER_COMPOSE_HOST}
       EDGE_HOST_APIPORT: 443
 
       DOCKER_REGISTRY: ""

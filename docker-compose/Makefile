@@ -1,8 +1,9 @@
+DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo localhost)
 PROJECT_HOME ?= ./openwhisk-master/
 WSK_CLI ?= $(PROJECT_HOME)/bin/wsk
 
 OPEN_WHISK_DB_PROTOCOL ?= http
-OPEN_WHISK_DB_HOST ?= localhost
+OPEN_WHISK_DB_HOST ?= $(DOCKER_HOST_IP)
 OPEN_WHISK_DB_PORT ?= 5984
 OPEN_WHISK_DB_PROVIDER ?= CouchDB
 OPEN_WHISK_DB_USERNAME ?= whisk_admin
@@ -28,7 +29,7 @@ download:
 .PHONY: quick-start-pause
 quick-start-pause:
 	echo "waiting for the Whisk invoker to come up ... "
-	until $$(curl --output /dev/null --silent --head --fail http://localhost:8085/ping); do printf '.'; sleep 5; done
+	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8085/ping); do printf '.'; sleep 5; done
 	sleep 30
 
 .PHONY: quick-start-info
@@ -47,18 +48,18 @@ run: setup start-docker-compose init-couchdb init-couchdb-actions init-whisk-cli
 .PHONY: setup
 setup:
 	mkdir -p ~/tmp/openwhisk/apigateway/ssl
-	cd $(PROJECT_HOME)/ansible/roles/nginx/files/ && ./genssl.sh localhost
+	cd $(PROJECT_HOME)/ansible/roles/nginx/files/ && ./genssl.sh $(DOCKER_HOST_IP)
 	cp $(PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/apigateway/ssl
 	cp -r $(PROJECT_HOME)/../apigateway/* ~/tmp/openwhisk/apigateway/
 
 .PHONY: start-docker-compose
 start-docker-compose:
-	docker-compose --project-name openwhisk up  2>&1 > ~/tmp/openwhisk/docker-compose.log &
+	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) docker-compose --project-name openwhisk up 2>&1 > ~/tmp/openwhisk/docker-compose.log &
 
 .PHONY: init-couchdb
 init-couchdb:
 	echo "waiting for the database to come up ... "
-	until $$(curl --output /dev/null --silent --head --fail http://localhost:5984/_all_dbs); do printf '.'; sleep 5; done
+	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):5984/_all_dbs); do printf '.'; sleep 5; done
 
 	echo "initializing the database ... "
 	# the folder config/keys is referenced from createSubjects.sh
@@ -94,9 +95,9 @@ init-couchdb-actions:
 .PHONY: init-whisk-cli
 init-whisk-cli:
 	echo "waiting for the Whisk controller to come up ... "
-	until $$(curl --output /dev/null --silent --head --fail http://localhost:8888/ping); do printf '.'; sleep 5; done
+	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
 	echo "initializing CLI ... "
-	$(WSK_CLI) -v property set --namespace guest --auth `cat $(PROJECT_HOME)/ansible/files/auth.guest` --apihost localhost:443 -i
+	$(WSK_CLI) -v property set --namespace guest --auth `cat $(PROJECT_HOME)/ansible/files/auth.guest` --apihost $(DOCKER_HOST_IP):443 -i
 
 .PHONY: stop
 stop:
