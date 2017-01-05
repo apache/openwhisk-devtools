@@ -101,11 +101,11 @@ init-whisk-cli:
 
 .PHONY: stop
 stop:
-	docker-compose --project-name openwhisk stop
+	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) docker-compose --project-name openwhisk stop
 
 .PHONY: destroy
 destroy: stop
-	docker-compose --project-name openwhisk rm
+	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) docker-compose --project-name openwhisk rm
 	echo "cleaning other openwhisk containers started by the invoker ... "
 	docker ps | grep whisk | awk '{print $$1}' | xargs docker stop | xargs docker rm
 	echo "cleaning dangling docker volumes ... "
