@@ -6,7 +6,7 @@ Developer tools for OpenWhisk
 
 * Using Docker-Compose. See the [README](docker-compose/README.md) for more details. 
  
-  [![Build Status](https://travis-ci.org/openwhisk/openwhisk-devtools.svg?branch=docker-compose)](https://travis-ci.org/openwhisk/openwhisk-devtools)
+  [![Build Status](https://travis-ci.org/openwhisk/openwhisk-devtools.svg?branch=master)](https://travis-ci.org/openwhisk/openwhisk-devtools)
   
   ```bash
   cd docker-compose
