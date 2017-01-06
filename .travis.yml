@@ -1,0 +1,16 @@
+sudo: required
+
+env:
+  global:
+    - DOCKER_COMPOSE_VERSION: 1.8.1
+  matrix:
+    - TOOL: docker-compose
+
+services:
+  - docker
+
+before_install:
+  - ${TOOL}/.travis/setup.sh
+
+script:
+  - ${TOOL}/.travis/build.sh
