@@ -27,6 +27,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ~/tmp/openwhisk/kafka:/kafka:rw
 
   # CONSUL & REGISTRATOR SERVICES
   consul:
@@ -120,9 +121,12 @@ services:
       EDGE_HOST: ${DOCKER_COMPOSE_HOST}
       EDGE_HOST_APIPORT: 443
 
-      DOCKER_REGISTRY: ""
-      DOCKER_IMAGE_PREFIX: whisk
+      DOCKER_REGISTRY: ${DOCKER_REGISTRY}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+
       INVOKER_CONTAINER_NETWORK: openwhisk_default
+
+      WHISK_API_HOST: https://${DOCKER_COMPOSE_HOST}
     volumes:
       - ~/tmp/openwhisk/invoker/logs:/logs
       - /var/run/docker.sock:/var/run/docker.sock

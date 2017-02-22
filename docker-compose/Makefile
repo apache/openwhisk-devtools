@@ -1,4 +1,6 @@
 DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo localhost)
+DOCKER_REGISTRY ?= ""
+DOCKER_IMAGE_PREFIX ?= whisk
 PROJECT_HOME ?= openwhisk-master
 WSK_CLI ?= $(PROJECT_HOME)/bin/wsk
 
@@ -69,9 +71,20 @@ setup:
 	cp $(PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/apigateway/ssl
 	cp -r ./apigateway/* ~/tmp/openwhisk/apigateway/
 
+.PHONY: restart
+restart: stop rm start-docker-compose
+
 .PHONY: start-docker-compose
 start-docker-compose:
-	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) docker-compose --project-name openwhisk up 2>&1 > ~/tmp/openwhisk/docker-compose.log &
+	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk up 2>&1 > ~/tmp/openwhisk/docker-compose.log &
+
+.PHONY: stop
+stop:
+	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk stop
+
+.PHONY: rm
+rm:
+	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk rm
 
 .PHONY: init-couchdb
 init-couchdb:
@@ -116,13 +129,8 @@ init-whisk-cli:
 	echo "initializing CLI ... "
 	$(WSK_CLI) -v property set --namespace guest --auth `cat $(PROJECT_HOME)/ansible/files/auth.guest` --apihost $(DOCKER_HOST_IP):443 -i
 
-.PHONY: stop
-stop:
-	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) docker-compose --project-name openwhisk stop
-
 .PHONY: destroy
-destroy: stop
-	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) docker-compose --project-name openwhisk rm
+destroy: stop rm
 	echo "cleaning other openwhisk containers started by the invoker ... "
 	docker ps | grep whisk | awk '{print $$1}' | xargs docker stop | xargs docker rm
 	echo "cleaning dangling docker volumes ... "
