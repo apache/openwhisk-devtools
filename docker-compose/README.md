@@ -36,6 +36,10 @@ At the end of the execution it prints the output of the function:
 }
 ```
 
+If `PROJECT_HOME` variable is set ( i.e. `PROJECT_HOME=/path/to/openwhisk make quick-start`) 
+then the command skips downloading the `master` branch and uses instead the source code found in the `PROJECT_HOME` folder. 
+This is useful for working with a local clone, making changes to the code, and run it with `docker-compose`.   
+
 # Build
 
 ```bash
@@ -96,3 +100,13 @@ The result of the invokation should be printed on the terminal:
 - OpenWhisk Controller - `~/tmp/openwhisk/controller/logs/`
 - OpenWhisk Invoker - `~/tmp/openwhisk/invoker/logs/`
 - `docker-compose` logs - `~/tmp/openwhisk/docker-compose.log`
+
+
+## Custom Docker containers for actions
+
+To start `docker-compose` with custom images used for running actions use the following 2 variables:
+
+- `DOCKER_REGISTRY` - specify a custom docker registry. I.e ```DOCKER_REGISTRY=registry.example.com make quick-start```
+- `DOCKER_IMAGE_PREFIX` - specify a custom image prefix. I.e. ```DOCKER_IMAGE_PREFIX=my-prefix make quick-start```
+
+These 2 variable allow you to execute a JS action using the container `registry.example.com/my-prefix/nodejs6action` .
