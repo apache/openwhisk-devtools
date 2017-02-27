@@ -1,7 +1,7 @@
 DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo localhost)
 DOCKER_REGISTRY ?= ""
 DOCKER_IMAGE_PREFIX ?= whisk
-PROJECT_HOME ?= openwhisk-master
+PROJECT_HOME ?= ./openwhisk-master
 WSK_CLI ?= $(PROJECT_HOME)/bin/wsk
 
 OPEN_WHISK_DB_PREFIX ?= local_
@@ -20,7 +20,7 @@ quick-start: download docker run quick-start-pause hello-world quick-start-info
 .PHONY: download
 download:
 	rm -rf ./openwhisk-master*
-	if [ "$(PROJECT_HOME)" = "openwhisk-master" ]; then \
+	if [ "$(PROJECT_HOME)" = "./openwhisk-master" ]; then \
 	    curl -O ./openwhisk-master.tar.gz -L https://api.github.com/repos/openwhisk/openwhisk/tarball/master > ./openwhisk-master.tar.gz; \
 	    mkdir openwhisk-master; \
 	    tar -xvf ./openwhisk-master.tar.gz --strip 1 -C openwhisk-master; \
@@ -85,12 +85,13 @@ init-couchdb:
 
 	echo "initializing the database ... "
 	# make sure the src files are in a shared folder for docker
+	mkdir -p ~/tmp/openwhisk
 	rm -rf ~/tmp/openwhisk/src
-	ln -s $(PROJECT_HOME) ~/tmp/openwhisk/src
+	rsync -av $(PROJECT_HOME)/* ~/tmp/openwhisk/src --exclude .git --exclude build --exclude tests
 	docker run --rm -v ~/tmp/openwhisk/src:/openwhisk -w /openwhisk/ansible \
 	    --network="host" -t \
 	    williamyeh/ansible:debian8  \
-	        ansible-playbook initdb.yml wipe.yml \
+	        ansible-playbook setup.yml initdb.yml wipe.yml \
 	            -e db_host=$(DOCKER_HOST_IP) -e openwhisk_home=/openwhisk -e db_prefix=$(OPEN_WHISK_DB_PREFIX)
 
 .PHONY: init-whisk-cli
