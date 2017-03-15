@@ -1,18 +1,10 @@
 DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo localhost)
 DOCKER_REGISTRY ?= ""
 DOCKER_IMAGE_PREFIX ?= whisk
-PROJECT_HOME ?= openwhisk-master
+PROJECT_HOME ?= ./openwhisk-master
 WSK_CLI ?= $(PROJECT_HOME)/bin/wsk
 
-OPEN_WHISK_DB_PROTOCOL ?= http
-OPEN_WHISK_DB_HOST ?= $(DOCKER_HOST_IP)
-OPEN_WHISK_DB_PORT ?= 5984
-OPEN_WHISK_DB_PROVIDER ?= CouchDB
-OPEN_WHISK_DB_USERNAME ?= whisk_admin
-OPEN_WHISK_DB_PASSWORD ?= some_passw0rd
-DB_SUBJECTS_DBS ?= subjects
-OPEN_WHISK_DB_ACTIONS ?= whisk_actions
-OPEN_WHISK_DB_GW ?= whisk_gateway
+OPEN_WHISK_DB_PREFIX ?= local_
 
 ifndef VERBOSE
 .SILENT:
@@ -28,7 +20,7 @@ quick-start: download docker run quick-start-pause hello-world quick-start-info
 .PHONY: download
 download:
 	rm -rf ./openwhisk-master*
-	if [ "$(PROJECT_HOME)" = "openwhisk-master" ]; then \
+	if [ "$(PROJECT_HOME)" = "./openwhisk-master" ]; then \
 	    curl -O ./openwhisk-master.tar.gz -L https://api.github.com/repos/openwhisk/openwhisk/tarball/master > ./openwhisk-master.tar.gz; \
 	    mkdir openwhisk-master; \
 	    tar -xvf ./openwhisk-master.tar.gz --strip 1 -C openwhisk-master; \
@@ -53,7 +45,7 @@ docker:
 	    ./gradlew distdocker -x :core:swift3Action:distDocker -x :core:swiftAction:distDocker
 
 .PHONY: run
-run: check-required-ports setup start-docker-compose init-couchdb init-couchdb-actions init-whisk-cli
+run: check-required-ports setup start-docker-compose init-couchdb init-whisk-cli
 
 .PHONY: check-required-ports
 check-required-ports:
@@ -92,35 +84,15 @@ init-couchdb:
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):5984/_all_dbs); do printf '.'; sleep 5; done
 
 	echo "initializing the database ... "
-	# the folder config/keys is referenced from createSubjects.sh
-	mkdir -p db/config/keys
-	cp $(PROJECT_HOME)/ansible/files/auth.* db/config/keys
-
-	OPEN_WHISK_DB_PROVIDER=$(OPEN_WHISK_DB_PROVIDER) \
-	    OPEN_WHISK_DB_PROTOCOL=$(OPEN_WHISK_DB_PROTOCOL) \
-	    OPEN_WHISK_DB_HOST=$(OPEN_WHISK_DB_HOST) OPEN_WHISK_DB_PORT=$(OPEN_WHISK_DB_PORT) \
-	    OPEN_WHISK_DB_USERNAME=$(OPEN_WHISK_DB_USERNAME) OPEN_WHISK_DB_PASSWORD=$(OPEN_WHISK_DB_PASSWORD) \
-	    DB_SUBJECTS_DBS=$(DB_SUBJECTS_DBS) DB_WHISK_AUTHS=$(DB_SUBJECTS_DBS) \
-	    PROJECT_HOME=$(PROJECT_HOME) \
-	    db/createSubjects.sh
-
-	# cleanup the files referenced by createSubjects.sh
-	rm -rf db/config/keys
-
-.PHONY: init-couchdb-actions
-init-couchdb-actions:
-	echo "initializing CouchDB Views ... "
-	echo "" > $(PROJECT_HOME)/whisk.properties
-	echo db.provider=$(OPEN_WHISK_DB_PROVIDER) >> $(PROJECT_HOME)/whisk.properties
-	echo db.protocol=$(OPEN_WHISK_DB_PROTOCOL) >> $(PROJECT_HOME)/whisk.properties
-	echo db.host=$(OPEN_WHISK_DB_HOST) >> $(PROJECT_HOME)/whisk.properties
-	echo db.port=$(OPEN_WHISK_DB_PORT) >> $(PROJECT_HOME)/whisk.properties
-	echo db.username=$(OPEN_WHISK_DB_USERNAME) >> $(PROJECT_HOME)/whisk.properties
-	echo db.password=$(OPEN_WHISK_DB_PASSWORD) >> $(PROJECT_HOME)/whisk.properties
-	echo db.whisk.actions=$(OPEN_WHISK_DB_ACTIONS) >> $(PROJECT_HOME)/whisk.properties
-	echo db.whisk.apigw=$(OPEN_WHISK_DB_GW) >> $(PROJECT_HOME)/whisk.properties
-	cd $(PROJECT_HOME)/ && tools/db/wipeTransientDBs.sh
-	rm $(PROJECT_HOME)/whisk.properties
+	# make sure the src files are in a shared folder for docker
+	mkdir -p ~/tmp/openwhisk
+	rm -rf ~/tmp/openwhisk/src
+	rsync -av $(PROJECT_HOME)/* ~/tmp/openwhisk/src --exclude .git --exclude build --exclude tests
+	docker run --rm -v ~/tmp/openwhisk/src:/openwhisk -w /openwhisk/ansible \
+	    --network="host" -t \
+	    williamyeh/ansible:debian8  \
+	        ansible-playbook setup.yml initdb.yml wipe.yml \
+	            -e db_host=$(DOCKER_HOST_IP) -e openwhisk_home=/openwhisk -e db_prefix=$(OPEN_WHISK_DB_PREFIX)
 
 .PHONY: init-whisk-cli
 init-whisk-cli:
