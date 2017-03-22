@@ -1,0 +1,30 @@
+; the first parameter in a host is the inventory_hostname which has to be
+; either an ip
+; or a resolvable hostname
+
+; used for local actions only
+ansible ansible_connection=local
+
+[controllers]
+controllers.docker
+
+[kafka]
+kafka.docker
+
+[consul_servers]
+consul.docker
+
+[invokers]
+invoker.docker
+
+[db]
+db.docker
+
+[redis]
+redis.docker
+
+[edge]
+apigateway.docker
+
+[apigateway]
+apigateway.docker

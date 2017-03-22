@@ -1,0 +1,6 @@
+---
+# This playbook configure the CouchDB installation.
+
+- hosts: ansible
+  tasks:
+  - include: tasks/configdb.yml
