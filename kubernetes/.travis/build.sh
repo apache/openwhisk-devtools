@@ -32,7 +32,7 @@ done
 kubectl get jobs --all-namespaces -o wide --show-all
 kubectl get pods --all-namespaces -o wide --show-all
 
-if [ $PASSED = false ]; then
+if [ "$PASSED" = false ]; then
   echo "The job to configure OpenWhisk did not finish with an exit code of 1"
   exit 1
 fi

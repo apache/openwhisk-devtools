@@ -1,0 +1,53 @@
+---
+# general properties
+kube_pod_dir: "{{ playbook_dir }}/environments/kube/files"
+whisk_version_name: kube
+whisk_logs_dir: /tmp/wsklogs
+docker_registry: "danlavine/"
+docker_dns: ""
+
+# CouchDB properties
+db_provider: CouchDB
+db_port: 5984
+db_protocol: http
+db_username: couch_user
+db_password: couch_password
+db_auth: "subjects"
+db_prefix: "ubuntu_kube-1-4-1_"
+
+# apigw db credentials minimum read/write
+db_apigw_username: "couch_user"
+db_apigw_password: "couch_password"
+db_apigw: "ubuntu_kube-1-4-1_gwapis"
+apigw_initdb: true
+
+# API GW connection configuration
+apigw_auth_user: ""
+apigw_auth_pwd: ""
+apigw_host: "http://whisk-edge-service.default:9000/v1"
+
+
+# consul properties
+consul_conf_dir: /tmp/consul
+
+# edge properties
+nginx_conf_dir: /tmp/nginx
+cli_nginx_dir: "/tmp/nginx/cli/go/download"
+edge_host: edge.openwhisk
+
+# controller properties
+controller_host: controller.openwhisk
+
+# kafka properties
+kafka_host: kafka.openwhisk
+
+# invoker properteis
+invoker_host: invoker.openwhisk
+
+# registry
+registry_conf_dir: /tmp/registry
+registry_storage_dir: "/"
+
+# Kube Service routes
+db_host: couchdb.openwhisk
+consul_host: consul.openwhisk

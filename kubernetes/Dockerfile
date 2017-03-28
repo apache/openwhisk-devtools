@@ -30,9 +30,8 @@ RUN git clone https://github.com/openwhisk/openwhisk && \
     /openwhisk/tools/ubuntu-setup/ansible.sh
 
 # Change this to https://github.com/openwhisk/openwhisk-devtools when committing to master
-COPY ansible /openwhisk-devtools/kubernetes/ansible
+COPY ansible-kube /openwhisk-devtools/kubernetes/ansible-kube
 COPY configure /openwhisk-devtools/kubernetes/configure
-RUN mkdir /openwhisk-devtools/kubernetes/ansible/group_vars
 
 # install kube dependencies
 # Kubernetes assumes that the version is 1.5.0+
