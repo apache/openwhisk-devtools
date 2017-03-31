@@ -18,7 +18,8 @@ RUN apt-get -y update && \
       libxml2-dev \
       libxslt1-dev \
       libjpeg8-dev \
-      zlib1g-dev
+      zlib1g-dev \
+      vim
 
 # clone OpenWhisk and install dependencies
 # Note that we are not running the install all script since we do not care about Docker.

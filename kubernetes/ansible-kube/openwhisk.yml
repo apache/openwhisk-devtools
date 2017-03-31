@@ -5,8 +5,8 @@
 
 - include: consul.yml
 
-#- include: kafka.yml
-#
+- include: kafka.yml
+
 #- include: controller.yml
 #
 #- include: invoker.yml

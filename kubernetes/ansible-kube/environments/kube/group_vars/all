@@ -42,7 +42,7 @@ controller_host: controller.openwhisk
 kafka_host: kafka.openwhisk
 
 # invoker properteis
-invoker_host: invoker.openwhisk
+invoker_count: REPLACE_INVOKER_COUNT
 
 # registry
 registry_conf_dir: /tmp/registry
