@@ -1,0 +1,56 @@
+---
+# This role will install Kafka with Zookeeper in group 'kafka' in the environment inventory
+
+- name: create kafka deployment
+  shell: "kubectl apply -f {{kube_pod_dir}}/kafka.yml"
+
+- name: get kafka pods
+  shell: "kubectl -n openwhisk get pods --show-all | grep kafka | awk '{print $1}'"
+  register: pods
+
+- name: set kafka pods
+  set_fact:
+    kafka_pods: "{{ pods.stdout_lines }}"
+
+- name: wait until the Zookeeper in this host is up and running
+  shell: "kubectl -n openwhisk exec {{ item[0] }} -c zookeeper -- bash -c 'echo ruok | nc -w 3 0.0.0.0:{{ zookeeper.port }}'"
+  register: result
+  until: (result.rc == 0) and (result.stdout == 'imok')
+  retries: 36
+  delay: 5
+  with_nested:
+    - ["{{ kafka_pods }}"]
+
+- name: wait until the kafka server started up
+  shell: "kubectl -n openwhisk logs {{ item[0] }} -c kafka"
+  register: result
+  until: ('[Kafka Server 0], started' in result.stdout)
+  retries: 10
+  delay: 5
+  with_nested:
+    - ["{{ kafka_pods }}"]
+
+- name: create the active-ack and health topic
+  shell: "kubectl exec {{ item[0] }} -c kafka -- bash -c 'unset JMX_PORT; kafka-topics.sh --create --topic {{ item[1] }} --replication-factor 1 --partitions 1 --zookeeper {{ kafka_host }}:{{ zookeeper.port }}'"
+  register: command_result
+  failed_when: "not ('Created topic' in command_result.stdout or 'already exists' in command_result.stdout)"
+  with_nested:
+  - "{{ kafka_pods }}"
+  - [ 'command', 'health' ]
+
+- name: define invoker list
+  set_fact:
+    invoker_list: []
+
+- name: create the invoker list
+  set_fact:
+    invoker_list: "{{invoker_list}} + [{{item}}]"
+  with_sequence: start=0 count={{ invoker_count }}
+
+- name: create the invoker topics
+  shell: " kubectl exec {{ item[0] }} -c kafka -- bash -c 'unset JMX_PORT; kafka-topics.sh --create --topic invoke{{ item[1] }} --replication-factor 1 --partitions 1 --zookeeper {{ kafka_host }}:{{ zookeeper.port }}'"
+  register: command_result
+  failed_when: "not ('Created topic' in command_result.stdout or 'already exists' in command_result.stdout)"
+  with_nested:
+  - "{{ kafka_pods }}"
+  - "{{ invoker_list }}"
