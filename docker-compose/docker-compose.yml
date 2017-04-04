@@ -86,7 +86,7 @@ services:
     ports:
       - "8888:8888"
 
-  # WHISK INVOKER AGENT
+  # WHISK INVOKER AGENT 
   invoker:
     image: whisk/invoker:latest
     command: /bin/sh -c "/invoker/bin/invoker 0 >> /logs/invoker-local_logs.log 2>&1"
@@ -126,7 +126,7 @@ services:
 
       INVOKER_CONTAINER_NETWORK: openwhisk_default
 
-      WHISK_API_HOST: https://${DOCKER_COMPOSE_HOST}
+      WHISK_API_HOST_NAME: https://${DOCKER_COMPOSE_HOST}
     volumes:
       - ~/tmp/openwhisk/invoker/logs:/logs
       - /var/run/docker.sock:/var/run/docker.sock
