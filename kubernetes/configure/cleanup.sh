@@ -11,6 +11,7 @@ kubectl -n openwhisk delete job configure-openwhisk
 kubectl -n openwhisk delete deployment couchdb
 kubectl -n openwhisk delete deployment consul
 kubectl -n openwhisk delete deployment kafka
+kubectl -n openwhisk delete deployment controller
 
 # delete configmaps
 kubectl -n openwhisk delete cm consul
@@ -19,3 +20,4 @@ kubectl -n openwhisk delete cm consul
 kubectl -n openwhisk delete service couchdb
 kubectl -n openwhisk delete service consul
 kubectl -n openwhisk delete service kafka
+kubectl -n openwhisk delete service controller

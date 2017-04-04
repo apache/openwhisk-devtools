@@ -7,8 +7,8 @@
 
 - include: kafka.yml
 
-#- include: controller.yml
-#
+- include: controller.yml
+
 #- include: invoker.yml
 #
 #- include: edge.yml
