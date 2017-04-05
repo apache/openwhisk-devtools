@@ -5,6 +5,7 @@ env:
     - DOCKER_COMPOSE_VERSION: 1.8.1
   matrix:
     - TOOL: docker-compose
+    - TOOL: kubernetes
 
 services:
   - docker
