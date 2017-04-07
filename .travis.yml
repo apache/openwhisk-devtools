@@ -1,5 +1,9 @@
 sudo: required
 
+language: python
+
+python: 3.6
+
 env:
   global:
     - DOCKER_COMPOSE_VERSION: 1.8.1
@@ -7,8 +11,6 @@ env:
     - TOOL: docker-compose
     - TOOL: kubernetes
     - TOOL: dcos-universe
-      language: python
-      python: "3.6"
 
 services:
   - docker
