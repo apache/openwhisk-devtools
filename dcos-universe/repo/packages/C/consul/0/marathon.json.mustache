@@ -1,0 +1,55 @@
+{
+  "id": "/{{service.name}}",
+  "cpus": 0.2,
+  "mem": 512,
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "{{resource.assets.container.docker.consul-docker}}",
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": {{service.cli-port}},
+          "hostPort": {{service.cli-port}},
+          "servicePort": 0,
+          "protocol": "tcp"
+        },
+        {
+          "containerPort": {{service.http-port}},
+          "hostPort": {{service.http-port}},
+          "servicePort": 0,
+          "protocol": "tcp"
+        },
+        {
+          "containerPort": {{service.dns-port}},
+          "hostPort": {{service.dns-port}},
+          "servicePort": 0,
+          "protocol": "tcp"
+        },
+        {
+          "containerPort": {{service.lan-port}},
+          "hostPort": {{service.lan-port}},
+          "servicePort": 0,
+          "protocol": "tcp"
+        }
+      ]
+    }
+  },
+  "healthChecks": [
+    {
+      "path": "/v1/status/leader",
+      "protocol": "HTTP",
+      "gracePeriodSeconds": 30,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "port": 8500
+    }
+  ],
+  "labels": {
+    "DCOS_SERVICE_NAME": "{{service.name}}",
+    "DCOS_SERVICE_SCHEME": "http",
+    "DCOS_SERVICE_PORT_INDEX": "1"
+  }
+}

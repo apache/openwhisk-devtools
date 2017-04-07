@@ -6,6 +6,7 @@ env:
   matrix:
     - TOOL: docker-compose
     - TOOL: kubernetes
+    - TOOL: dcos-universe
 
 services:
   - docker

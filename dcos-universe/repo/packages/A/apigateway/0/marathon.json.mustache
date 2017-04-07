@@ -1,0 +1,50 @@
+{
+  "id": "/{{service.name}}",
+  "cpus": {{service.cpus}},
+  "mem": {{service.mem}},
+  "instances": {{service.instances}},
+  "constraints": [
+    ["hostname", "UNIQUE"]
+  ],
+  "acceptedResourceRoles": [
+    "slave_public"
+  ],
+  "env": {
+    "LOG_LEVEL": "{{advanced.logLevel}}",
+    "MARATHON_HOST": "{{environment.marathonHost}}",
+    "AWS_ACCESS_KEY_ID": "{{advanced.remoteConfigAWSKey}}",
+    "AWS_SECRET_ACCESS_KEY": "{{advanced.remoteConfigAWSSecret}}",
+    "REMOTE_CONFIG": "{{advanced.remoteConfig}}",
+    "REMOTE_CONFIG_GENERATED": "{{advanced.remoteConfigGenerated}}"
+  },
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "{{resource.assets.container.docker.apigateway-docker}}",
+      "network": "HOST"
+    },
+    "volumes": [
+      {
+        "containerPath": "{{advanced.volumeContainerPath}}",
+        "hostPath": "{{advanced.volumeHostPath}}",
+        "mode": "RO"
+      }
+    ]
+  },
+  "healthChecks": [
+    {
+      "path": "/health-check",
+      "port": 80,
+      "protocol": "HTTP",
+      "gracePeriodSeconds": 120,
+      "intervalSeconds": 15,
+      "timeoutSeconds": 10,
+      "maxConsecutiveFailures": 2
+    }
+  ],
+  "labels": {
+    "DCOS_SERVICE_NAME": "{{service.name}}",
+    "DCOS_SERVICE_SCHEME": "http",
+    "DCOS_SERVICE_PORT_INDEX": "0"
+  }
+}

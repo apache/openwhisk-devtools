@@ -1,0 +1,37 @@
+{
+  "id": "/{{service.name}}",
+  "cpus": 0.2,
+  "mem": 1024,
+  "instances": 1,
+  "args": [
+    "-resync",
+    "5",
+    "consul://{{service.consul-location}}:{{service.consul-port}}"
+  ],
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "{{resource.assets.container.docker.registrator-docker}}"
+    },
+    "volumes": [
+      {
+        "containerPath": "/tmp/docker.sock",
+        "hostPath": "/var/run/docker.sock",
+        "mode": "RO"
+      }
+    ]
+  },
+  "healthChecks": [
+    {
+      "command": { "value": "exit 0" },
+      "protocol": "COMMAND",
+      "gracePeriodSeconds": 30,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
+  ],
+  "labels": {
+    "DCOS_SERVICE_NAME": "{{service.name}}"
+  }
+}
