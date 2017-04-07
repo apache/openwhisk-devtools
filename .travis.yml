@@ -7,6 +7,8 @@ env:
     - TOOL: docker-compose
     - TOOL: kubernetes
     - TOOL: dcos-universe
+      language: python
+      python: "3.6"
 
 services:
   - docker
