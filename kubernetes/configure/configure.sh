@@ -12,6 +12,7 @@ set -ex
 # seeded with the proper Invoker name to DNS address. To account for
 # this, we need to use StatefulSets(https://kubernetes.io/stutorials/stateful-application/basic-stateful-set/)
 # to generate the Invoker addresses in a guranteed pattern.
+
 INVOKER_REP_COUNT=$(cat /openwhisk-devtools/kubernetes/ansible-kube/environments/kube/files/invoker.yml | grep 'replicas:' | awk '{print $2}')
 INVOKER_COUNT=${INVOKER_REP_COUNT:-1}
 sed -ie "s/REPLACE_INVOKER_COUNT/$INVOKER_COUNT/g" /openwhisk-devtools/kubernetes/ansible-kube/environments/kube/group_vars/all
@@ -32,6 +33,7 @@ pushd /openwhisk-devtools/kubernetes/ansible
   kubectl apply -f environments/kube/files/consul-service.yml
   kubectl apply -f environments/kube/files/kafka-service.yml
   kubectl apply -f environments/kube/files/controller-service.yml
+  kubectl apply -f environments/kube/files/invoker-service.yml
 
   # Create the CouchDB deployment
   ansible-playbook -i environments/kube couchdb.yml
