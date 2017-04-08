@@ -6,12 +6,22 @@
 # Note: This pod assumes that there is an openwhisk namespace and the pod
 # running this script has been created in that namespace.
 
+deployCouchDB() {
+  COUCH_DEPLOYED=$(kubectl -n openwhisk get pods --show-all | grep couchdb | grep "1/1")
+
+  if [ -z "$COUCH_DEPLOYED" ]; then
+   return 0;
+  else
+   return 1;
+  fi
+}
+
 set -ex
 
-# Generate the invoker requirements. Currently, Consul needs to be
-# seeded with the proper Invoker name to DNS address. To account for
+# Currently, Consul needs to be seeded with the proper Invoker name to DNS address. To account for
 # this, we need to use StatefulSets(https://kubernetes.io/stutorials/stateful-application/basic-stateful-set/)
-# to generate the Invoker addresses in a guranteed pattern.
+# to generate the Invoker addresses in a guranteed pattern. We can then use properties from the
+# StatefulSet yaml file for OpenWhisk deployment configuration options.
 
 INVOKER_REP_COUNT=$(cat /openwhisk-devtools/kubernetes/ansible-kube/environments/kube/files/invoker.yml | grep 'replicas:' | awk '{print $2}')
 INVOKER_COUNT=${INVOKER_REP_COUNT:-1}
@@ -35,11 +45,13 @@ pushd /openwhisk-devtools/kubernetes/ansible
   kubectl apply -f environments/kube/files/controller-service.yml
   kubectl apply -f environments/kube/files/invoker-service.yml
 
-  # Create the CouchDB deployment
-  ansible-playbook -i environments/kube couchdb.yml
-  # configure couch db
-  ansible-playbook -i environments/kube initdb.yml
-  ansible-playbook -i environments/kube wipe.yml
+  if deployCouchDB; then
+    # Create the CouchDB deployment
+    ansible-playbook -i environments/kube couchdb.yml
+    # configure couch db
+    ansible-playbook -i environments/kube initdb.yml
+    ansible-playbook -i environments/kube wipe.yml
+  fi
 
   # Run through the openwhisk deployment
   ansible-playbook -i environments/kube openwhisk.yml

@@ -11,7 +11,6 @@ cd $ROOTDIR
 # This way everything that is teset will use the lates openwhisk builds
 # TODO: need official repo
 
-
 # run scripts to deploy using the new images.
 kubectl apply -f configure/openwhisk_kube_namespace.yml
 kubectl apply -f configure/configure_whisk.yml
