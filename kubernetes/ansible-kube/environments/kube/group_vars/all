@@ -3,10 +3,14 @@
 kube_pod_dir: "{{ playbook_dir }}/environments/kube/files"
 whisk_version_name: kube
 whisk_logs_dir: /tmp/wsklogs
-docker_registry: "danlavine/"
+
+# docker properties
 docker_dns: ""
+docker_registry: ""
+docker_image_prefix: "openwhisk"
 
 # CouchDB properties
+db_host: couchdb.openwhisk
 db_provider: CouchDB
 db_port: 5984
 db_protocol: http
@@ -24,10 +28,12 @@ apigw_initdb: true
 # API GW connection configuration
 apigw_auth_user: ""
 apigw_auth_pwd: ""
-apigw_host: "http://whisk-edge-service.default:9000/v1"
+apigw_host: "http://edge.openwhisk:9000/v1"
+apigw_host_v2: "http://edge.openwhisk:9000/v2"
 
 
 # consul properties
+consul_host: consul.openwhisk
 consul_conf_dir: /tmp/consul
 
 # edge properties
@@ -40,14 +46,16 @@ controller_host: controller.openwhisk
 
 # kafka properties
 kafka_host: kafka.openwhisk
+zookeeper_host: kafka.openwhisk
 
-# invoker properteis
+# invoker properties
+# The invoker_count property is overwritten by the (kubernetes/configure/configure.sh)
+# script. This way the source of truth for the number of Invoker instances is kept
+# in the Kubernetes Invoker deployment file. The configure.sh script will read the
+# Kube file and replace this one to keep everything in sync.
 invoker_count: REPLACE_INVOKER_COUNT
+invoker_port: 8080
 
 # registry
 registry_conf_dir: /tmp/registry
 registry_storage_dir: "/"
-
-# Kube Service routes
-db_host: couchdb.openwhisk
-consul_host: consul.openwhisk
