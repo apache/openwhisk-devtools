@@ -1,0 +1,41 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: controller
+  namespace: openwhisk
+  labels:
+    name: controller
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: controller
+    spec:
+      restartPolicy: Always
+
+      containers:
+      - name: controller
+        imagePullPolicy: IfNotPresent
+        image: openwhisk/controller
+        ports:
+        - name: controller
+          containerPort: 8080
+        env:
+        - name: "COMPONENT_NAME"
+          value: "controller"
+        - name: "CONSULSERVER_HOST"
+          value: "consul.openwhisk"
+        - name: "CONSUL_HOST_PORT4"
+          value: "8500"
+        - name: "KAFKA_NUMPARTITIONS"
+          value: "2"
+        - name: "SERVICE_CHECK_HTTP"
+          value: "/ping"
+        - name: "SERVICE_CHECK_TIMEOUT"
+          value: "2s"
+        - name: "SERVICE_CHECK_INTERVAL"
+          value: "15s"
+        - name: "PORT"
+          value: "8080"
