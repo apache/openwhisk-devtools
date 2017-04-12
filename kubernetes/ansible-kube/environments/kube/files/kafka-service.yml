@@ -10,9 +10,6 @@ spec:
   selector:
     name: kafka
   ports:
-    - port: 2181
-      targetPort: 2181
-      name: zookeeper
     - port: 9092
       targetPort: 9092
       name: kafka

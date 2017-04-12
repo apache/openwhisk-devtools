@@ -16,13 +16,6 @@ spec:
       restartPolicy: Always
 
       containers:
-      - name: zookeeper
-        image: zookeeper:3.4
-        imagePullPolicy: IfNotPresent
-        ports:
-        - name: zookeeper
-          containerPort: 2181
-
       - name: kafka
         image: ches/kafka:0.10.0.1
         imagePullPolicy: IfNotPresent
