@@ -1,8 +1,18 @@
 ---
 # This role will install Kafka with Zookeeper in group 'kafka' in the environment inventory
+- name: create zookeeper deployment
+  shell: "kubectl apply -f {{kube_pod_dir}}/zookeeper.yml"
 
 - name: create kafka deployment
   shell: "kubectl apply -f {{kube_pod_dir}}/kafka.yml"
+
+- name: get zookeeper pods
+  shell: "kubectl -n openwhisk get pods --show-all | grep zookeeper | awk '{print $1}'"
+  register: zookeeperPods
+
+- name: set kafka pods
+  set_fact:
+    zookeeper_pods: "{{ zookeeperPods.stdout_lines }}"
 
 - name: get kafka pods
   shell: "kubectl -n openwhisk get pods --show-all | grep kafka | awk '{print $1}'"
@@ -19,7 +29,7 @@
   retries: 36
   delay: 5
   with_nested:
-    - ["{{ kafka_pods }}"]
+    - ["{{ zookeeper_pods }}"]
 
 - name: wait until the kafka server started up
   shell: "kubectl -n openwhisk logs {{ item[0] }} -c kafka"
@@ -31,7 +41,7 @@
     - ["{{ kafka_pods }}"]
 
 - name: create the active-ack and health topic
-  shell: "kubectl exec {{ item[0] }} -c kafka -- bash -c 'unset JMX_PORT; kafka-topics.sh --create --topic {{ item[1] }} --replication-factor 1 --partitions 1 --zookeeper {{ kafka_host }}:{{ zookeeper.port }}'"
+  shell: "kubectl exec {{ item[0] }} -c kafka -- bash -c 'unset JMX_PORT; kafka-topics.sh --create --topic {{ item[1] }} --replication-factor 1 --partitions 1 --zookeeper {{ zookeeper_host }}:{{ zookeeper.port }}'"
   register: command_result
   failed_when: "not ('Created topic' in command_result.stdout or 'already exists' in command_result.stdout)"
   with_nested:
@@ -48,7 +58,7 @@
   with_sequence: start=0 count={{ invoker_count }}
 
 - name: create the invoker topics
-  shell: " kubectl exec {{ item[0] }} -c kafka -- bash -c 'unset JMX_PORT; kafka-topics.sh --create --topic invoke{{ item[1] }} --replication-factor 1 --partitions 1 --zookeeper {{ kafka_host }}:{{ zookeeper.port }}'"
+  shell: " kubectl exec {{ item[0] }} -c kafka -- bash -c 'unset JMX_PORT; kafka-topics.sh --create --topic invoke{{ item[1] }} --replication-factor 1 --partitions 1 --zookeeper {{ zookeeper_host }}:{{ zookeeper.port }}'"
   register: command_result
   failed_when: "not ('Created topic' in command_result.stdout or 'already exists' in command_result.stdout)"
   with_nested:
