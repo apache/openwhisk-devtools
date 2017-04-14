@@ -7,6 +7,9 @@
 - name: get controller pods
   shell: "kubectl -n openwhisk get pods --show-all | grep controller | awk '{print $1}'"
   register: pods
+  until: pods.stdout != ""
+  retries: 5
+  delay: 2
 
 - name: set controller pods
   set_fact:
