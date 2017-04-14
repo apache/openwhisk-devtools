@@ -6,24 +6,54 @@
 # Note: This pod assumes that there is an openwhisk namespace and the pod
 # running this script has been created in that namespace.
 
+deployCouchDB() {
+  COUCH_DEPLOYED=$(kubectl -n openwhisk get pods --show-all | grep couchdb | grep "1/1")
+
+  if [ -z "$COUCH_DEPLOYED" ]; then
+   return 0;
+  else
+   return 1;
+  fi
+}
+
 set -ex
 
+# Currently, Consul needs to be seeded with the proper Invoker name to DNS address. To account for
+# this, we need to use StatefulSets(https://kubernetes.io/stutorials/stateful-application/basic-stateful-set/)
+# to generate the Invoker addresses in a guranteed pattern. We can then use properties from the
+# StatefulSet yaml file for OpenWhisk deployment configuration options.
+
+INVOKER_REP_COUNT=$(cat /openwhisk-devtools/kubernetes/ansible-kube/environments/kube/files/invoker.yml | grep 'replicas:' | awk '{print $2}')
+INVOKER_COUNT=${INVOKER_REP_COUNT:-1}
+sed -ie "s/REPLACE_INVOKER_COUNT/$INVOKER_COUNT/g" /openwhisk-devtools/kubernetes/ansible-kube/environments/kube/group_vars/all
+
+# copy the ansible playbooks and tools to this repo
+cp -R /openwhisk/ansible/ /openwhisk-devtools/kubernetes/ansible
+cp -R /openwhisk/tools/ /openwhisk-devtools/kubernetes/tools
+
+# overwrite the default openwhisk ansible with the kube ones.
+cp -R /openwhisk-devtools/kubernetes/ansible-kube/. /openwhisk-devtools/kubernetes/ansible/
+
+# start kubectl in proxy mode so we can talk to the Kube Api server
 kubectl proxy -p 8001 &
 
-# Create all of the necessary services
 pushd /openwhisk-devtools/kubernetes/ansible
+  # Create all of the necessary services
   kubectl apply -f environments/kube/files/db-service.yml
-popd
+  kubectl apply -f environments/kube/files/consul-service.yml
+  kubectl apply -f environments/kube/files/zookeeper-service.yml
+  kubectl apply -f environments/kube/files/kafka-service.yml
+  kubectl apply -f environments/kube/files/controller-service.yml
+  kubectl apply -f environments/kube/files/invoker-service.yml
 
-# Create the CouchDB deployment
-pushd /openwhisk-devtools/kubernetes/ansible
-  cp /openwhisk/ansible/group_vars/all group_vars/all
-  ansible-playbook -i environments/kube couchdb.yml
-popd
+  if deployCouchDB; then
+    # Create the CouchDB deployment
+    ansible-playbook -i environments/kube couchdb.yml
+    # configure couch db
+    ansible-playbook -i environments/kube initdb.yml
+    ansible-playbook -i environments/kube wipe.yml
+  fi
 
-## configure couch db
-pushd /openwhisk/ansible/
-  ansible-playbook -i /openwhisk-devtools/kubernetes/ansible/environments/kube initdb.yml
-  ansible-playbook -i /openwhisk-devtools/kubernetes/ansible/environments/kube wipe.yml
+  # Run through the openwhisk deployment
+  ansible-playbook -i environments/kube openwhisk.yml
 popd
-
