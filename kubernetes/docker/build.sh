@@ -17,9 +17,3 @@ fi
 
 SOURCE="${BASH_SOURCE[0]}"
 SCRIPTDIR="$( dirname "$SOURCE" )"
-
-pushd $SCRIPTDIR/invoker
- KUBE_INVOKER_IMAGE=$(docker build . | grep "Successfully built" | awk '{print $3}')
- docker tag $KUBE_INVOKER_IMAGE "$1"/whisk_kube_invoker
- docker push "$1"/whisk_kube_invoker
-popd

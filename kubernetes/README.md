@@ -78,28 +78,6 @@ until an official repo is set up. If you would like to change
 this image to one you created, then make sure to update the
 [configure_whisk.yml](./configure/configure_whisk.yml) with your image.
 
-#### Whisk Processes Docker Files
-
-for Kubernets, all of the whisk images need to be public
-Docker files. There are a number of files which are published
-[here](https://hub.docker.com/r/openwhisk/), but some of these
-need a few extra configurations to work with Kube. For this,
-there is a helper script that will pull build cusom images
-using the published OpenWhisk images as the base. Then tag
-and push the images for a custom docker hub user.
-
-**Note:** This scripts assumes that you already have push access to
-dockerhub, or some other repo and are already targeted. To do this,
-you will need to run the `docker login` command.
-
-This script has 1 arguments:
-1. The name of the dockerhub repo where the images will be published.
-   For example:
-
-   ```
-   docker/build.sh <danlavine>
-   ```
-
 ## Manually building Kube Files
 #### Deployments and Services
 

@@ -36,8 +36,8 @@ spec:
       containers:
       - name: invoker
         imagePullPolicy: IfNotPresent
-        image: danlavine/whisk_kube_invoker
-        command: [ "/invoker/bin/invoker_start_scripts.sh" ]
+        image: openwhisk/invoker
+        command: [ "/bin/bash", "-c", "/invoker/bin/invoker `hostname | cut -d'-' -f2`" ]
         env:
           - name: "CONSULSERVER_HOST"
             value: "consul.openwhisk"
