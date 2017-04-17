@@ -33,14 +33,10 @@ RUN git clone https://github.com/openwhisk/openwhisk && \
 # Change this to https://github.com/openwhisk/openwhisk-devtools when committing to master
 COPY ansible-kube /openwhisk-devtools/kubernetes/ansible-kube
 COPY configure /openwhisk-devtools/kubernetes/configure
+COPY wsk /openwhisk/bin/wsk
 
 # install kube dependencies
 # Kubernetes assumes that the version is 1.5.0+
 RUN wget https://storage.googleapis.com/kubernetes-release/release/v1.5.0/bin/linux/amd64/kubectl && \
     chmod +x kubectl && \
     mv kubectl /usr/local/bin/kubectl
-
-# install wsk cli
-RUN wget https://openwhisk.ng.bluemix.net/cli/go/download/linux/amd64/wsk && \
-    chmod +x wsk && \
-    mv wsk /openwhisk/bin/wsk

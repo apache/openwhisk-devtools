@@ -16,6 +16,6 @@ spec:
       restartPolicy: Never
       containers:
       - name: configure-openwhisk
-        image: danlavine/whisk_config:latest
+        image: danlavine/whisk_config:dev
         imagePullPolicy: Always
         command: [ "/openwhisk-devtools/kubernetes/configure/configure.sh" ]

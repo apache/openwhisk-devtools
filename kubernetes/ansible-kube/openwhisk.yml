@@ -11,6 +11,6 @@
 
 - include: invoker.yml
 
-#- include: edge.yml
-#
+- include: edge.yml
+
 #- include: routemgmt.yml

@@ -38,6 +38,8 @@ cp -R /openwhisk-devtools/kubernetes/ansible-kube/. /openwhisk-devtools/kubernet
 kubectl proxy -p 8001 &
 
 pushd /openwhisk-devtools/kubernetes/ansible
+  ansible-playbook -i environments/kube setup.yml
+
   # Create all of the necessary services
   kubectl apply -f environments/kube/files/db-service.yml
   kubectl apply -f environments/kube/files/consul-service.yml
@@ -45,11 +47,11 @@ pushd /openwhisk-devtools/kubernetes/ansible
   kubectl apply -f environments/kube/files/kafka-service.yml
   kubectl apply -f environments/kube/files/controller-service.yml
   kubectl apply -f environments/kube/files/invoker-service.yml
+  kubectl apply -f environments/kube/files/nginx-service.yml
 
   if deployCouchDB; then
-    # Create the CouchDB deployment
+    # Create and configure the CouchDB deployment
     ansible-playbook -i environments/kube couchdb.yml
-    # configure couch db
     ansible-playbook -i environments/kube initdb.yml
     ansible-playbook -i environments/kube wipe.yml
   fi

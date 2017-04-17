@@ -1,0 +1,38 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: openwhisk
+  labels:
+    name: nginx
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: nginx
+    spec:
+      restartPolicy: Always
+      volumes:
+      - name: nginx
+        configMap:
+          name: nginx
+      - name: logs
+        emptyDir: {}
+      containers:
+      - name: nginx
+        imagePullPolicy: IfNotPresent
+        image: danlavine/whisk_nginx
+        ports:
+        - name: http
+          containerPort: 80
+        - name: http-1
+          containerPort: 443
+        - name: https-2
+          containerPort: 8443
+        volumeMounts:
+        - name: nginx
+          mountPath: "/etc/nginx"
+        - name: logs
+          mountPath: "/logs"
