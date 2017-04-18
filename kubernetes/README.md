@@ -19,6 +19,16 @@ The scripts and Docker images should be able to:
 1. Build the Docker image used for deploying OpenWhisk.
 2. Uses a Kubernetes job to deploy OpenWhisk.
 
+Currently, not all of the OpenWhisk components are deployed.
+So far, it will create Kube Deployments for:
+
+* couchdb
+* consul
+* controller
+* invoker
+
+To track the process, check out this [issue](https://github.com/openwhisk/openwhisk-devtools/issues/14).
+
 ## Kubernetes Requirements
 
 * Kubernetes needs to be version 1.5+
@@ -67,31 +77,6 @@ the docker image is built and published [here](https://hub.docker.com/r/danlavin
 until an official repo is set up. If you would like to change
 this image to one you created, then make sure to update the
 [configure_whisk.yml](./configure/configure_whisk.yml) with your image.
-
-#### Whisk Processes Docker Files
-
-for Kubernets, all of the whisk images need to be public
-Docker files. For this, there is a helper script that will
-run `gradle build` for the main openwhisk repo and retag all of the
-images for a custom docker hub user.
-
-**Note:** This scripts assumes that you already have push access to
-dockerhub, or some other repo and are already targeted. To do this,
-you will need to run the `docker login` command.
-
-This script has 2 arguments:
-1. The name of the dockerhub repo where the images will be published.
-   For example:
-
-   ```
-   docker/build.sh <danlavine>
-   ```
-
-   will retage the `whisk/invoker` docker image built by gradle and
-   publish it to `danlavine/whisk_invoker`.
-
-2. (OPTIONAL) This argument is the location of the OpenWhisk repo.
-   By default this repo is assumed to live at `$HOME/workspace/openwhisk`
 
 ## Manually building Kube Files
 #### Deployments and Services

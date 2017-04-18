@@ -1,0 +1,25 @@
+---
+# This role will install Controller in group 'controllers' in the environment inventory
+
+- name: create controller deployment
+  shell: "kubectl apply -f {{kube_pod_dir}}/controller.yml"
+
+- name: get controller pods
+  shell: "kubectl -n openwhisk get pods --show-all | grep controller | awk '{print $1}'"
+  register: pods
+  until: pods.stdout != ""
+  retries: 5
+  delay: 2
+
+- name: set controller pods
+  set_fact:
+    controller_pods: "{{ pods.stdout_lines }}"
+
+- name: wait until the Controller in this host is up and running
+  shell: "kubectl -n openwhisk exec {{ item[0] }} -- bash -c 'curl -I http://0.0.0.0:8080/ping'"
+  register: result
+  until: (result.rc == 0) and (result.stdout.find("200 OK") != -1)
+  retries: 12
+  delay: 5
+  with_items:
+    - ["{{ controller_pods }}"]
