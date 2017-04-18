@@ -30,6 +30,10 @@ sed -ie "s/REPLACE_INVOKER_COUNT/$INVOKER_COUNT/g" /openwhisk-devtools/kubernete
 # copy the ansible playbooks and tools to this repo
 cp -R /openwhisk/ansible/ /openwhisk-devtools/kubernetes/ansible
 cp -R /openwhisk/tools/ /openwhisk-devtools/kubernetes/tools
+cp -R /openwhisk/bin/ /openwhisk-devtools/kubernetes/bin
+
+mkdir -p /openwhisk-devtools/kubernetes/core
+cp -R /openwhisk/core/routemgmt /openwhisk-devtools/kubernetes/core/routemgmt
 
 # overwrite the default openwhisk ansible with the kube ones.
 cp -R /openwhisk-devtools/kubernetes/ansible-kube/. /openwhisk-devtools/kubernetes/ansible/
@@ -58,4 +62,7 @@ pushd /openwhisk-devtools/kubernetes/ansible
 
   # Run through the openwhisk deployment
   ansible-playbook -i environments/kube openwhisk.yml
+
+  # Post deploy step
+  ansible-playbook -i environments/kube postdeploy.yml
 popd

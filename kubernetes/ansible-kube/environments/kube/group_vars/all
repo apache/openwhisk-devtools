@@ -36,10 +36,10 @@ apigw_host_v2: "http://edge.openwhisk:9000/v2"
 consul_host: consul.openwhisk
 consul_conf_dir: /tmp/consul
 
-# edge properties
+# nginx properties
 nginx_conf_dir: /tmp/nginx
 cli_nginx_dir: "/tmp/nginx/cli/go/download"
-edge_host: edge.openwhisk
+nginx_host: nginx.openwhisk
 
 # controller properties
 controller_host: controller.openwhisk
