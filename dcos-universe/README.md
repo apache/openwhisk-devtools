@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/openwhisk/openwhisk-devtools.svg?branch=master)](https://travis-ci.org/openwhisk/openwhisk-devtools)
 
-This is the source to generate DC/OS packages for OpenWhisk in the Mesosphere universe.
+This is the source to generate DC/OS packages for OpenWhisk in the Mesosphere Universe.
 
 
 ## How to build and set up packages repository
