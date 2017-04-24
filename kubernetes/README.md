@@ -118,3 +118,13 @@ services and jobs. For this, you can run the following script:
 ```
 ./kube_environment/cleanup.sh
 ```
+## Troubleshooting
+#### Kafka
+
+When deploying Kubernetes on Ubuntu 14.04 with the `local_up_cluster.sh` scripts,
+you might need to allow kube pods to communicate with themselves over KubeDNS.
+To enable this on the Docker network, you will need to run the following command:
+
+```
+ip link set docker0 promisc on
+```

@@ -64,7 +64,7 @@
   with_sequence: start=0 count={{ invoker_count }}
 
 - name: create the invoker topics
-  shell: " kubectl exec {{ item[0] }} -c kafka -- bash -c 'unset JMX_PORT; kafka-topics.sh --create --topic invoke{{ item[1] }} --replication-factor 1 --partitions 1 --zookeeper {{ zookeeper_host }}:{{ zookeeper.port }}'"
+  shell: " kubectl exec {{ item[0] }} -c kafka -- bash -c 'unset JMX_PORT; kafka-topics.sh --create --topic invoker{{ item[1] }} --replication-factor 1 --partitions 1 --zookeeper {{ zookeeper_host }}:{{ zookeeper.port }}'"
   register: command_result
   failed_when: "not ('Created topic' in command_result.stdout or 'already exists' in command_result.stdout)"
   with_nested:

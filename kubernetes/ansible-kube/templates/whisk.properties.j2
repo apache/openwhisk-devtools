@@ -52,10 +52,9 @@ invoker.hosts={{ invoker_hosts | join(",") }}
 controller.host={{ controller_host }}
 kafka.host={{ kafka_host }}
 zookeeper.host={{ zookeeper_host }}
-
-edge.host={{ groups["edge"]|first }}
-loadbalancer.host={{ groups["controllers"]|first }}
-router.host={{ groups["edge"]|first }}
+edge.host={{ nginx_host }}
+loadbalancer.host={{ controller_host }}
+router.host={{ nginx_host }}
 
 {#
  # replaced host entries
@@ -65,6 +64,9 @@ router.host={{ groups["edge"]|first }}
  # controller.host={{ groups["controllers"]|first }}
  # kafka.host={{ groups["kafka"]|first }}
  # zookeeper.host={{ groups["kafka"]|first }}
+ # edge.host={{ groups["edge"]|first }}
+ # loadbalancer.host={{ groups["controllers"]|first }}
+ # router.host={{ groups["edge"]|first }}
  #}
 
 edge.host.apiport=443

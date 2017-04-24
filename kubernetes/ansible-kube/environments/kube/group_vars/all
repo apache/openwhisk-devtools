@@ -28,8 +28,9 @@ apigw_initdb: true
 # API GW connection configuration
 apigw_auth_user: ""
 apigw_auth_pwd: ""
-apigw_host: "http://edge.openwhisk:9000/v1"
-apigw_host_v2: "http://edge.openwhisk:9000/v2"
+apigw_host: "nginx.openwhisk"
+apigw_host_v2: "nginx.openwhisk"
+whisk_api_host_name: "nginx.openwhisk"
 
 
 # consul properties
