@@ -21,7 +21,7 @@
   shell: "kubectl -n openwhisk exec {{ item[0] }} -- bash -c 'curl -I http://0.0.0.0:8080/ping'"
   register: result
   until: (result.rc == 0) and (result.stdout.find("200 OK") != -1)
-  retries: 12
-  delay: 5
+  retries: 20
+  delay: 10
   with_items:
     - ["{{ controller_pods }}"]
