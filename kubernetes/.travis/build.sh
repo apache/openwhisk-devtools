@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -x
 
 SCRIPTDIR=$(cd $(dirname "$0") && pwd)
 ROOTDIR="$SCRIPTDIR/../"
@@ -15,6 +15,10 @@ cd $ROOTDIR
 kubectl apply -f configure/openwhisk_kube_namespace.yml
 kubectl apply -f configure/configure_whisk.yml
 
+sleep 5
+
+CONFIGURE_POD=$(kubectl get pods --all-namespaces -o wide | grep configure | awk '{print $2}')
+
 PASSED=false
 TIMEOUT=0
 until $PASSED || [ $TIMEOUT -eq 20 ]; do
@@ -24,12 +28,14 @@ until $PASSED || [ $TIMEOUT -eq 20 ]; do
     break
   fi
 
+  cat /tmp/kubelet.log
   kubectl get pods --all-namespaces -o wide --show-all
 
   let TIMEOUT=TIMEOUT+1
   sleep 30
 done
 
+kubectl -n openwhisk logs $CONFIGURE_POD
 kubectl get jobs --all-namespaces -o wide --show-all
 kubectl get pods --all-namespaces -o wide --show-all
 

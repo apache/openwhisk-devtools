@@ -3,6 +3,11 @@
 
 TAG=v1.5.5
 
+#echo "nameserver 8.8.4.4" | cat - /etc/resolv.conf | sudo tee /etc/resolv.conf
+#echo "nameserver 8.8.8.8" | cat - /etc/resolv.conf | sudo tee /etc/resolv.conf
+
+cat /etc/resolv.conf
+
 # install etcd
 wget https://github.com/coreos/etcd/releases/download/v3.0.14/etcd-v3.0.14-linux-amd64.tar.gz
 tar xzf etcd-v3.0.14-linux-amd64.tar.gz
