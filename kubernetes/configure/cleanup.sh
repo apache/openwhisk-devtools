@@ -5,7 +5,7 @@
 set -x
 
 # delete OpenWhisk configure job
-#kubectl -n openwhisk delete job configure-openwhisk
+kubectl -n openwhisk delete job configure-openwhisk
 
 # delete deployments
 kubectl -n openwhisk delete deployment couchdb
@@ -18,6 +18,7 @@ kubectl -n openwhisk delete deployment nginx
 
 # delete configmaps
 kubectl -n openwhisk delete cm consul
+kubectl -n openwhisk delete cm controller
 kubectl -n openwhisk delete cm nginx
 
 # delete services

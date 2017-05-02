@@ -40,3 +40,28 @@ spec:
           value: "15s"
         - name: "PORT"
           value: "8080"
+        - name: "WHISK_VERSION_NAME"
+          valueFrom:
+            configMapKeyRef:
+              name: controller
+              key: whisk.version.name
+        - name: "WHISK_VERSION_DATE"
+          valueFrom:
+            configMapKeyRef:
+              name: controller
+              key: whisk.version.date
+        - name: "WHISK_VERSION_BUILDNO"
+          valueFrom:
+            configMapKeyRef:
+              name: controller
+              key: whisk.version.buildno
+        - name: "JAVA_OPTS"
+          valueFrom:
+            configMapKeyRef:
+              name: controller
+              key: java.opts
+        - name: "CONTROLLER_OPTS"
+          valueFrom:
+            configMapKeyRef:
+              name: controller
+              key: controller.opts

@@ -102,12 +102,11 @@ edge.docker.endpoint={{ groups["edge"]|first }}:{{ docker.port }}
 kafka.docker.endpoint={{ groups["kafka"]|first }}:{{ docker.port }}
 main.docker.endpoint={{ groups["controllers"]|first }}:{{ docker.port }}
 
-docker.registry={{ docker_registry }}
-
 # configure to use the public docker images
 docker.image.prefix=openwhisk
-#docker.image.prefix={{ docker_image_prefix }}
 
+docker.registry={{ docker_registry }}
+#docker.image.prefix={{ docker_image_prefix }}
 #use.docker.registry=false
 docker.port={{ docker.port }}
 docker.timezone.mount=

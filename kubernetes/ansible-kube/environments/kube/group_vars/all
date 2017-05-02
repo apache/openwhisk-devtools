@@ -18,6 +18,7 @@ db_username: couch_user
 db_password: couch_password
 db_auth: "subjects"
 db_prefix: "ubuntu_kube-1-4-1_"
+db_split_actions_and_activations: true
 
 # apigw db credentials minimum read/write
 db_apigw_username: "couch_user"
