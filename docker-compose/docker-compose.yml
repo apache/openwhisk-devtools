@@ -51,7 +51,7 @@ services:
 
   # WHISK CONTROLLER
   controller:
-    image: whisk/controller:latest
+    image: openwhisk/controller:6a56c45
     links:
       - consul:consul.docker
       - db:db.docker
@@ -88,7 +88,7 @@ services:
 
   # WHISK INVOKER AGENT 
   invoker:
-    image: whisk/invoker:latest
+    image: openwhisk/invoker:6a56c45
     command: /bin/sh -c "/invoker/bin/invoker 0 >> /logs/invoker-local_logs.log 2>&1"
     links:
       - consul:consul.docker

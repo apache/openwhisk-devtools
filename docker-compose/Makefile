@@ -1,6 +1,6 @@
 DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo localhost)
 DOCKER_REGISTRY ?= ""
-DOCKER_IMAGE_PREFIX ?= whisk
+DOCKER_IMAGE_PREFIX ?= openwhisk
 PROJECT_HOME ?= ./openwhisk-master
 WSK_CLI ?= $(PROJECT_HOME)/bin/wsk
 
@@ -15,7 +15,7 @@ endif
 #   2. then it starts all components using docker-compose
 #   3. it runs a sample hello-world function
 #   To stop and cleanup the environment use: make destroy
-quick-start: download docker run quick-start-pause hello-world quick-start-info
+quick-start: download init-cli run quick-start-pause hello-world quick-start-info
 
 .PHONY: download
 download:
@@ -39,10 +39,10 @@ quick-start-info:
 	echo "$$(tput setaf 2)To invoke the function again use: $$(tput setaf 4)make hello-world$$(tput sgr0)"
 	echo "$$(tput setaf 2)To stop openwhisk use: $$(tput setaf 4)make destroy$$(tput sgr0)"
 
-docker:
-	echo "building the docker images ... "
+init-cli:
+	echo "building the CLI tool ... "
 	cd $(PROJECT_HOME) && \
-	    ./gradlew distdocker -x :core:swift3Action:distDocker -x :core:swiftAction:distDocker
+	    ./gradlew :tools:cli:distDocker
 
 .PHONY: run
 run: check-required-ports setup start-docker-compose init-couchdb init-whisk-cli
