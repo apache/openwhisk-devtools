@@ -21,3 +21,12 @@
 
 - name: create nginx pod
   shell: "kubectl create -f {{kube_pod_dir}}/nginx.yml"
+
+# TODO Rebplace this with a proper uri request once certs have been configured correctly
+- name: wait until nginx is up and running
+  shell: "curl -k https://{{ nginx_host }}:{{ nginx.port.api }}"
+  register: result
+  until: (result.rc == 0) and (result.stdout != "")
+  retries: 20
+  delay: 10
+
