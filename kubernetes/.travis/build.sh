@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -ex
 
 SCRIPTDIR=$(cd $(dirname "$0") && pwd)
 ROOTDIR="$SCRIPTDIR/../"
@@ -28,7 +28,6 @@ until $PASSED || [ $TIMEOUT -eq 20 ]; do
     break
   fi
 
-  cat /tmp/kubelet.log
   kubectl get pods --all-namespaces -o wide --show-all
 
   let TIMEOUT=TIMEOUT+1

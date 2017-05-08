@@ -3,11 +3,6 @@
 
 TAG=v1.5.5
 
-#echo "nameserver 8.8.4.4" | cat - /etc/resolv.conf | sudo tee /etc/resolv.conf
-#echo "nameserver 8.8.8.8" | cat - /etc/resolv.conf | sudo tee /etc/resolv.conf
-
-cat /etc/resolv.conf
-
 # install etcd
 wget https://github.com/coreos/etcd/releases/download/v3.0.14/etcd-v3.0.14-linux-amd64.tar.gz
 tar xzf etcd-v3.0.14-linux-amd64.tar.gz
@@ -41,7 +36,7 @@ popd
 
 # Wait untill kube is up and running
 TIMEOUT=0
-TIMEOUT_COUNT=30
+TIMEOUT_COUNT=40
 until $( curl --output /dev/null --silent http://localhost:8080 ) || [ $TIMEOUT -eq $TIMEOUT_COUNT ]; do
   echo "Kube is not up yet"
   let TIMEOUT=TIMEOUT+1
