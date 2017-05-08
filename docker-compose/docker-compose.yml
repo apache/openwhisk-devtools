@@ -51,7 +51,7 @@ services:
 
   # WHISK CONTROLLER
   controller:
-    image: openwhisk/controller:6a56c45
+    image: openwhisk/controller:latest
     links:
       - consul:consul.docker
       - db:db.docker
@@ -86,9 +86,9 @@ services:
     ports:
       - "8888:8888"
 
-  # WHISK INVOKER AGENT 
+  # WHISK INVOKER AGENT
   invoker:
-    image: openwhisk/invoker:6a56c45
+    image: openwhisk/invoker:latest
     command: /bin/sh -c "/invoker/bin/invoker 0 >> /logs/invoker-local_logs.log 2>&1"
     links:
       - consul:consul.docker

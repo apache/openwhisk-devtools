@@ -40,14 +40,14 @@ quick-start-info:
 	echo "$$(tput setaf 2)To stop openwhisk use: $$(tput setaf 4)make destroy$$(tput sgr0)"
 
 docker:
-	echo "building the docker images ... "
-	cd $(PROJECT_HOME) && \
-			./gradlew distdocker -x :core:swift3Action:distDocker -x :core:swiftAction:distDocker
+  echo "building the docker images ... "
+  cd $(PROJECT_HOME) && \
+      ./gradlew distdocker -x :core:swift3Action:distDocker -x :core:swiftAction:distDocker
 
 init-cli:
-	echo "building the CLI tool ... "
-	cd $(PROJECT_HOME) && \
-	    ./gradlew :tools:cli:distDocker
+  echo "building the CLI tool ... "
+  cd $(PROJECT_HOME) && \
+      ./gradlew :tools:cli:distDocker
 
 .PHONY: run
 run: check-required-ports setup start-docker-compose init-couchdb init-whisk-cli
