@@ -30,3 +30,24 @@
   retries: 20
   delay: 10
 
+- name: get whisk system key
+  shell: "cat {{ playbook_dir }}/files/auth.whisk.system | base64 --wrap=0"
+  register: auth_whisk_system_var
+
+- name: get whisk system key
+  shell: "cat {{ playbook_dir }}/files/auth.guest | base64 --wrap=0"
+  register: auth_guest_var
+
+- name: set facts
+  set_fact:
+    auth_whisk_system: "{{ auth_whisk_system_var.stdout }}"
+    auth_guest: "{{ auth_guest_var.stdout }}"
+
+- name: fill secret template
+  template:
+    src: secrets.conf.j2
+    dest: "{{ nginx_conf_dir }}/secrets.yml"
+
+- name: create the secrets yaml
+  shell: "kubectl apply -f {{ nginx_conf_dir }}/secrets.yml"
+

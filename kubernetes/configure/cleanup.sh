@@ -29,3 +29,6 @@ kubectl -n openwhisk delete service kafka
 kubectl -n openwhisk delete service controller
 kubectl -n openwhisk delete service invoker
 kubectl -n openwhisk delete service nginx
+
+# delete secrets
+kubectl -n openwhisk delete secret openwhisk-auth-tokens
