@@ -64,13 +64,16 @@ EOL
 
 ./wsk -i action create hello hello.js
 
+
+sleep 5
+
 # run the new hello world action
 RESULT=$(./wsk -i action invoke --blocking hello | grep "\"status\": \"success\"")
 
 if [ -z "$RESULT" ]; then
   echo "FAILED! Could not invoked custom action"
   exit 1
-else
+fi
 
 echo "PASSED! Deployed openwhisk and invoked custom action"
 

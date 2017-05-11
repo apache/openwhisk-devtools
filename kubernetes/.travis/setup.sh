@@ -11,7 +11,7 @@ rm etcd-v3.0.14-linux-amd64.tar.gz
 rm -rf etcd-v3.0.14-linux-amd64
 
 # set docker0 to promiscuous mode
-ip link set docker0 promisc on
+sudo ip link set docker0 promisc on
 
 # download kubectl
 wget https://storage.googleapis.com/kubernetes-release/release/$TAG/bin/linux/amd64/kubectl
