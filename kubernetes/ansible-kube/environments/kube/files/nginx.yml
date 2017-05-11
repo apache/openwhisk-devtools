@@ -33,7 +33,7 @@ spec:
         emptyDir: {}
       containers:
       - name: nginx
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         image: danlavine/whisk_nginx
         ports:
         - name: http
