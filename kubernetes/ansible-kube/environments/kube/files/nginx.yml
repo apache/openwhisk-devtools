@@ -15,9 +15,20 @@ spec:
     spec:
       restartPolicy: Always
       volumes:
-      - name: nginx
+      - name: nginx-certs
         configMap:
           name: nginx
+          items:
+          - key: "openwhisk-cert.pem"
+            path: openwhisk-cert.pem
+          - key: "openwhisk-key.pem"
+            path: openwhisk-key.pem
+      - name: nginx-conf
+        configMap:
+          name: nginx
+          items:
+          - key: "nginx.conf"
+            path: nginx.conf
       - name: logs
         emptyDir: {}
       containers:
@@ -27,12 +38,15 @@ spec:
         ports:
         - name: http
           containerPort: 80
-        - name: http-1
+        - name: http-api
           containerPort: 443
-        - name: https-2
+        - name: https-admin
           containerPort: 8443
         volumeMounts:
-        - name: nginx
-          mountPath: "/etc/nginx"
+        - name: nginx-conf
+          mountPath: "/etc/nginx/nginx.conf"
+          subPath: "nginx.conf"
+        - name: nginx-certs
+          mountPath: "/etc/nginx/certs"
         - name: logs
           mountPath: "/logs"

@@ -34,15 +34,44 @@ until $PASSED || [ $TIMEOUT -eq 20 ]; do
   sleep 30
 done
 
-kubectl -n openwhisk logs $CONFIGURE_POD
-kubectl get jobs --all-namespaces -o wide --show-all
-kubectl get pods --all-namespaces -o wide --show-all
-
 if [ "$PASSED" = false ]; then
+  kubectl -n openwhisk logs $CONFIGURE_POD
+  kubectl get jobs --all-namespaces -o wide --show-all
+  kubectl get pods --all-namespaces -o wide --show-all
+
   echo "The job to configure OpenWhisk did not finish with an exit code of 1"
   exit 1
 fi
 
 echo "The job to configure OpenWhisk finished successfully"
+
+AUTH_SECRET=$(kubectl -n openwhisk get secret openwhisk-auth-tokens -o yaml | grep 'auth_whisk_system:' | awk '{print $2}' | base64 --decode)
+WSK_PORT=$(kubectl -n openwhisk describe service nginx | grep https-api | grep NodePort| awk '{print $3}' | cut -d'/' -f1)
+
+# download the wsk cli from nginx
+wget --no-check-certificate https://127.0.0.1:$WSK_PORT/cli/go/download/linux/amd64/wsk
+chmod +x wsk
+
+# setup the wsk cli
+./wsk property set --auth $AUTH_SECRET --apihost https://127.0.0.1:$WSK_PORT
+
+# create wsk action
+cat > hello.js << EOL
+function main() {
+  return {payload: 'Hello world'};
+}
+EOL
+
+./wsk -i action create hello hello.js
+
+# run the new hello world action
+RESULT=$(./wsk -i action invoke --blocking hello | grep "\"status\": \"success\"")
+
+if [ -z "$RESULT" ]; then
+  echo "FAILED! Could not invoked custom action"
+  exit 1
+else
+
+echo "PASSED! Deployed openwhisk and invoked custom action"
 
 # push the images to an official repo

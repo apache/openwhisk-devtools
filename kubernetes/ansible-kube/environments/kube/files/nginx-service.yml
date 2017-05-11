@@ -16,7 +16,7 @@ spec:
       name: http
     - port: 443
       targetPort: 443
-      name: https-1
+      name: https-api
     - port: 8443
       targetPort: 8443
-      name: https-2
+      name: https-admin

@@ -9,6 +9,7 @@ RUN apt-get -y update && \
     apt-get install -y \
       git \
       curl \
+      wget \
       apt-transport-https \
       ca-certificates \
       python-pip \
