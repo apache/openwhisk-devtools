@@ -19,27 +19,51 @@ The scripts and Docker images should be able to:
 1. Build the Docker image used for deploying OpenWhisk.
 2. Uses a Kubernetes job to deploy OpenWhisk.
 
-Currently, not all of the OpenWhisk components are deployed.
-So far, it will create Kube Deployments for:
+## Requirements and Limitations
+#### Limitations
 
-* couchdb
-* consul
-* controller
-* invoker
+As part of the deployment process, OpenWhisk needs to generate a CA-cert
+for Nginx and currently it has a static dns entry. Because of this, you
+will need to connect to OpenWhisk using the insecure mode (e.g. `wsk -i`).
+There is future work to make this CA-cert configurable.
 
-To track the process, check out this [issue](https://github.com/openwhisk/openwhisk-devtools/issues/14).
+For now, OpenWhisk relies on part of the underlying infrastructure that Kube
+is running on. When deploying the Invoker for OpenWhisk, it mounts the hosts
+Docker socket. This way OpenWhisk can quickly provision actions and does not
+have to run Docker inside of Docker.
 
-## Kubernetes Requirements
+A couple of components for OpenWhisk on Kube deployment strategy requires custom
+built Docker images. One such component is Nginx and currently resides at
+[danlavine/whisk_nginx](https://hub.docker.com/r/danlavine/whisk_nginx/). There
+is currently and open [issue](https://github.com/openwhisk/openwhisk/issues/2152)
+to make a public image and once it is resolved, then we can switch to the public image.
 
-* Kubernetes needs to be version 1.5+
-* Kubernetes has [Kube-DNS](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/) deployed
+The second Docker image this deployment strategy relies on is the OpenWhisk
+configuration image. For now, it is hosted at
+[danlavine/whisk_config](https://hub.docker.com/r/danlavine/whisk_config/),
+but ideally an official images can be built an maintained at some point.
+If you would like to build your own deployment image, see
+[Manually Build Custom Docker Files](#manually-building-custom-docker-files)
+
+Lastly, since OpenWhisk is configured/deployed via a Kubernetes Pod it requires
+the correct kubectl version to be built into `danlavine/whisk_config`. For now,
+there is only a version for Kube 1.5, and one can be built for 1.6, but there
+is no CI to test it against at the moment.
+
+#### Requirements
+
+Because of the limitations mentioned above, all requirments to deploy OpenWhisk
+on Kubernetes need to be met.
+
+**Kubernetes**
+* Kube version 1.5.0-1.5.5
+* Kubernetes has [KubeDNS](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/) deployed
 * (Optional) Kubernetes Pods can receive public addresses.
   This will be required if you wish to reach Nginx from outside
   of the Kubernetes cluster's network.
 
-At this time, we are not sure as to the total number of resources required
-to deploy OpenWhisk On Kubernetes. Once all of the process are running in
-Pods we will be able to list those.
+**OpenWhisk**
+* Docker version 1.12+
 
 ## Quick Start
 
@@ -61,44 +85,115 @@ setup the OpenWhisk environment.
 kubectl apply -f configure/configure_whisk.yml
 ```
 
+To see what is happening during the deployment process,
+you should be able to see the logs from the configuration VM.
+
+```
+kubectl -n openwhisk logs configure-openwhisk-XXXXX
+```
+
+Once the configuration job sucessfuly finishes, you should will need to
+get the auth tokens used to setup OpenWhisk. As part of the deployment
+process, we store these tokens in Kubernetes
+[secrets](https://kubernetes.io/docs/concepts/configuration/secret/).
+To get these tokens, you can run the following command:
+
+```
+kubectl -n openwhisk get secret openwhisk-auth-tokens -o yaml
+```
+
+To use the secrets you will need to base64 decode them. E.g:
+
+```
+export AUTH_SECRET=$(kubectl -n openwhisk get secret openwhisk-auth-tokens -o yaml | grep 'auth_whisk_system:' | awk '{print $2}' | base64 --decode)
+```
+
+From here, you will now need to get the publicly available address
+of Nginx.
+ 1. Obtain the IP address of the Kubernetes nodes.
+
+ ```
+ kubectl get nodes
+ ```
+
+ 2. Obtain the public port for the Kubernetes Nginx Service
+
+ ```
+ kubectl -n openwhisk describe service nginx
+ ```
+
+ From here you should note the port used for the api endpoint. E.g:
+
+ ```
+ export WSK_PORT=$(kubectl -n openwhisk describe service nginx | grep https-api | grep NodePort| awk '{print $3}' | cut -d'/' -f1)
+ ```
+
+Now you should be able to setup the wsk cli like normal and interact with
+Openwhisk.
+
+```
+wsk property set --auth $AUTH_SECRET --apihost https://[nginx_ip]:$WSK_PORT
+```
 
 ## Manually Building Custom Docker Files
-#### Building the Docker File That Deploys OpenWhisk
 
-The Docker image responsible for deploying OpenWhisk can be built using following command:
+There are two images that are required when deploying OpenWhisk on Kube,
+Nginx and the OpenWhisk configuration image.
+
+To build these images, there is a helper script to build the
+required dependencies and build the docker images itself. For example,
+the wsk cli is built locally and then coppied into these images.
+
+The script takes in 2 arguments:
+1. (Required) The first argument is the Docker account to push the built images
+   to. For Nginx, it will tag the image as `account_name/whisk_nginx:latest`
+   and the OpenWhisk configuration image will be tagged `account_name/whisk_config:dev`.
+
+   NOTE:  **log into Docker** before running the script or it will
+   fail to properly upload the docker images.
+
+2. (Optional) The second argument is the location of where the
+   [OpenWhisk](https://github.com/openwhisk/openwhisk) repo is installed
+   locally. By default it assumes that this repo exists at
+   `$HOME/workspace/openwhisk`.
+
+If you plan on building your own images and would like to change from `danlavine's`,
+then make sure to update the
+[configure_whisk.yml](configure/configure_whisk.yml) and
+[nginx](ansible-kube/environments/kube/files/nginx.yml) with your images.
+
+To run the script, use the command:
 
 ```
-docker build .
+docker/build <username> <(optional) openwhisk dir>
 ```
 
-This image must then be re-tagged and pushed to a public
-docker repo. Currently, while this project is in development,
-the docker image is built and published [here](https://hub.docker.com/r/danlavine/whisk_config/),
-until an official repo is set up. If you would like to change
-this image to one you created, then make sure to update the
-[configure_whisk.yml](./configure/configure_whisk.yml) with your image.
-
-## Manually building Kube Files
-#### Deployments and Services
+## Editing the Openwhisk Kube Deployment
+#### Kubernetes Deployments and Services
 
 The current Kube Deployment and Services files that define the OpenWhisk
-cluster can be found [here](ansible/environments/kube/files). Only one
+cluster can be found [here](ansible-kube/environments/kube/files). Only one
 instance of each OpenWhisk process is created, but if you would like
 to increase that number, then this would be the place to do it. Simply edit
-the appropriate file and rebuild the
-[Docker File That Deploys OpenWhisk](#building-the-docker-file-that-deploys-openWhisk)
+the appropriate file and
+[Manually Build Custom Docker Files](#manually-building-custom-docker-files)
 
 ## Development
 #### Local Kube Development
 
 There are a couple ways to bring up Kubernetes locally and currently we
-are using [kubeadm](https://kubernetes.io/docs/getting-started-guides/kubeadm/)
-with [Callico](https://www.projectcalico.org/) for the
+are using the common `local-up-cluster.sh` script. Take a look at what
+[travis](.travis/setup.sh) does to bring everything up with KubeDNS support.
+
+[Kubeadm](https://kubernetes.io/docs/getting-started-guides/kubeadm/)
+can be deployed with [Callico](https://www.projectcalico.org/) for the
 [network](http://docs.projectcalico.org/v2.1/getting-started/kubernetes/installation/hosted/kubeadm/).
-By default kubeadm runs with Kube-DNS already enabled and the instructions
-will install a Kube version greater the v1.5. Using this deployment method
-everything is running on one host and nothing special has to be
-done for network configurations when communicating with Kube Pods.
+By default kubeadm runs with KubeDNS already enabled, but please make sure
+to install Kubeadm for Kube version 1.5.
+
+**Minikube is not supported** at this time because it uses an old version
+of docker (1.11.x). See the the [Requirements and Limitations](#requirements-and-limitations)
+section for more info.
 
 #### Deploying OpenWhisk on Kubernetes
 
