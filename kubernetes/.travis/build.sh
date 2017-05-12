@@ -21,7 +21,7 @@ CONFIGURE_POD=$(kubectl get pods --all-namespaces -o wide | grep configure | awk
 
 PASSED=false
 TIMEOUT=0
-until $PASSED || [ $TIMEOUT -eq 20 ]; do
+until $PASSED || [ $TIMEOUT -eq 25 ]; do
   KUBE_DEPLOY_STATUS=$(kubectl -n openwhisk get jobs | grep configure-openwhisk | awk '{print $3}')
   if [ $KUBE_DEPLOY_STATUS -eq 1 ]; then
     PASSED=true
@@ -44,6 +44,10 @@ if [ "$PASSED" = false ]; then
 fi
 
 echo "The job to configure OpenWhisk finished successfully"
+
+# Don't try and perform wsk actions the second it finishes deploying.
+# The CI ocassionaly fails if you perform actions to quickly.
+sleep 30
 
 AUTH_SECRET=$(kubectl -n openwhisk get secret openwhisk-auth-tokens -o yaml | grep 'auth_whisk_system:' | awk '{print $2}' | base64 --decode)
 WSK_PORT=$(kubectl -n openwhisk describe service nginx | grep https-api | grep NodePort| awk '{print $3}' | cut -d'/' -f1)

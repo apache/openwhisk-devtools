@@ -3,15 +3,15 @@
 
 TAG=v1.5.5
 
+# set docker0 to promiscuous mode
+sudo ip link set docker0 promisc on
+
 # install etcd
 wget https://github.com/coreos/etcd/releases/download/v3.0.14/etcd-v3.0.14-linux-amd64.tar.gz
 tar xzf etcd-v3.0.14-linux-amd64.tar.gz
 sudo mv etcd-v3.0.14-linux-amd64/etcd /usr/local/bin/etcd
 rm etcd-v3.0.14-linux-amd64.tar.gz
 rm -rf etcd-v3.0.14-linux-amd64
-
-# set docker0 to promiscuous mode
-sudo ip link set docker0 promisc on
 
 # download kubectl
 wget https://storage.googleapis.com/kubernetes-release/release/$TAG/bin/linux/amd64/kubectl
@@ -36,7 +36,7 @@ popd
 
 # Wait untill kube is up and running
 TIMEOUT=0
-TIMEOUT_COUNT=40
+TIMEOUT_COUNT=30
 until $( curl --output /dev/null --silent http://localhost:8080 ) || [ $TIMEOUT -eq $TIMEOUT_COUNT ]; do
   echo "Kube is not up yet"
   let TIMEOUT=TIMEOUT+1
