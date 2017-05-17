@@ -35,9 +35,9 @@ spec:
 
       containers:
       - name: invoker
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         image: openwhisk/invoker
-        command: [ "/bin/bash", "-c", "/invoker/bin/invoker `hostname | cut -d'-' -f2`" ]
+        command: [ "/bin/bash", "-c", "COMPONENT_NAME=$(hostname | cut -d'-' -f2) /invoker/bin/invoker `hostname | cut -d'-' -f2`" ]
         env:
           - name: "CONSULSERVER_HOST"
             value: "consul.openwhisk"
