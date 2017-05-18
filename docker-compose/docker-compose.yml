@@ -141,17 +141,29 @@ services:
     expose:
       - "6379"
   apigateway:
-    image: adobeapiplatform/apigateway:1.1.0
+    image: openwhisk/apigateway:latest
     links:
-      - controller:whisk.controller
+      - controller:controller.docker
       - redis:redis.docker
     depends_on:
       - controller
       - redis
+    environment:
+      PUBLIC_MANAGEDURL_HOST: ${DOCKER_COMPOSE_HOST}
+      PUBLIC_MANAGEDURL_PORT: 9001
+
+      REDIS_HOST: redis.docker
+      REDIS_PORT: 6379
     volumes:
       - ~/tmp/openwhisk/apigateway/ssl:/etc/ssl:ro
       - ~/tmp/openwhisk/apigateway/conf:/etc/api-gateway/generated-conf.d:ro
       - ~/tmp/openwhisk/apigateway/env.conf:/etc/api-gateway/environment.conf.d:ro
+    networks:
+      default:
+        aliases:
+          - apigateway.docker
     ports:
       - "80:80"
       - "443:443"
+      - "9000:9000"
+      - "9001:8080"
