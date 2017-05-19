@@ -45,7 +45,7 @@ docker:
 	    ./gradlew distdocker -x :core:swift3Action:distDocker -x :core:swiftAction:distDocker
 
 .PHONY: run
-run: check-required-ports setup start-docker-compose init-couchdb init-whisk-cli
+run: check-required-ports setup start-docker-compose init-couchdb restart-controller init-whisk-cli
 
 .PHONY: check-required-ports
 check-required-ports:
@@ -65,6 +65,12 @@ setup:
 
 .PHONY: restart
 restart: stop rm start-docker-compose
+
+.PHONY: restart-controller
+restart-controller:
+	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk restart controller 2>&1 > ~/tmp/openwhisk/docker-compose.log &
+	echo "waiting until the controller recognizes a healthy invoker ... "
+	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "up"); do printf '.'; sleep 5; done
 
 .PHONY: start-docker-compose
 start-docker-compose:
