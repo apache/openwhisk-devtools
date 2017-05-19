@@ -70,7 +70,7 @@ restart: stop rm start-docker-compose
 restart-controller:
 	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk restart controller 2>&1 > ~/tmp/openwhisk/docker-compose.log &
 	echo "waiting until the controller recognizes a healthy invoker ... "
-	until [ "$$(curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep up)" == '  "invoker0": "up"' ]; do printf '.'; sleep 5; done
+	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "up"); do printf '.'; sleep 5; done
 
 .PHONY: start-docker-compose
 start-docker-compose:
