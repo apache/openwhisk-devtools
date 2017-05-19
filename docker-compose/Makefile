@@ -154,3 +154,4 @@ hello-world-perf-test: create-hello-world-function
 	            http://controller:8888/api/v1/namespaces/guest/actions/hello-perf?blocking=true
 
 	$(WSK_CLI) -i action delete hello-perf
+	rm hello.js
