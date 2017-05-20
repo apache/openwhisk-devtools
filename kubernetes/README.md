@@ -1,6 +1,6 @@
-# Deploying OpenWhisk on Kubernetes (work in progress)
+# Deploying OpenWhisk on Kubernetes
 
-[![Build Status](https://travis-ci.org/openwhisk/openwhisk-devtools.svg?branch=master)](https://travis-ci.org/openwhisk/openwhisk-devtools)
+[![Build Status](https://travis-ci.org/apache/incubator-openwhisk-devtools.svg?branch=master)](https://travis-ci.org/apache/incubator-openwhisk-devtools)
 
 This repo can be used to deploy OpenWhisk to a Kubernetes cluster.
 To accomplish this, we have created a Kubernetes job responsible for
@@ -223,3 +223,12 @@ To enable this on the Docker network, you will need to run the following command
 ```
 ip link set docker0 promisc on
 ```
+
+## Enhancements and TODOS
+
+* Deploy OpenWhisk on Kubernetes 1.6+
+* Allow users to provide custom certs for Nginx
+* Enable the configuration job to run any number of times. This way it updates an already running
+  OpenWhisk deployment on all subsequent runs
+* Use a public Edge Docker image once this [issue](https://github.com/apache/incubator-openwhisk/issues/2152)
+  is resolved
