@@ -1,0 +1,19 @@
+{
+  "description": "OpenWhisk Controller service running on DC/OS",
+  "framework": true,
+  "maintainer": "dunguyen@adobe.com",
+  "minDcosReleaseVersion": "1.8",
+  "name": "whisk-controller",
+  "packagingVersion": "3.0",
+  "postInstallNotes": "DC/OS OpenWhisk controller has been successfully installed!",
+  "postUninstallNotes": "DC/OS OpenWhisk controller service has been uninstalled.",
+  "preInstallNotes": "OpenWhisk Controller requires Kafka, CouchDB, Consul, Registrator and APIGateway already installed in the same DC/OS cluster.",
+  "selected": true,
+  "tags": [
+    "openwhisk",
+    "controller",
+    "serverless",
+    "lambda"
+  ],
+  "version": "0.1"
+}

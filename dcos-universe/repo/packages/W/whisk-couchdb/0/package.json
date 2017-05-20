@@ -1,0 +1,16 @@
+{
+  "description": "OpenWhisk CouchDB service running on DC/OS",
+  "framework": true,
+  "maintainer": "dunguyen@adobe.com",
+  "minDcosReleaseVersion": "1.8",
+  "name": "whisk-couchdb",
+  "packagingVersion": "3.0",
+  "postInstallNotes": "DC/OS OpenWhisk CouchDB has been successfully installed!",
+  "postUninstallNotes": "DC/OS OpenWhisk CouchDB service has been uninstalled.",
+  "selected": true,
+  "tags": [
+    "database",
+    "nosql"
+  ],
+  "version": "1.6"
+}

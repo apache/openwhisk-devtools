@@ -1,0 +1,35 @@
+{
+  "type": "object",
+  "properties": {
+    "service": {
+      "description": "Registrator Configuration Properties",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "The name of the Registrator service.",
+          "type": "string",
+          "default": "registrator"
+        },
+        "consul-location": {
+          "description": "Host location of consul cluster.",
+          "type": "string",
+          "default": "consul.marathon.mesos"
+        },
+        "consul-port": {
+          "description": "Host HTTP port of consul cluster.",
+          "type": "string",
+          "default": "8500"
+        }
+      },
+      "required": [
+        "name",
+        "consul-location",
+        "consul-port"
+      ]
+    }
+  },
+  "required": [
+    "service"
+  ]
+}

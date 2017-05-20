@@ -1,0 +1,90 @@
+{
+  "id": "/{{service.name}}",
+  "cpus": {{service.cpus}},
+  "mem": {{service.mem}},
+  "instances": {{service.instances}},
+  "env": {
+
+    "WHISK_VERSION_NAME": "local",
+    "WHISK_VERSION_DATE": "09/01/2016",
+    "WHISK_VERSION_BUILDNO": "latest",
+    "WHISK_LOGS_DIR": "/logs",
+
+    "SERVICE_CHECK_HTTP": "/ping",
+    "SERVICE_CHECK_TIMEOUT": "2s",
+    "SERVICE_CHECK_INTERVAL": "15s",
+
+    "DB_PREFIX": "local_",
+    "DB_WHISK_ACTIONS": "local_whisks",
+    "DB_WHISK_AUTHS": "subjects",
+
+    "KAFKA_NUMPARTITIONS": "1",
+
+    "DEFAULTLIMITS_ACTIONS_INVOKES_PERMINUTE": "60000",
+    "DEFAULTLIMITS_ACTIONS_INVOKES_CONCURRENT": "5000",
+    "DEFAULTLIMITS_TRIGGERS_FIRES_PERMINUTE": "60000",
+    "DEFAULTLIMITS_ACTIONS_INVOKES_CONCURRENTINSYSTEM": "5000",
+    "DEFAULTLIMITS_ACTIONS_SEQUENCE_MAXLENGTH": "20",
+    "LIMITS_ACTIONS_INVOKES_PERHOUR": "3600000",
+    "LIMITS_ACTIONS_INVOKES_PERMINUTE": "60000",
+    "LIMITS_ACTIONS_INVOKES_CONCURRENT": "5000",
+    "LIMITS_TRIGGERS_FIRES_PERMINUTE": "60000",
+    "LIMITS_ACTIONS_INVOKES_CONCURRENTINSYSTEM": "5000",
+
+    "COMPONENT_NAME": "controller",
+    "PORT": "{{service.port}}",
+
+    "CONSULSERVER_HOST": "{{consul.location}}",
+    "CONSUL_HOST_PORT4": "{{consul.port}}",
+
+    "KAFKA_HOST": "{{kafka.location}}",
+    "KAFKA_HOST_PORT": "{{kafka.port}}",
+
+    "DB_PROVIDER": "CouchDB",
+    "DB_PROTOCOL": "http",
+    "DB_PORT": "{{couchdb.port}}",
+    "DB_HOST": "{{couchdb.location}}",
+    "DB_USERNAME": "{{couchdb.username}}",
+    "DB_PASSWORD": "{{couchdb.password}}",
+
+    "LOADBALANCER_ACTIVATIONCOUNTBEFORENEXTINVOKER": "10",
+    "RUNTIMES_MANIFEST": "{\"python\": [{\"kind\": \"python\"}], \"swift\": [{\"deprecated\": true, \"kind\": \"swift\"}, {\"default\": true, \"kind\": \"swift:3\"}], \"java\": [{\"requireMain\": true, \"kind\": \"java\", \"attached\": {\"attachmentType\": \"application/java-archive\", \"attachmentName\": \"jarfile\"}, \"sentinelledLogs\": false}], \"nodejs\": [{\"kind\": \"nodejs\"}, {\"default\": true, \"kind\": \"nodejs:6\"}]}",
+    "LOADBALANCER_HOST": "{{apigateway.location}}",
+    "LOADBALANCER_HOST_PORT": "{{apigateway.port}}"
+  },
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "{{resource.assets.container.docker.whisk-controller}}",
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 8888,
+          "hostPort": {{service.port}},
+          "servicePort": 0,
+          "protocol": "tcp"
+        }
+      ]
+    },
+    "volumes": [
+      {
+        "containerPath": "/logs",
+        "hostPath": "~/tmp/openwhisk/controller/logs",
+        "mode": "RW"
+      }
+    ]
+  },
+  "healthChecks": [
+    {
+      "path": "/ping",
+      "protocol": "HTTP",
+      "gracePeriodSeconds": 30,
+      "intervalSeconds": 15,
+      "timeoutSeconds": 2,
+      "maxConsecutiveFailures": 3
+    }
+  ],
+  "labels": {
+    "DCOS_SERVICE_NAME": "{{service.name}}"
+  }
+}

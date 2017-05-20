@@ -1,0 +1,18 @@
+{
+  "packagingVersion": "3.0",
+  "description": "Adobe I/O API gateway",
+  "framework": false,
+  "maintainer": "dunguyen@adobe.com",
+  "name": "apigateway",
+  "postInstallNotes": "API Gateway has been installed. You might have to stop marathon-lb app if installed due to conflicts on the ports.",
+  "postUninstallNotes": "API Gateway has been uninstalled",
+  "scm": "https://github.com/adobe-apiplatform/apigateway",
+  "tags": [
+    "api",
+    "gateway",
+    "server"
+  ],
+  "version": "1.1.0",
+  "website": "https://github.com/adobe-apiplatform/apigateway",
+  "selected": true
+}

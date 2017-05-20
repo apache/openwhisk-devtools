@@ -1,0 +1,19 @@
+{
+  "description": "OpenWhisk Invoker service running on DC/OS",
+  "framework": true,
+  "maintainer": "dunguyen@adobe.com",
+  "minDcosReleaseVersion": "1.8",
+  "name": "whisk-invoker",
+  "packagingVersion": "3.0",
+  "postInstallNotes": "DC/OS OpenWhisk invoker has been successfully installed!",
+  "postUninstallNotes": "DC/OS OpenWhisk invoker service has been uninstalled.",
+  "preInstallNotes": "OpenWhisk Invoker requires Kafka, CouchDB, Consul, Registrator and APIGateway already installed in the same DC/OS cluster.",
+  "selected": true,
+  "tags": [
+    "openwhisk",
+    "invoker",
+    "serverless",
+    "lambda"
+  ],
+  "version": "0.1"
+}

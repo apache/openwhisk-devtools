@@ -1,0 +1,62 @@
+{
+  "type": "object",
+  "properties": {
+    "service": {
+      "description": "OpenWhisk CouchDB Configuration Properties",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "couchdb-user": {
+          "description": "CouchDB username.",
+          "type": "string",
+          "default": "whisk_admin"
+        },
+        "couchdb-password": {
+          "description": "CouchDB password.",
+          "type": "string",
+          "default": "some_passw0rd"
+        },
+        "couchdb-port": {
+          "description": "Host port for CouchDB (default = 5984)",
+          "type": "integer",
+          "default": 5984,
+          "minimum": 0
+        },
+        "cpus": {
+          "description": "CPU shares to allocate to each CouchDB instance.",
+          "type": "number",
+          "minimum": 0.1,
+          "default": 0.5
+        },
+        "mem": {
+          "description": "Memory (MB) to allocate to each CouchDB instance.",
+          "type": "number",
+          "minimum": 512.0,
+          "default": 1024.0
+        },
+        "instances": {
+          "description": "Number of CouchDB instances to run.",
+          "type": "integer",
+          "minimum": 0,
+          "default": 1
+        },
+        "name": {
+          "description": "The name of the CouchDB service instance.",
+          "type": "string",
+          "default": "whisk-couchdb"
+        }
+      },
+      "required": [
+        "couchdb-user",
+        "couchdb-password",
+        "cpus",
+        "name",
+        "instances",
+        "mem"
+      ]
+    }
+  },
+  "required": [
+    "service"
+  ]
+}

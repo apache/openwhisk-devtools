@@ -1,0 +1,19 @@
+{
+  "description": "Registrator service running on DC/OS",
+  "framework": true,
+  "maintainer": "dunguyen@adobe.com",
+  "minDcosReleaseVersion": "1.8",
+  "name": "registrator",
+  "packagingVersion": "3.0",
+  "postInstallNotes": "DC/OS Registrator has been successfully installed!",
+  "postUninstallNotes": "DC/OS Registrator service has been uninstalled.",
+  "preInstallNotes": "Registrator requires Consul already installed in the same DC/OS cluster.",
+  "selected": true,
+  "tags": [
+    "service",
+    "registry",
+    "bridge",
+    "pluggable"
+  ],
+  "version": "7.0"
+}

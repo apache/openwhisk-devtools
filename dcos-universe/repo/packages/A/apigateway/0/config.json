@@ -1,0 +1,89 @@
+{
+  "properties": {
+    "service": {
+      "description": "Service configuration for API Gateway",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Display name for the service on the DC/OS dashboard",
+          "type": "string",
+          "default": "apigateway"
+        },
+        "cpus": {
+          "description": "CPU allocation for the API Gateway instance",
+          "type": "number",
+          "default": 0.5,
+          "minimum": 0.1
+        },
+        "mem": {
+          "description": "Memory (MB) allocation for the API Gateway instance",
+          "type": "number",
+          "default": 256.0,
+          "minimum": 128.0
+        },
+        "instances": {
+          "description": "Number of API Gateway instances to deploy (one per public agent)",
+          "type": "integer",
+          "default": 1
+        }
+      },
+      "required":[
+        "name",
+        "cpus",
+        "mem",
+        "instances"
+      ]
+    },
+    "environment": {
+      "description": "Environment configuration for API Gateway",
+      "properties": {
+        "marathonHost": {
+          "description": "Specify Marathon endpoint URL to include app name endpoints. This is used for service discovery.",
+          "type": "string",
+          "default": "http://marathon.mesos:8080"
+        }
+      }
+    },
+    "advanced": {
+      "description": "Advanced configuration for API Gateway service",
+      "type": "object",
+      "properties": {
+        "logLevel": {
+          "description": "Specify API Gateway log level (info or debug)",
+          "type": "string",
+          "default": "info"
+        },
+        "remoteConfigAWSKey": {
+          "description": "AWS key if using remote config with S3 source",
+          "type": "string"
+        },
+        "remoteConfigAWSSecret": {
+          "description": "AWS secret if using remote config with S3 source",
+          "type": "string"
+        },
+        "remoteConfig": {
+          "description": "Remote config sync source for all config files (s3://<path>, file://<path> or /<path>)",
+          "type": "string"
+        },
+        "remoteConfigGenerated": {
+          "description": "Remote config sync source for generated files only (s3://<path>, file://<path> or /<path>)",
+          "type": "string",
+          "default": "/var/tmp/apigateway/"
+        },
+        "volumeContainerPath": {
+          "description": "Path in container to mount for config file sync location",
+          "type": "string",
+          "default": "/var/tmp/apigateway"
+        },
+        "volumeHostPath": {
+          "description": "Path on host to mount for config file sync location",
+          "type": "string",
+          "default": "/var/tmp/apigateway"
+        }
+      },
+      "required":[
+        "logLevel"
+      ]
+    }
+  }
+}

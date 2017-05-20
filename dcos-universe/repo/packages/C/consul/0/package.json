@@ -1,0 +1,18 @@
+{
+  "description": "Consul service running on DC/OS",
+  "framework": true,
+  "maintainer": "dunguyen@adobe.com",
+  "minDcosReleaseVersion": "1.8",
+  "name": "consul",
+  "packagingVersion": "3.0",
+  "postInstallNotes": "DC/OS Consul has been successfully installed!",
+  "postUninstallNotes": "DC/OS Consul service has been uninstalled.",
+  "selected": true,
+  "tags": [
+    "service",
+    "discovery",
+    "configuration",
+    "orchestration"
+  ],
+  "version": "0.7.0"
+}
