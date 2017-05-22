@@ -18,6 +18,7 @@ db_username: couch_user
 db_password: couch_password
 db_auth: "subjects"
 db_prefix: "ubuntu_kube-1-4-1_"
+db_split_actions_and_activations: true
 
 # apigw db credentials minimum read/write
 db_apigw_username: "couch_user"
@@ -28,18 +29,19 @@ apigw_initdb: true
 # API GW connection configuration
 apigw_auth_user: ""
 apigw_auth_pwd: ""
-apigw_host: "http://edge.openwhisk:9000/v1"
-apigw_host_v2: "http://edge.openwhisk:9000/v2"
+apigw_host: "nginx.openwhisk"
+apigw_host_v2: "nginx.openwhisk"
+whisk_api_host_name: "nginx.openwhisk"
 
 
 # consul properties
 consul_host: consul.openwhisk
 consul_conf_dir: /tmp/consul
 
-# edge properties
+# nginx properties
 nginx_conf_dir: /tmp/nginx
 cli_nginx_dir: "/tmp/nginx/cli/go/download"
-edge_host: edge.openwhisk
+nginx_host: nginx.openwhisk
 
 # controller properties
 controller_host: controller.openwhisk

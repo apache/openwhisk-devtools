@@ -30,6 +30,10 @@ sed -ie "s/REPLACE_INVOKER_COUNT/$INVOKER_COUNT/g" /openwhisk-devtools/kubernete
 # copy the ansible playbooks and tools to this repo
 cp -R /openwhisk/ansible/ /openwhisk-devtools/kubernetes/ansible
 cp -R /openwhisk/tools/ /openwhisk-devtools/kubernetes/tools
+cp -R /openwhisk/bin/ /openwhisk-devtools/kubernetes/bin
+
+mkdir -p /openwhisk-devtools/kubernetes/core
+cp -R /openwhisk/core/routemgmt /openwhisk-devtools/kubernetes/core/routemgmt
 
 # overwrite the default openwhisk ansible with the kube ones.
 cp -R /openwhisk-devtools/kubernetes/ansible-kube/. /openwhisk-devtools/kubernetes/ansible/
@@ -38,6 +42,8 @@ cp -R /openwhisk-devtools/kubernetes/ansible-kube/. /openwhisk-devtools/kubernet
 kubectl proxy -p 8001 &
 
 pushd /openwhisk-devtools/kubernetes/ansible
+  ansible-playbook -i environments/kube setup.yml
+
   # Create all of the necessary services
   kubectl apply -f environments/kube/files/db-service.yml
   kubectl apply -f environments/kube/files/consul-service.yml
@@ -45,15 +51,18 @@ pushd /openwhisk-devtools/kubernetes/ansible
   kubectl apply -f environments/kube/files/kafka-service.yml
   kubectl apply -f environments/kube/files/controller-service.yml
   kubectl apply -f environments/kube/files/invoker-service.yml
+  kubectl apply -f environments/kube/files/nginx-service.yml
 
   if deployCouchDB; then
-    # Create the CouchDB deployment
+    # Create and configure the CouchDB deployment
     ansible-playbook -i environments/kube couchdb.yml
-    # configure couch db
     ansible-playbook -i environments/kube initdb.yml
     ansible-playbook -i environments/kube wipe.yml
   fi
 
   # Run through the openwhisk deployment
   ansible-playbook -i environments/kube openwhisk.yml
+
+  # Post deploy step
+  ansible-playbook -i environments/kube postdeploy.yml
 popd

@@ -1,6 +1,6 @@
 # How to setup OpenWhisk with Docker Compose
 
-[![Build Status](https://travis-ci.org/openwhisk/openwhisk-devtools.svg?branch=master)](https://travis-ci.org/openwhisk/openwhisk-devtools)
+[![Build Status](https://travis-ci.org/apache/incubator-openwhisk-devtools.svg?branch=master)](https://travis-ci.org/apache/incubator-openwhisk-devtools)
 
 An easy way to try OpenWhisk locally is to use Docker Compose.
 
