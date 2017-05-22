@@ -15,7 +15,7 @@ endif
 #   2. then it starts all components using docker-compose
 #   3. it runs a sample hello-world function
 #   To stop and cleanup the environment use: make destroy
-quick-start: download init-cli run quick-start-pause hello-world quick-start-info
+quick-start: download build-cli run quick-start-pause hello-world quick-start-info
 
 .PHONY: download
 download:
@@ -44,7 +44,7 @@ docker:
 	cd $(PROJECT_HOME) && \
 		./gradlew distdocker -x :core:swift3Action:distDocker -x :core:swiftAction:distDocker
 
-init-cli:
+build-cli:
 	echo "building the CLI tool ... "
 	cd $(PROJECT_HOME) && \
 		./gradlew :tools:cli:distDocker
