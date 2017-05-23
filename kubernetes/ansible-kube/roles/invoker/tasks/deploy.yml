@@ -10,6 +10,6 @@
     url: "http://invoker-{{ item }}.invoker.openwhisk:{{ invoker_port }}/ping"
   register: result
   until: result.status == 200
-  retries: 20
+  retries: 50
   delay: 20
   with_sequence: start=0 count={{ invoker_count }}

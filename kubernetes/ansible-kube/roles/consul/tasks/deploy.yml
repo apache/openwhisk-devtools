@@ -30,8 +30,8 @@
     body: 'true'
   register: result
   until: result.status == 200
-  retries: 12
-  delay: 5
+  retries: 20
+  delay: 10
   when: "'consul_servers' in group_names"
 
 - name: delete is alive token from Consul Server/Agent
