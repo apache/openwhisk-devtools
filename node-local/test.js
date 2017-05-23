@@ -59,6 +59,16 @@ function help() {
   process.exit();
 }
 
+function fallback(action) {
+  eval(require("fs").readFileSync(action, "utf-8"));
+  if (this.main) {
+    return main;
+  } else {
+    console.error(action + " has no function main or no exports.main");
+    process.exit(1);
+  }
+}
+
 function run(action, params, outputJSON) {
   if (!action) {
     console.error("./test.js: Missing argument <action-to-run>");
@@ -69,7 +79,7 @@ function run(action, params, outputJSON) {
   const imports = require(action);
   
   //support a non-exported main function as a fallback
-  const mainfunct = imports.main ? imports.main : main;
+  const mainfunct = imports.main ? imports.main : fallback(action);
   
   let result = mainfunct(params);
   
