@@ -51,9 +51,15 @@ function run(params) {
   
   if (result.then) {
     Promise.resolve(result)
-      .then(result => console.log(result.toString("utf-8")))
+      .then(result => console.log(typeof result =='object' ? JSON.stringify(result) : result.toString("utf-8")))
       .catch(error => console.error(error));
   } else {
-    console.log(result);
+    console.log(typeof result =='object' ? JSON.stringify(result) : result);
   }
 }
+
+//allow ctrl-c to exit...
+process.on('SIGINT', function() {
+  console.log("exiting...");
+  process.exit();
+});
