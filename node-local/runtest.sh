@@ -1,11 +1,16 @@
 #!/bin/bash
 
-pushd `dirname $0` > /dev/null
-SCRIPTPATH=`pwd`
-popd > /dev/null
+abs_path()
+{
+    pushd $(dirname "$1") > /dev/null
+    echo $(pwd)/$(basename "$1")
+    popd > /dev/null
 
-action_executor="$SCRIPTPATH/test.js"
-actionimage="openwhisk/nodejs6action:latest"
+}
+
+this_dir=$(dirname "$(abs_path "$0")")
+action_executor="$this_dir/test.js"
+action_image="openwhisk/nodejs6action:latest"
 debug_env="debug_disabled"
 
 
@@ -14,8 +19,8 @@ do
 key="$1"
 
 case $key in
-    --target)
-    action="$2"
+    --action)
+    action="$(abs_path "$2")"
     shift # past argument
     ;;
     --param)
@@ -44,4 +49,4 @@ docker run --name="actiontest" --rm -it \
     -e "$debug_env" \
     -v "$action_executor:/nodejsAction/testexecutor.js" \
     -v "$action:/nodejsAction/testaction.js" \
-    "$actionimage" node testexecutor.js ./testaction.js "$params"
+    "$action_image" node testexecutor.js ./testaction.js "$params"

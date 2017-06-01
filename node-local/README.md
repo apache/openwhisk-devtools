@@ -34,6 +34,6 @@ In this case you can run the docker image that open whisk uses to launch your ac
 
 Usage:
 * --debug : enable request debugging (by adding NODE_DEBUG=request)
-* --target : js file you are trying to test 
+* --action : action js file you are trying to test 
 * --param : parameter to pass to main (multiple allowed)
 * --image : the action image used to run node (default is openwhisk/nodejs6action:latest)
