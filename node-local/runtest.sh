@@ -4,7 +4,7 @@ pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd`
 popd > /dev/null
 
-test_js_file="$SCRIPTPATH/test.js"
+action_executor="$SCRIPTPATH/test.js"
 actionimage="openwhisk/nodejs6action:latest"
 debug_env="debug_disabled"
 
@@ -15,7 +15,7 @@ key="$1"
 
 case $key in
     --target)
-    target_action_file="$2"
+    action="$2"
     shift # past argument
     ;;
     --param)
@@ -42,6 +42,6 @@ echo "#######################################################"
 
 docker run --name="actiontest" --rm -it \
     -e "$debug_env" \
-    -v "$test_js_file:/nodejsAction/actiontest.js" \
-    -v "$target_action_file:/nodejsAction/testtarget.js" \
-    "$actionimage" node actiontest.js ./testtarget.js "$params"
+    -v "$action_executor:/nodejsAction/testexecutor.js" \
+    -v "$action:/nodejsAction/testaction.js" \
+    "$actionimage" node testexecutor.js ./testaction.js "$params"
