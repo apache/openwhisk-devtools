@@ -48,13 +48,13 @@ function run(params) {
   const action = imports.main ? imports.main : main;
   
   let result = action(params);
-  
+
   if (result.then) {
     Promise.resolve(result)
-      .then(result => console.log(typeof result =='object' ? JSON.stringify(result) : result.toString("utf-8")))
+      .then(result => console.log(result.toString("utf-8")))
       .catch(error => console.error(error));
   } else {
-    console.log(typeof result =='object' ? JSON.stringify(result) : result);
+    console.log(result);
   }
 }
 
