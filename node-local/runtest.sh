@@ -24,7 +24,7 @@ case $key in
     shift # past argument
     ;;
     --param)
-    params="$2"
+    params+=" $2"
     shift # past argument
     ;;
     --image)
@@ -45,8 +45,12 @@ echo "#######################################################"
 echo "Testing action $action using image $action_image"
 echo "#######################################################"
 
-docker run --name="actiontest" --rm -it \
-    -e "$debug_env" \
-    -v "$action_executor:/nodejsAction/testexecutor.js" \
-    -v "$action:/nodejsAction/testaction.js" \
-    "$action_image" node testexecutor.js ./testaction.js "$params"
+
+
+docker_cmd="docker run --name=\"actiontest\" --rm -it \
+    -e \"$debug_env\" \
+    -v \"$action_executor:/nodejsAction/testexecutor.js\" \
+    -v \"$action:/nodejsAction/testaction.js\" \
+    $action_image node testexecutor.js ./testaction.js $params"
+
+eval "$docker_cmd"
