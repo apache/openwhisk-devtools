@@ -42,7 +42,7 @@ shift # past argument or value
 done
 
 echo "#######################################################"
-echo "Testing action $target_action_file using image $actionimage"
+echo "Testing action $action using image $action_image"
 echo "#######################################################"
 
 docker run --name="actiontest" --rm -it \
