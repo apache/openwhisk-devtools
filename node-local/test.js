@@ -77,12 +77,11 @@ function run(action, params, outputJSON) {
   }
   
   const imports = require(action);
-  
+
   //support a non-exported main function as a fallback
   const mainfunct = imports.main ? imports.main : fallback(action);
   
   let result = mainfunct(params);
-  
   if (result.then) {
     Promise.resolve(result)
       .then(result => console.log(outputJSON ? JSON.stringify(result) : result))
@@ -91,3 +90,9 @@ function run(action, params, outputJSON) {
     console.log(outputJSON ? JSON.stringify(result) : result);
   }
 }
+
+//allow ctrl-c to exit...
+process.on('SIGINT', function() {
+  console.log("exiting...");
+  process.exit();
+});
