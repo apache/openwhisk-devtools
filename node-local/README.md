@@ -33,7 +33,7 @@ If your action uses npm libraries, you may have trouble running it locally witho
 In this case you can run the docker image that open whisk uses to launch your action, along with its preinstalled libraries:
 
 ```bash
-./runtest.sh --debug --target ./path-to-function.js --param name=value --param othername=othervalue
+./runtest.sh --debug --action ./path-to-function.js --param name=value --param othername=othervalue
 ```
 
 Usage:
