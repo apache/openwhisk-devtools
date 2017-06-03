@@ -53,4 +53,5 @@ docker_cmd="docker run --name=\"actiontest\" --rm -it \
     -v \"$action:/nodejsAction/testaction.js\" \
     $action_image node testexecutor.js ./testaction.js $params"
 
+#using eval here because $params may have multiple space separate values, which need to be passed as separate args
 eval "$docker_cmd"
