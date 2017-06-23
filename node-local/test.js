@@ -1,8 +1,36 @@
 process.stdin.setEncoding('utf8');
 
-if (process.argv[2]=="--help"||process.argv[2]=="-h") {
-  help();
-} else if (!process.stdin.isTTY) {
+var args = process.argv;
+args.shift();
+args.shift();
+
+//collect parameters
+var params = {};
+//output JSON
+var json = false;
+
+var action;
+
+//parse all parameters
+while(arg = args.shift()) {
+  if (arg=="--help"||arg=="-h") {
+    help();
+    process.exit();
+  } else if (arg=="--json"||arg=="-j") {
+    json = true;
+  } else if (process.stdin.isTTY&&arg.indexOf("=")>1) {
+    let [name,value] = arg.split('=');
+    params[name] = value;
+  } else {
+    action = arg;
+  }
+}
+
+//if no stdin, run with command line params
+if (process.stdin.isTTY) {
+  run(action, params, json);
+} else {
+  //if stdin, read input and parse as JSON
   var input = "";
   
   process.stdin.on('readable', () => {
@@ -15,16 +43,8 @@ if (process.argv[2]=="--help"||process.argv[2]=="-h") {
   process.stdin.on('end', () => {
     const params = JSON.parse(input);
     
-    run(params);
+    run(action, params, json);
   });
-  
-} else {
-  let params = {};
-  for(var i=3;i<process.argv.length;i++) {
-      let [name,value] = process.argv[i].split('=');
-      params[name] = value;
-  }
-  run(params);
 }
 
 function help() {
@@ -32,28 +52,47 @@ function help() {
   console.log("Usage:");
   console.log("  node test.js ./main.js foo=bar");
   console.log("  echo '{\"foo\":\"bar\"}' | node test.js ./main.js");
+  console.log("");
+  console.log("Optional parameters");
+  console.log("  --help   -h   print this help");
+  console.log("  --json   -j   format result as JSON")
+  process.exit();
 }
 
-function run(params) {
-  const actionToRun = process.argv[2];
-  
-  if (!actionToRun) {
+function fallback(action) {
+  eval(require("fs").readFileSync(action, "utf-8"));
+  if (this.main) {
+    return main;
+  } else {
+    console.error(action + " has no function main or no exports.main");
+    process.exit(1);
+  }
+}
+
+function run(action, params, outputJSON) {
+  if (!action) {
     console.error("./test.js: Missing argument <action-to-run>");
     help();
     process.exit(1);
   }
   
-  const imports = require(actionToRun);
+  const imports = require(action);
+
   //support a non-exported main function as a fallback
-  const action = imports.main ? imports.main : main;
+  const mainfunct = imports.main ? imports.main : fallback(action);
   
-  let result = action(params);
-  
+  let result = mainfunct(params);
   if (result.then) {
     Promise.resolve(result)
-      .then(result => console.log(result.toString("utf-8")))
+      .then(result => console.log(outputJSON ? JSON.stringify(result) : result))
       .catch(error => console.error(error));
   } else {
-    console.log(result);
+    console.log(outputJSON ? JSON.stringify(result) : result);
   }
 }
+
+//allow ctrl-c to exit...
+process.on('SIGINT', function() {
+  console.log("exiting...");
+  process.exit();
+});
