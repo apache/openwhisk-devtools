@@ -11,8 +11,10 @@ services:
 
 before_install:
   - pwd
+  - export PATH=$PATH:$TRAVIS_BUILD_DIR;
   - ./docker-compose/tools/travis/setup.sh
 
 script:
   - pwd
+  - export PATH=$PATH:$TRAVIS_BUILD_DIR;
   - ./docker-compose/tools/travis/build.sh
