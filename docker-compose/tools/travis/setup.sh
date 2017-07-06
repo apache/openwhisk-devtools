@@ -9,6 +9,8 @@ echo "version exists:" version_exists
 
 if [ "${version_exists}" == "false" ]
 then
+    pwd
+    ls -al
     echo "Installing Docker Compose ${DOCKER_COMPOSE_VERSION}"
     sudo rm /usr/local/bin/docker-compose
     curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
