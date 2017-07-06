@@ -2,8 +2,8 @@
 set -x
 set -e
 
-DOCKER-COMPOSE='docker-compose'
-DOCKER-COMPOSE-TMP='$DOCKER-COMPOSE.tmp'
+DOCKER-COMPOSE="docker-compose"
+DOCKER-COMPOSE-TMP="$DOCKER-COMPOSE.tmp"
 
 # This script assumes Docker is already installed
 # see tools/travis/setup.sh
