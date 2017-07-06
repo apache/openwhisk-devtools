@@ -10,7 +10,9 @@ services:
   - docker
 
 before_install:
+  - pwd
   - ./docker-compose/tools/travis/setup.sh
 
 script:
+  - pwd
   - ./docker-compose/tools/travis/build.sh
