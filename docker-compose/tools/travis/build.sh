@@ -1,6 +1,6 @@
 #!/bin/bash
-set +x
-set +e
+set -x
+set -e
 
 SCRIPTDIR=$(cd $(dirname "$0") && pwd)
 ROOTDIR="$SCRIPTDIR/../"

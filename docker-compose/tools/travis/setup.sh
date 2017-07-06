@@ -1,6 +1,6 @@
 #!/bin/bash
-set +x
-set +e
+set -x
+set -e
 
 # This script assumes Docker is already installed
 # see tools/travis/setup.sh
