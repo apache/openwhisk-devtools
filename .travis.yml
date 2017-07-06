@@ -10,7 +10,7 @@ services:
   - docker
 
 before_install:
-  - ${TOOL}/.travis/setup.sh
+  - docker-compose/.travis/setup.sh
 
 script:
-  - ${TOOL}/.travis/build.sh
+  - docker-compose/.travis/build.sh
