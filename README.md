@@ -1,7 +1,9 @@
-Developer tools for OpenWhisk
-=============================
+# Developer tools for OpenWhisk
 
-This repository is part of [Apache OpenWhisk](http://openwhisk.org) and provides developer tools that help with local development, testing and operation of OpenWhisk.
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![Build Status](https://travis-ci.org/apache/incubator-openwhisk-devtools.svg?branch=master)](https://travis-ci.org/apache/incubator-openwhisk-devtools)
+
+This repository is part of [Apache OpenWhisk](http://openwhisk.incubator.apache.org/) and provides developer tools that help with local development, testing and operation of OpenWhisk.
 
 ## Subprojects
 
