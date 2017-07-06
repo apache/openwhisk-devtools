@@ -3,18 +3,18 @@ sudo: required
 env:
   global:
     - DOCKER_COMPOSE_VERSION: 1.8.1
-  matrix:
-    - TOOL: docker-compose
 
 services:
   - docker
 
 before_install:
+  - echo "1"
   - pwd
-  - export PATH=$PATH:$TRAVIS_BUILD_DIR;
+  # - export PATH=$PATH:$TRAVIS_BUILD_DIR;
   - ./docker-compose/tools/travis/setup.sh
 
 script:
+  - echo "2"
   - pwd
-  - export PATH=$PATH:$TRAVIS_BUILD_DIR;
+  # - export PATH=$PATH:$TRAVIS_BUILD_DIR;
   - ./docker-compose/tools/travis/build.sh
