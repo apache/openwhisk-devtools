@@ -1,7 +1,9 @@
+#!/bin/bash
+set +x
+set +e
+
 # This script assumes Docker is already installed
 # see tools/travis/setup.sh
-#!/bin/bash
-
 version_exists=`(docker-compose --version | grep ${DOCKER_COMPOSE_VERSION}) || echo "false"`
 if [ "${version_exists}" == "false" ]
 then
