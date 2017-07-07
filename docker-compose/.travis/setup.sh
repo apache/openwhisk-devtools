@@ -1,5 +1,6 @@
 #!/bin/bash
-set -x -e
+set -x
+set -e
 
 DOCKER_COMPOSE="docker-compose"
 DOCKER_COMPOSE_TMP="$DOCKER_COMPOSE.tmp"
