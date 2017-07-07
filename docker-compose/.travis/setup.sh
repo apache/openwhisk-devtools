@@ -2,6 +2,13 @@
 # see tools/travis/setup.sh
 #!/bin/bash
 
+set -x
+set -e
+
+uname -s
+uname -m
+docker-compose --version
+
 version_exists=`(docker-compose --version | grep ${DOCKER_COMPOSE_VERSION}) || echo "false"`
 if [ "${version_exists}" == "false" ]
 then
