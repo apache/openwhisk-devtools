@@ -52,6 +52,7 @@ services:
   # WHISK CONTROLLER
   controller:
     image: openwhisk/controller:latest
+    command: /bin/sh -c "controller/bin/controller 0 >> /logs/controller-local_logs.log 2>&1"
     links:
       - consul:consul.docker
       - db:db.docker
