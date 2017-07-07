@@ -3,7 +3,7 @@ set -x
 set -e
 
 SCRIPTDIR=$(cd $(dirname "$0") && pwd)
-ROOTDIR="$SCRIPTDIR/../"
+ROOTDIR="$SCRIPTDIR/../../"
 
 echo "SCRIPTDIR:" $SCRIPTDIR
 echo "ROOTDIR:" $ROOTDIR
