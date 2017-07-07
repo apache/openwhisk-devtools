@@ -8,13 +8,7 @@ services:
   - docker
 
 before_install:
-  - echo "1"
-  - pwd
-  # - export PATH=$PATH:$TRAVIS_BUILD_DIR;
-  - ./docker-compose/tools/travis/setup.sh
+  - ./docker-compose/.travis/setup.sh
 
 script:
-  - echo "2"
-  - pwd
-  # - export PATH=$PATH:$TRAVIS_BUILD_DIR;
-  - ./docker-compose/tools/travis/build.sh
+  - ./docker-compose/.travis/build.sh

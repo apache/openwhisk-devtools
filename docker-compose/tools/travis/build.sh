@@ -1,12 +1,8 @@
 #!/bin/bash
-set -x
-set -e
+set -x -e
 
 SCRIPTDIR=$(cd $(dirname "$0") && pwd)
-ROOTDIR="$SCRIPTDIR/../../"
-
-echo "SCRIPTDIR:" $SCRIPTDIR
-echo "ROOTDIR:" $ROOTDIR
+ROOTDIR="$SCRIPTDIR/../"
 
 cd $ROOTDIR
 PATH=$PATH:/usr/local/bin/ make quick-start stop
