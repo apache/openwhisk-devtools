@@ -1,3 +1,6 @@
+// Licensed to the Apache Software Foundation (ASF) under one or more contributor
+// license agreements; and to You under the Apache License, Version 2.0.
+
 process.stdin.setEncoding('utf8');
 
 var args = process.argv;
@@ -32,17 +35,17 @@ if (process.stdin.isTTY) {
 } else {
   //if stdin, read input and parse as JSON
   var input = "";
-  
+
   process.stdin.on('readable', () => {
     var chunk = process.stdin.read();
     if (chunk !== null) {
       input += chunk;
     }
   });
-  
+
   process.stdin.on('end', () => {
     const params = JSON.parse(input);
-    
+
     run(action, params, json);
   });
 }
@@ -75,12 +78,12 @@ function run(action, params, outputJSON) {
     help();
     process.exit(1);
   }
-  
+
   const imports = require(action);
 
   //support a non-exported main function as a fallback
   const mainfunct = imports.main ? imports.main : fallback(action);
-  
+
   let result = mainfunct(params);
   if (result.then) {
     Promise.resolve(result)
