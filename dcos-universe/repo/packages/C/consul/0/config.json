@@ -31,7 +31,7 @@
           "minimum": 0
         },
         "name": {
-          "description": "The name of the Consul service.",
+          "description": "The name of the Consul service instance.",
           "type": "string",
           "default": "consul"
         }

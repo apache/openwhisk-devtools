@@ -2,12 +2,12 @@
   "type": "object",
   "properties": {
     "service": {
-      "description": "Registrator Configuration Properties",
+      "description": "CouchDB Configuration Properties",
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "name": {
-          "description": "The name of the Registrator service.",
+          "description": "The name of the Registrator service instance.",
           "type": "string",
           "default": "registrator"
         },

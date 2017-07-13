@@ -20,8 +20,8 @@
         "mem": {
           "description": "Memory (MB) to allocate to each OpenWhisk invoker instance.",
           "type": "number",
-          "minimum": 1024.0,
-          "default": 2048.0
+          "minimum": 512.0,
+          "default": 1024.0
         },
         "instances": {
           "description": "Number of OpenWhisk invoker instances to run.",

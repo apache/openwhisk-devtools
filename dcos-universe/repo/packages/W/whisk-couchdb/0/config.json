@@ -34,6 +34,12 @@
           "minimum": 512.0,
           "default": 1024.0
         },
+        "volume-size": {
+          "description": "Size of data volume (MiB) to allocate to each CouchDB instance.",
+          "type": "number",
+          "minimum": 1024,
+          "default": 10240
+        },
         "instances": {
           "description": "Number of CouchDB instances to run.",
           "type": "integer",
@@ -52,7 +58,8 @@
         "cpus",
         "name",
         "instances",
-        "mem"
+        "mem",
+        "volume-size"
       ]
     }
   },

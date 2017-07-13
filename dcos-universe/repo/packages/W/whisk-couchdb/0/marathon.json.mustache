@@ -24,8 +24,15 @@
     "volumes": [
       {
         "containerPath": "/usr/local/var/lib/couchdb",
-        "hostPath": "~/openwhisk/couchdb",
+        "hostPath": "couchdb",
         "mode": "RW"
+      },
+      {
+        "containerPath": "couchdb",
+        "mode": "RW",
+        "persistent": {
+          "size": {{service.volume-size}}
+        }
       }
     ]
   },

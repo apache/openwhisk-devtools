@@ -16,7 +16,8 @@
 
     "DB_PREFIX": "local_",
     "DB_WHISK_ACTIONS": "local_whisks",
-    "DB_WHISK_AUTHS": "subjects",
+    "DB_WHISK_AUTHS": "local_subjects",
+    "DB_WHISK_ACTIVATIONS": "local_activations",
 
     "KAFKA_NUMPARTITIONS": "1",
 
@@ -47,10 +48,12 @@
     "DB_USERNAME": "{{couchdb.username}}",
     "DB_PASSWORD": "{{couchdb.password}}",
 
-    "LOADBALANCER_ACTIVATIONCOUNTBEFORENEXTINVOKER": "10",
-    "RUNTIMES_MANIFEST": "{\"python\": [{\"kind\": \"python\"}], \"swift\": [{\"deprecated\": true, \"kind\": \"swift\"}, {\"default\": true, \"kind\": \"swift:3\"}], \"java\": [{\"requireMain\": true, \"kind\": \"java\", \"attached\": {\"attachmentType\": \"application/java-archive\", \"attachmentName\": \"jarfile\"}, \"sentinelledLogs\": false}], \"nodejs\": [{\"kind\": \"nodejs\"}, {\"default\": true, \"kind\": \"nodejs:6\"}]}",
+    "RUNTIMES_MANIFEST": "{\"runtimes\":{\"nodejs\":[{\"kind\":\"nodejs\",\"image\":{\"name\":\"nodejsaction\"},\"deprecated\":true},{\"kind\":\"nodejs:6\",\"default\":true,\"image\":{\"name\":\"nodejs6action\"}}],\"python\":[{\"kind\":\"python\",\"image\":{\"name\":\"python2action\"}},{\"kind\":\"python:2\",\"default\":true,\"image\":{\"name\":\"python2action\"}},{\"kind\":\"python:3\",\"image\":{\"name\":\"python3action\"}}],\"swift\":[{\"kind\":\"swift\",\"image\":{\"name\":\"swiftaction\"},\"deprecated\":true},{\"kind\":\"swift:3\",\"default\":true,\"image\":{\"name\":\"swift3action\"}}],\"java\":[{\"kind\":\"java\",\"attached\":{\"attachmentName\":\"jarfile\",\"attachmentType\":\"application\/java-archive\"},\"sentinelledLogs\":false,\"requireMain\":true,\"image\":{\"name\":\"java8action\"},\"default\":true}]}}",
+
     "LOADBALANCER_HOST": "{{apigateway.location}}",
-    "LOADBALANCER_HOST_PORT": "{{apigateway.port}}"
+    "LOADBALANCER_HOST_PORT": "{{apigateway.port}}",
+    "LOADBALANCER_ACTIVATIONCOUNTBEFORENEXTINVOKER": "10",
+    "LOADBALANCER_INVOKERBUSYTHRESHOLD": "16"
   },
   "container": {
     "type": "DOCKER",
@@ -74,6 +77,7 @@
       }
     ]
   },
+  "cmd": "/bin/sh -c \"controller/bin/controller 0 >> /dev/stderr\"",
   "healthChecks": [
     {
       "path": "/ping",

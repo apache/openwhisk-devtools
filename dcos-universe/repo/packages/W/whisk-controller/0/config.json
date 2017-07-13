@@ -15,12 +15,12 @@
           "description": "CPU shares to allocate to each OpenWhisk controller instance.",
           "type": "number",
           "minimum": 0.1,
-          "default": 0.5
+          "default": 1
         },
         "mem": {
           "description": "Memory (MB) to allocate to each OpenWhisk controller instance.",
           "type": "number",
-          "minimum": 1024.0,
+          "minimum": 512.0,
           "default": 2048.0
         },
         "instances": {
