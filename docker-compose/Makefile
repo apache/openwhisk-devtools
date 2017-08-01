@@ -23,7 +23,7 @@ download:
 	if [ "$(PROJECT_HOME)" = "./openwhisk-master" ]; then \
 	    curl -O ./openwhisk-master.tar.gz -L https://api.github.com/repos/openwhisk/openwhisk/tarball/master > ./openwhisk-master.tar.gz; \
 	    mkdir openwhisk-master; \
-	    tar -xvf ./openwhisk-master.tar.gz --strip 1 -C openwhisk-master; \
+	    tar -xf ./openwhisk-master.tar.gz --strip 1 -C openwhisk-master; \
 	else \
 	     echo "Skipping downloading the code from git as PROJECT_HOME is not default:" $(PROJECT_HOME); \
 	fi
@@ -64,7 +64,7 @@ check-required-ports:
 .PHONY: setup
 setup:
 	mkdir -p ~/tmp/openwhisk/apigateway/ssl
-	cd $(PROJECT_HOME)/ansible/roles/nginx/files/ && ./genssl.sh $(DOCKER_HOST_IP)
+	cd $(PROJECT_HOME)/ansible/roles/nginx/files/ && ./genssl.sh $(DOCKER_HOST_IP) server
 	cp $(PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/apigateway/ssl
 	cp -r ./apigateway/* ~/tmp/openwhisk/apigateway/
 
@@ -74,7 +74,7 @@ restart: stop rm start-docker-compose
 .PHONY: restart-controller
 restart-controller:
 	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk restart controller 2>&1 > ~/tmp/openwhisk/docker-compose.log &
-	echo "waiting until the controller recognizes a healthy invoker ... "
+	echo "waiting for the invoker to be marked Healthy ... "
 	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "up"); do printf '.'; sleep 5; done
 
 .PHONY: start-docker-compose
@@ -98,7 +98,7 @@ init-couchdb:
 	# make sure the src files are in a shared folder for docker
 	mkdir -p ~/tmp/openwhisk
 	rm -rf ~/tmp/openwhisk/src
-	rsync -av $(PROJECT_HOME)/* ~/tmp/openwhisk/src --exclude .git --exclude build --exclude tests
+	rsync -a $(PROJECT_HOME)/* ~/tmp/openwhisk/src --exclude .git --exclude build --exclude tests
 	docker run --rm -v ~/tmp/openwhisk/src:/openwhisk -w /openwhisk/ansible \
 	    --network="host" -t \
 	    williamyeh/ansible:debian8  \
