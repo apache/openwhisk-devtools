@@ -50,7 +50,7 @@ build-cli:
 		./gradlew :tools:cli:distDocker
 
 .PHONY: run
-run: check-required-ports setup start-docker-compose init-couchdb restart-controller init-whisk-cli
+run: check-required-ports setup start-docker-compose init-couchdb init-whisk-cli
 
 .PHONY: check-required-ports
 check-required-ports:
