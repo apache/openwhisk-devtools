@@ -29,36 +29,14 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ~/tmp/openwhisk/kafka:/kafka:rw
 
-  # CONSUL & REGISTRATOR SERVICES
-  consul:
-    image: consul:v0.7.0
-    ports:
-      - "8400:8400" # CLI
-      - "8500:8500" # HTTP
-      - "8600:8600" # DNS
-      - "8302:8302" # Serf LAN
-    environment:
-      CONSUL_LOCAL_CONFIG: '{"log_level":"warn"}'
-  registrator:
-    image: gliderlabs/registrator
-    command: [-resync, "5", "consul://consul.docker:8500"]
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock
-    links:
-      - consul:consul.docker
-    depends_on:
-      - consul
-
   # WHISK CONTROLLER
   controller:
     image: openwhisk/controller:latest
     command: /bin/sh -c "controller/bin/controller 0 >> /logs/controller-local_logs.log 2>&1"
     links:
-      - consul:consul.docker
       - db:db.docker
       - kafka:kafka.docker
     depends_on:
-      - consul
       - db
       - kafka
     env_file:
@@ -66,9 +44,6 @@ services:
     environment:
       COMPONENT_NAME: controller
       PORT: 8888
-
-      CONSULSERVER_HOST: consul.docker
-      CONSUL_HOST_PORT4: 8500
 
       KAFKA_HOST: kafka.docker
       KAFKA_HOST_PORT: 9092
@@ -92,11 +67,9 @@ services:
     image: openwhisk/invoker:latest
     command: /bin/sh -c "/invoker/bin/invoker 0 >> /logs/invoker-local_logs.log 2>&1"
     links:
-      - consul:consul.docker
       - db:db.docker
       - kafka:kafka.docker
     depends_on:
-      - consul
       - db
       - kafka
     env_file:
@@ -105,9 +78,6 @@ services:
       COMPONENT_NAME: invoker
       SERVICE_NAME: invoker0
       PORT: 8085
-
-      CONSULSERVER_HOST: consul.docker
-      CONSUL_HOST_PORT4: 8500
 
       KAFKA_HOST: kafka.docker
       KAFKA_HOST_PORT: 9092
