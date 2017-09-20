@@ -101,7 +101,7 @@ init-couchdb:
 	rsync -a $(PROJECT_HOME)/* ~/tmp/openwhisk/src --exclude .git --exclude build --exclude tests
 	docker run --rm -v ~/tmp/openwhisk/src:/openwhisk -w /openwhisk/ansible \
 	    --network="host" -t \
-	    williamyeh/ansible:debian8  \
+	    ddragosd/ansible:2.3.1.0-debian8  \
 	        ansible-playbook setup.yml initdb.yml wipe.yml \
 	            -e db_host=$(DOCKER_HOST_IP) -e openwhisk_home=/openwhisk -e db_prefix=$(OPEN_WHISK_DB_PREFIX)
 
