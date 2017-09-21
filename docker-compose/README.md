@@ -22,7 +22,6 @@ These ports must be available:
 - `2181` for Zookeeper
 - `5984` for CouchDB
 - `8085` for OpenWhisk's Invoker
-- `8400`, `8500`, `8600`, `8302` for Consul
 - `8888` for OpenWhisk's Controller
 - `9092` for Kafka
 
