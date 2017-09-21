@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/apache/incubator-openwhisk-wskdeploy/cmdImp"
+	"github.com/apache/incubator-openwhisk-wskdeploy/cmd"
+    "github.com/apache/incubator-openwhisk-wskdeploy/utils"
 	"github.com/hashicorp/terraform/helper/schema"
 	"log"
 )
@@ -30,9 +31,8 @@ func resourceServerCreate(d *schema.ResourceData, m interface{}) error {
 	_ = d.Get("address").(string)
 	yaml := d.Get("wskdeploy_yaml").(string)
 	log.Printf("%s", yaml)
-	params := cmdImp.DeployParams{false, ".", yaml, "", false, false}
-	err := cmdImp.Deploy(params)
-	return err
+    utils.Flags.ManifestPath=yaml
+	return cmd.Deploy()
 }
 
 func resourceServerRead(d *schema.ResourceData, m interface{}) error {
