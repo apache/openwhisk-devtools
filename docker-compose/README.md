@@ -8,18 +8,22 @@ An easy way to try OpenWhisk locally is to use Docker Compose.
 
 The following are required to build and deploy OpenWhisk with Docker Compose:
 
-- [Docker 1.12+](https://www.docker.com/products/docker)
-- [Docker Compose 1.6+](https://docs.docker.com/compose/install/)
+- Mac OSX:
+    - [Docker for Mac](https://www.docker.com/docker-mac) - only this currently works on Mac OSX
+      + Install via homebrew: `brew cask install docker`
+- Other Systems:
+    - [Docker 1.12+](https://www.docker.com/products/docker)
+    - [Docker Compose 1.6+](https://docs.docker.com/compose/install/)
 - [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
-Available Ports:
+These ports must be available:
 
-- `5984` for CouchDB
-- `2181` for Zookeeper
-- `9092` for Kafka
-- `8888` for OpenWhisk's Controller
-- `8085` for OpenWhisk's Invoker
 - `80` and `443` for the API Gateway
+- `2181` for Zookeeper
+- `5984` for CouchDB
+- `8085` for OpenWhisk's Invoker
+- `8888` for OpenWhisk's Controller
+- `9092` for Kafka
 
 # Quick Start
 
@@ -38,6 +42,18 @@ At the end of the execution it prints the output of the function:
 If `PROJECT_HOME` variable is set ( i.e. `PROJECT_HOME=/path/to/openwhisk make quick-start`)
 then the command skips downloading the `master` branch and uses instead the source code found in the `PROJECT_HOME` folder.
 This is useful for working with a local clone, making changes to the code, and run it with `docker-compose`.
+
+## Troubleshooting
+
+* ```error: Authenticated user does not have namespace 'guest'; set command failed: Get https://localhost:443/api/v1/namespaces: dial tcp [::1]:443: getsockopt: connection refused```
+
+  Make sure nothing runs on the above listed ports. Port 80 might be commonly in use by a local httpd for example. On a Mac, use `sudo lsof -i -P` to find out what process runs on a port. You can turn off Internet Sharing under System Settings > Sharing, or try `sudo /usr/sbin/apachectl stop` to stop httpd.
+  
+* ```error: Unable to invoke action 'hello': There was an internal server error. (code 5)```
+
+  Look at the logs in `~/tmp/openwhisk` especially `~/tmp/openwhisk/controller/logs/controller-local_logs.log` that might give more information. This can be an indication that the docker environment doesn't work properly (and on Mac you might need to switch to use [Docker for Mac](https://www.docker.com/docker-mac).
+  
+* Check the [issue tracker](https://github.com/apache/incubator-openwhisk-devtools/issues) for more.
 
 # Build
 
