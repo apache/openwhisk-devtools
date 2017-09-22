@@ -73,7 +73,19 @@ restart: stop rm start-docker-compose
 
 .PHONY: restart-controller
 restart-controller:
-	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk restart controller 2>&1 > ~/tmp/openwhisk/docker-compose.log &
+	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk stop controller
+	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk rm controller
+	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk up controller 2>&1 >> ~/tmp/openwhisk/docker-compose.log &
+	echo "waiting for the controller to see the invoker is 'up' ... "
+	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "up"); do printf '.'; sleep 5; done
+
+.PHONY: restart-invoker
+restart-invoker:
+	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk stop invoker
+	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk rm invoker
+	echo "waiting for the invoker to be marked 'down' ... "
+	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "down"); do printf '.'; sleep 5; done
+	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk up invoker 2>&1 >> ~/tmp/openwhisk/docker-compose.log &
 	echo "waiting for the invoker to be marked Healthy ... "
 	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "up"); do printf '.'; sleep 5; done
 

@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   db:
     image: couchdb:1.6
@@ -66,6 +66,9 @@ services:
   invoker:
     image: openwhisk/invoker:latest
     command: /bin/sh -c "/invoker/bin/invoker 0 >> /logs/invoker-local_logs.log 2>&1"
+    privileged: true
+    pid: "host"
+    userns_mode: "host"
     links:
       - db:db.docker
       - kafka:kafka.docker
@@ -97,11 +100,15 @@ services:
 
       INVOKER_CONTAINER_NETWORK: openwhisk_default
 
-      WHISK_API_HOST_NAME: https://${DOCKER_COMPOSE_HOST}
+      WHISK_API_HOST_NAME: ${DOCKER_COMPOSE_HOST}
     volumes:
       - ~/tmp/openwhisk/invoker/logs:/logs
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/containers:/containers
+      - /usr/bin/docker:/usr/bin/docker
+      - /run/runc:/run/runc
+      - /usr/bin/runc:/usr/bin/docker-runc
+      - /sys/fs/cgroup/freezer:/sys/fs/cgroup/freezer
     ports:
       - "8085:8085"
 
