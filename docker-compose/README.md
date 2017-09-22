@@ -115,6 +115,7 @@ The result of the invokation should be printed on the terminal:
 - OpenWhisk Controller - `~/tmp/openwhisk/controller/logs/`
 - OpenWhisk Invoker - `~/tmp/openwhisk/invoker/logs/`
 - `docker-compose` logs - `~/tmp/openwhisk/docker-compose.log`
+- Action output such as stdout or console.log(): `wsk -i activation logs <activationId>`
 
 
 ## Custom Docker containers for actions
