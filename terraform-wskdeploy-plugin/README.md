@@ -1,4 +1,4 @@
-# Terraform Plugin_Demo
+# (Experimental)Terraform Wskdeploy Plugin
 A sample app to demo how to implement Terraform Plugin. The purpose
 is to try to integrate Terraform with [wskdeploy](https://github.com/apache/incubator-openwhisk-wskdeploy)
 so in the sample main.tf, we added a sample yaml path. Change the path to your
