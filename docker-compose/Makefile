@@ -6,9 +6,17 @@ WSK_CLI ?= $(PROJECT_HOME)/bin/wsk
 
 OPEN_WHISK_DB_PREFIX ?= local_
 
+DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
+RUNC_BINARY   ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which runc || which docker-runc"); else (which runc || which docker-runc); fi)
+DOCKER_BINARY ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which docker"); else (which docker); fi)
+
 ifndef VERBOSE
 .SILENT:
 endif
+
+.PHONY: ddd
+ddd:
+	$(shell cat ~/tmp/openwhisk/local.env) && echo $${DOCKER_IMAGE_PREFIX}
 
 # Quick-Start is a simple way to get started with OpenWhisk locally
 #   1. at start it builds the project and the docker containers
@@ -67,39 +75,45 @@ setup:
 	cd $(PROJECT_HOME)/ansible/roles/nginx/files/ && ./genssl.sh $(DOCKER_HOST_IP) server
 	cp $(PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/apigateway/ssl
 	cp -r ./apigateway/* ~/tmp/openwhisk/apigateway/
+	> ~/tmp/openwhisk/local.env
+	printf "DOCKER_BINARY=$(DOCKER_BINARY)\n" >> ~/tmp/openwhisk/local.env
+	printf "RUNC_BINARY=$(RUNC_BINARY)\n" >> ~/tmp/openwhisk/local.env
+	printf "DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP)\n" >> ~/tmp/openwhisk/local.env
+	printf "DOCKER_REGISTRY=$(DOCKER_REGISTRY)\n" >> ~/tmp/openwhisk/local.env
+	printf "DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX)\n" >> ~/tmp/openwhisk/local.env
 
 .PHONY: restart
 restart: stop rm start-docker-compose
 
 .PHONY: restart-controller
 restart-controller:
-	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk stop controller
-	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk rm controller
-	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk up controller 2>&1 >> ~/tmp/openwhisk/docker-compose.log &
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop controller
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm controller
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up controller 2>&1 >> ~/tmp/openwhisk/docker-compose.log &
 	echo "waiting for the controller to see the invoker is 'up' ... "
 	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "up"); do printf '.'; sleep 5; done
 
 .PHONY: restart-invoker
 restart-invoker:
-	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk stop invoker
-	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk rm invoker
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop invoker
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm invoker
 	echo "waiting for the invoker to be marked 'down' ... "
 	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "down"); do printf '.'; sleep 5; done
-	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk up invoker 2>&1 >> ~/tmp/openwhisk/docker-compose.log &
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up invoker 2>&1 >> ~/tmp/openwhisk/docker-compose.log &
 	echo "waiting for the invoker to be marked Healthy ... "
 	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "up"); do printf '.'; sleep 5; done
 
 .PHONY: start-docker-compose
 start-docker-compose:
-	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk up 2>&1 > ~/tmp/openwhisk/docker-compose.log &
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up 2>&1 > ~/tmp/openwhisk/docker-compose.log &
 
 .PHONY: stop
 stop:
-	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk stop
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop
 
 .PHONY: rm
 rm:
-	DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP) DOCKER_REGISTRY=$(DOCKER_REGISTRY) DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX) docker-compose --project-name openwhisk rm
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm
 
 .PHONY: init-couchdb
 init-couchdb:

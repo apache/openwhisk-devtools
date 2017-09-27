@@ -40,7 +40,8 @@ services:
       - db
       - kafka
     env_file:
-      - ./docker-whisk-controller.env
+      - ./docker-whisk-controller.env   # env vars shared
+      - ~/tmp/openwhisk/local.env       # generated during make setup
     environment:
       COMPONENT_NAME: controller
       PORT: 8888
@@ -77,6 +78,7 @@ services:
       - kafka
     env_file:
       - ./docker-whisk-controller.env # env vars shared
+      - ~/tmp/openwhisk/local.env     # generated during make setup
     environment:
       COMPONENT_NAME: invoker
       SERVICE_NAME: invoker0
@@ -95,9 +97,6 @@ services:
       EDGE_HOST: ${DOCKER_COMPOSE_HOST}
       EDGE_HOST_APIPORT: 443
 
-      DOCKER_REGISTRY: ${DOCKER_REGISTRY}
-      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
-
       INVOKER_CONTAINER_NETWORK: openwhisk_default
 
       WHISK_API_HOST_NAME: ${DOCKER_COMPOSE_HOST}
@@ -105,10 +104,10 @@ services:
       - ~/tmp/openwhisk/invoker/logs:/logs
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/containers:/containers
-      - /usr/bin/docker:/usr/bin/docker
+      - ${DOCKER_BINARY}:/usr/bin/docker
+      - ${RUNC_BINARY}:/usr/bin/docker-runc
       - /run/runc:/run/runc
-      - /usr/bin/runc:/usr/bin/docker-runc
-      - /sys/fs/cgroup/freezer:/sys/fs/cgroup/freezer
+      - /sys/fs/cgroup:/sys/fs/cgroup
     ports:
       - "8085:8085"
 
