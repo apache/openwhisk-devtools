@@ -104,7 +104,6 @@ services:
       - ~/tmp/openwhisk/invoker/logs:/logs
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/containers:/containers
-      - ${DOCKER_BINARY}:/usr/bin/docker
       - ${RUNC_BINARY}:/usr/bin/docker-runc
       - /run/runc:/run/runc
       - /sys/fs/cgroup:/sys/fs/cgroup
