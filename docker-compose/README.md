@@ -110,6 +110,8 @@ The result of the invokation should be printed on the terminal:
 }
 ```
 
+Here is a [tutorial on getting started with actions](https://github.com/IBM-Bluemix/openwhisk-workshops/tree/master/bootcamp#start-your-engines).
+
 ## Logs
 
 - OpenWhisk Controller - `~/tmp/openwhisk/controller/logs/`
