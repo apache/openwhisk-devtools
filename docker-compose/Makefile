@@ -1,4 +1,4 @@
-DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo localhost)
+DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || hostname)
 DOCKER_REGISTRY ?= ""
 DOCKER_IMAGE_PREFIX ?= openwhisk
 PROJECT_HOME ?= ./openwhisk-master

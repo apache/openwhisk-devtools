@@ -97,7 +97,7 @@ services:
 
       INVOKER_CONTAINER_NETWORK: openwhisk_default
 
-      WHISK_API_HOST_NAME: https://${DOCKER_COMPOSE_HOST}
+      WHISK_API_HOST_NAME: ${DOCKER_COMPOSE_HOST}
     volumes:
       - ~/tmp/openwhisk/invoker/logs:/logs
       - /var/run/docker.sock:/var/run/docker.sock
