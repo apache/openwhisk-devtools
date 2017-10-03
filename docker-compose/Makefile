@@ -14,10 +14,6 @@ ifndef VERBOSE
 .SILENT:
 endif
 
-.PHONY: ddd
-ddd:
-	$(shell cat ~/tmp/openwhisk/local.env) && echo $${DOCKER_IMAGE_PREFIX}
-
 # Quick-Start is a simple way to get started with OpenWhisk locally
 #   1. at start it builds the project and the docker containers
 #   2. then it starts all components using docker-compose
