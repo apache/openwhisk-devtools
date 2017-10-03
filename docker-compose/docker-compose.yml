@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   db:
     image: couchdb:1.6
@@ -40,7 +40,8 @@ services:
       - db
       - kafka
     env_file:
-      - ./docker-whisk-controller.env
+      - ./docker-whisk-controller.env   # env vars shared
+      - ~/tmp/openwhisk/local.env       # generated during make setup
     environment:
       COMPONENT_NAME: controller
       PORT: 8888
@@ -66,6 +67,9 @@ services:
   invoker:
     image: openwhisk/invoker:latest
     command: /bin/sh -c "/invoker/bin/invoker 0 >> /logs/invoker-local_logs.log 2>&1"
+    privileged: true
+    pid: "host"
+    userns_mode: "host"
     links:
       - db:db.docker
       - kafka:kafka.docker
@@ -74,6 +78,7 @@ services:
       - kafka
     env_file:
       - ./docker-whisk-controller.env # env vars shared
+      - ~/tmp/openwhisk/local.env     # generated during make setup
     environment:
       COMPONENT_NAME: invoker
       SERVICE_NAME: invoker0
@@ -92,16 +97,16 @@ services:
       EDGE_HOST: ${DOCKER_COMPOSE_HOST}
       EDGE_HOST_APIPORT: 443
 
-      DOCKER_REGISTRY: ${DOCKER_REGISTRY}
-      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
-
       INVOKER_CONTAINER_NETWORK: openwhisk_default
 
-      WHISK_API_HOST_NAME: https://${DOCKER_COMPOSE_HOST}
+      WHISK_API_HOST_NAME: ${DOCKER_COMPOSE_HOST}
     volumes:
       - ~/tmp/openwhisk/invoker/logs:/logs
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/containers:/containers
+      - ${RUNC_BINARY}:/usr/bin/docker-runc
+      - /run/runc:/run/runc
+      - /sys/fs/cgroup:/sys/fs/cgroup
     ports:
       - "8085:8085"
 
