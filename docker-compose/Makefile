@@ -1,5 +1,10 @@
 # detect local ip of host as this is needed within containers to find the openwhisk API container
 LOCAL_IP ?= $(shell ifconfig | grep "inet " | grep -v 127.0.0.1 | cut -d\  -f2 | head -1)
+# if no IP was found, fallback to "localhost"
+ifeq ($(LOCAL_IP), )
+	LOCAL_IP = "localhost"
+endif
+
 DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo ${LOCAL_IP})
 DOCKER_REGISTRY ?= ""
 DOCKER_IMAGE_PREFIX ?= openwhisk
