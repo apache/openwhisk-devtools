@@ -73,6 +73,7 @@ services:
     links:
       - db:db.docker
       - kafka:kafka.docker
+      - redis:redis.docker
     depends_on:
       - db
       - kafka
@@ -81,11 +82,14 @@ services:
       - ~/tmp/openwhisk/local.env     # generated during make setup
     environment:
       COMPONENT_NAME: invoker
-      SERVICE_NAME: invoker0
+      INVOKER_NAME: invoker0
       PORT: 8085
 
       KAFKA_HOST: kafka.docker
       KAFKA_HOST_PORT: 9092
+
+      REDIS_HOST: redis.docker
+      REDIS_HOST_PORT: 6379
 
       DB_PROVIDER: CouchDB
       DB_PROTOCOL: http
@@ -116,6 +120,8 @@ services:
     image: redis:2.8
     expose:
       - "6379"
+    ports:
+      - "6379:6379"  
   apigateway:
     image: adobeapiplatform/apigateway:1.1.0
     links:
