@@ -73,7 +73,6 @@ services:
     links:
       - db:db.docker
       - kafka:kafka.docker
-      - redis:redis.docker
     depends_on:
       - db
       - kafka
@@ -87,9 +86,6 @@ services:
 
       KAFKA_HOST: kafka.docker
       KAFKA_HOST_PORT: 9092
-
-      REDIS_HOST: redis.docker
-      REDIS_HOST_PORT: 6379
 
       DB_PROVIDER: CouchDB
       DB_PROTOCOL: http
