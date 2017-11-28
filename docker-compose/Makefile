@@ -1,4 +1,11 @@
-DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo localhost)
+# detect local ip of host as this is needed within containers to find the openwhisk API container
+LOCAL_IP ?= $(shell ifconfig | grep "inet " | grep -v 127.0.0.1 | cut -d\  -f2 | head -1)
+# if no IP was found, fallback to "localhost"
+ifeq ($(LOCAL_IP), )
+	LOCAL_IP = "localhost"
+endif
+
+DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo ${LOCAL_IP})
 DOCKER_REGISTRY ?= ""
 DOCKER_IMAGE_PREFIX ?= openwhisk
 PROJECT_HOME ?= ./openwhisk-master
@@ -54,7 +61,10 @@ build-cli:
 		./gradlew :tools:cli:distDocker
 
 .PHONY: run
-run: check-required-ports setup start-docker-compose init-couchdb init-whisk-cli
+run: print-host check-required-ports setup start-docker-compose init-couchdb init-whisk-cli
+
+print-host:
+	echo "host ip address: ${DOCKER_HOST_IP}"
 
 .PHONY: check-required-ports
 check-required-ports:
