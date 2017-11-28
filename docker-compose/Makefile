@@ -56,15 +56,13 @@ download-cli:
 	if [ "$(UNAME_STR)" = "Darwin" ]; then \
 	  echo "downloading cli for mac" ; \
 	  curl -o $(PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
-		pushd $(PROJECT_HOME)/bin ; \
+		cd $(PROJECT_HOME)/bin ; \
     unzip -o wsk.zip; \
-		popd; \
 	elif [ "$(UNAME_STR)" = "Linux" ]; then \
 	  echo "downloading cli for linux" ; \
 	  curl -o $(PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
-		pushd $(PROJECT_HOME)/bin ; \
+		cd $(PROJECT_HOME)/bin ; \
 		tar -xf wsk.tgz ; \
-		popd; \
 	fi; 
 
 
