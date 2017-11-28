@@ -17,6 +17,9 @@ DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
 RUNC_BINARY   ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which runc || which docker-runc"); else (which runc || which docker-runc); fi)
 DOCKER_BINARY ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which docker"); else (which docker); fi)
 
+
+UNAME_STR ?= $(shell uname)
+
 ifndef VERBOSE
 .SILENT:
 endif
@@ -26,7 +29,7 @@ endif
 #   2. then it starts all components using docker-compose
 #   3. it runs a sample hello-world function
 #   To stop and cleanup the environment use: make destroy
-quick-start: download build-cli run quick-start-pause hello-world quick-start-info
+quick-start: download download-cli run quick-start-pause hello-world quick-start-info
 
 .PHONY: download
 download:
@@ -55,10 +58,20 @@ docker:
 	cd $(PROJECT_HOME) && \
 		./gradlew distdocker -x :core:swift3Action:distDocker -x :core:swiftAction:distDocker
 
-build-cli:
-	echo "building the CLI tool ... "
-	cd $(PROJECT_HOME) && \
-		./gradlew :tools:cli:distDocker
+download-cli:
+	echo "downloading the CLI tool ... "
+	if [ "$(UNAME_STR)" = "Darwin" ]; then \
+	  echo "downloading cli for mac" ; \
+	  curl -o $(PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
+		cd $(PROJECT_HOME)/bin ; \
+    unzip -o wsk.zip; \
+	elif [ "$(UNAME_STR)" = "Linux" ]; then \
+	  echo "downloading cli for linux" ; \
+	  curl -o $(PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
+		cd $(PROJECT_HOME)/bin ; \
+		tar -xf wsk.tgz ; \
+	fi; 
+
 
 .PHONY: run
 run: print-host check-required-ports setup start-docker-compose init-couchdb init-whisk-cli
