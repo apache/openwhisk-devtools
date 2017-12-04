@@ -24,6 +24,7 @@ These ports must be available:
 - `8085` for OpenWhisk's Invoker
 - `8888` for OpenWhisk's Controller
 - `9092` for Kafka
+- `8001` for Kafka Topics UI
 
 # Quick Start
 

@@ -82,7 +82,7 @@ print-host:
 .PHONY: check-required-ports
 check-required-ports:
 	echo "checking required ports ... "
-	for port in 80 443 2888 5984 8085 8888 9092 2888; do \
+	for port in 80 443 2888 5984 8085 8888 9092 2888 8001; do \
 		pid=`lsof -Pi :$$port -sTCP:LISTEN -t` ; \
 		if [ ! -z "$$pid" ];  then echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; exit 1; fi; \
 	done
