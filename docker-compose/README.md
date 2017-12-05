@@ -144,3 +144,9 @@ To start `docker-compose` with custom images used for running actions use the fo
 - `DOCKER_IMAGE_PREFIX` - specify a custom image prefix. I.e. ```DOCKER_IMAGE_PREFIX=my-prefix make quick-start```
 
 These 2 variable allow you to execute a JS action using the container `registry.example.com/my-prefix/nodejs6action`.
+
+## Local Docker containers for controllers and invokers
+
+By default this setup uses published images for controller and invokers from `openwhisk` namespace i.e. 
+`openwhisk/controller` and `openwhisk/invoker`. To make use of locally build images you can use `DOCKER_OW_IMAGE_PREFIX`
+variable i.e. `DOCKER_OW_IMAGE_PREFIX=whisk make quick-start`

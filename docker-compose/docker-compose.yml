@@ -37,7 +37,7 @@ services:
 
   # WHISK CONTROLLER
   controller:
-    image: openwhisk/controller
+    image: ${DOCKER_OW_IMAGE_PREFIX:-openwhisk}/controller
     command: /bin/sh -c "controller/bin/controller 0 >> /logs/controller-local_logs.log 2>&1"
     links:
       - db:db.docker
@@ -76,7 +76,7 @@ services:
 
   # WHISK INVOKER AGENT
   invoker:
-    image: openwhisk/invoker
+    image: ${DOCKER_OW_IMAGE_PREFIX:-openwhisk}/invoker
     command: /bin/sh -c "/invoker/bin/invoker 0 >> /logs/invoker-local_logs.log 2>&1"
     privileged: true
     pid: "host"
