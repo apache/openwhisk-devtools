@@ -29,7 +29,7 @@ endif
 #   2. then it starts all components using docker-compose
 #   3. it runs a sample hello-world function
 #   To stop and cleanup the environment use: make destroy
-quick-start: download download-cli run quick-start-pause hello-world quick-start-info
+quick-start: download-cli run quick-start-pause hello-world quick-start-info
 
 .PHONY: download
 download:
@@ -53,7 +53,7 @@ quick-start-info:
 	echo "$$(tput setaf 2)To invoke the function again use: $$(tput setaf 4)make hello-world$$(tput sgr0)"
 	echo "$$(tput setaf 2)To stop openwhisk use: $$(tput setaf 4)make destroy$$(tput sgr0)"
 
-docker:
+docker: download
 	echo "building the docker images ... "
 	cd $(PROJECT_HOME) && \
 		./gradlew distdocker -x :core:swift3Action:distDocker -x :core:swiftAction:distDocker
@@ -70,7 +70,7 @@ download-cli:
 	  curl -o $(PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
 		cd $(PROJECT_HOME)/bin ; \
 		tar -xf wsk.tgz ; \
-	fi; 
+	fi;
 
 
 .PHONY: run

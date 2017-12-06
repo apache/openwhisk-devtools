@@ -31,17 +31,13 @@ These ports must be available:
 make quick-start
 ```
 
-This command downloads the `master` branch from the [OpenWhisk](https://github.com/openwhisk/openwhisk) repo, it  builds OpenWhisk, the docker containers, it starts the system and it executes a simple `hello-world` function.
+This command downloads the CLI tool, starts the system with prebuilt OpenWhisk images on Docker Hub and executes a simple `hello-world` function.
 At the end of the execution it prints the output of the function:
 ```javascript
 {
     "payload": "Hello, World!"
 }
 ```
-
-If `PROJECT_HOME` variable is set ( i.e. `PROJECT_HOME=/path/to/openwhisk make quick-start`)
-then the command skips downloading the `master` branch and uses instead the source code found in the `PROJECT_HOME` folder.
-This is useful for working with a local clone, making changes to the code, and run it with `docker-compose`.
 
 ## Updating OpenWhisk Invoker or Controller
 
@@ -78,6 +74,9 @@ make docker
 ```
 
 This command builds the docker containers for local testing and development.
+
+* If `PROJECT_HOME` variable is not set (default to `./openwhisk-master`), the command first downloads the main openwhisk repo to `openwhisk-master` for the build.
+* If `PROJECT_HOME` variable is set (i.e. `PROJECT_HOME=/path/to/openwhisk make docker`), the command skips downloading the `master` branch and uses instead the source code found in the `PROJECT_HOME` folder. This is useful for working with a local clone, making changes to the code, and run it with `docker-compose`.
 
 > NOTE: The build may skip some components such as Swift actions in order to finish the build faster.
 
@@ -147,6 +146,6 @@ These 2 variable allow you to execute a JS action using the container `registry.
 
 ## Local Docker containers for controllers and invokers
 
-By default this setup uses published images for controller and invokers from `openwhisk` namespace i.e. 
+By default this setup uses published images for controller and invokers from `openwhisk` namespace i.e.
 `openwhisk/controller` and `openwhisk/invoker`. To make use of locally build images you can use `DOCKER_OW_IMAGE_PREFIX`
 variable i.e. `DOCKER_OW_IMAGE_PREFIX=whisk make quick-start`
