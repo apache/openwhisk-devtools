@@ -143,3 +143,32 @@ services:
     ports:
       - "80:80"
       - "443:443"
+
+  kafka-rest:
+    image: confluentinc/cp-kafka-rest:3.3.1
+    hostname: kafka-rest
+    environment:
+      - ACCESS_CONTROL_ALLOW_ORIGIN_DEFAULT="*"
+      - KAFKA_REST_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_REST_HOST_NAME=kafka-rest
+      - KAFKA_REST_LISTENERS=http://kafka-rest:8082
+      - KAFKA_REST_CONSUMER_REQUEST_TIMEOUT_MS=30000
+      - KAFKA_REST_BOOTSTRAP_SERVERS=PLAINTEXT://kafka:9092
+    links:
+      - zookeeper
+      - kafka
+    depends_on:
+      - zookeeper
+      - kafka
+
+  kafka-topics-ui:
+      image: landoop/kafka-topics-ui:0.9.3
+      environment:
+        - KAFKA_REST_PROXY_URL=http://kafka-rest:8082
+        - KAFKA_REST_BOOTSTRAP_SERVERS=PLAINTEXT://kafka:9092
+        - PROXY=true
+      ports:
+        - 8001:8000
+      links:
+        - kafka
+        - kafka-rest
