@@ -1,8 +1,14 @@
+UNAME_STR ?= $(shell uname)
+
 # detect local ip of host as this is needed within containers to find the openwhisk API container
-LOCAL_IP ?= $(shell ifconfig | grep "inet " | grep -v 127.0.0.1 | cut -d\  -f2 | head -1)
-# if no IP was found, fallback to "localhost"
-ifeq ($(LOCAL_IP), )
-	LOCAL_IP = "localhost"
+ifeq ("$(UNAME_STR)","Linux")
+	LOCAL_IP=$(shell route | grep default | tr -s " " | cut -d " " -f 8 | xargs ifconfig | grep "inet addr:" | cut -d ":" -f 2 | cut -d " " -f 1)
+else
+	LOCAL_IP ?= $(shell ifconfig | grep "inet " | grep -v 127.0.0.1 | cut -d\  -f2 | head -1)
+	# if no IP was found, fallback to "localhost"
+	ifeq ($(LOCAL_IP), )
+		LOCAL_IP = "localhost"
+	endif
 endif
 
 DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo ${LOCAL_IP})
@@ -11,18 +17,30 @@ DOCKER_IMAGE_PREFIX ?= openwhisk
 PROJECT_HOME ?= ./openwhisk-master
 WSK_CLI ?= $(PROJECT_HOME)/bin/wsk
 
+DOCKER_NETWORK ?= "openwhisk_default"
+
 OPEN_WHISK_DB_PREFIX ?= local_
 
 DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
-RUNC_BINARY   ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which runc || which docker-runc"); else (which runc || which docker-runc); fi)
-DOCKER_BINARY ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which docker"); else (which docker); fi)
-
-
-UNAME_STR ?= $(shell uname)
-
+ifeq ("$(UNAME_STR)","Linux")
+	RUNC_BINARY   ?= $(shell (which runc || which docker-runc))
+	DOCKER_BINARY ?= $(shell (which docker))
+else
+	RUNC_BINARY   ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which runc || which docker-runc"); else (which runc || which docker-runc); fi)
+	DOCKER_BINARY ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which docker"); else (which docker); fi)
+endif
 ifndef VERBOSE
 .SILENT:
 endif
+
+.PHONY: deploy
+deploy: download download-cli docker run quick-start-pause postdeploy init-route-mgmt deploy-info
+
+.PHONY: deploy-info
+deploy-info:
+	echo "$$(tput setaf 2)To stop openwhisk without destroying the instances use: $$(tput setaf 4)make stop$$(tput sgr0)"
+	echo "$$(tput setaf 2)To start openwhisk after stopping use: $$(tput setaf 4)make run$$(tput sgr0)"
+	echo "$$(tput setaf 2)To stop openwhisk and release all resources use: $$(tput setaf 4)make destroy$$(tput sgr0)"
 
 # Quick-Start is a simple way to get started with OpenWhisk locally
 #   1. at start it builds the project and the docker containers
@@ -56,7 +74,7 @@ quick-start-info:
 docker:
 	echo "building the docker images ... "
 	cd $(PROJECT_HOME) && \
-		./gradlew distdocker -x :core:swift3Action:distDocker -x :core:swiftAction:distDocker
+		./gradlew distDocker
 
 download-cli:
 	echo "downloading the CLI tool ... "
@@ -79,10 +97,28 @@ run: print-host check-required-ports setup start-docker-compose init-couchdb ini
 print-host:
 	echo "host ip address: ${DOCKER_HOST_IP}"
 
+.PHONY: postdeploy
+postdeploy:
+	# Set up whisk.properties file
+	docker run --rm -v ~/tmp/openwhisk/src:/openwhisk -w /openwhisk/ansible \
+		--network="host" -t \
+		ddragosd/ansible:2.3.1.0-debian8 \
+		ansible-playbook -i environments/docker properties.yml  \
+		-e openwhisk_home=/openwhisk
+
+	# Install Openwhisk catalog
+	curl -O ./openwhisk-catalog-master.tar.gz -L https://api.github.com/repos/openwhisk/openwhisk-catalog/tarball/master > ~/tmp/openwhisk-catalog-master.tar.gz; \
+	mkdir ~/tmp/openwhisk-catalog; \
+	tar -xvf ~/tmp/openwhisk-catalog-master.tar.gz --strip 1 -C ~/tmp/openwhisk-catalog; \
+	OPENWHISK_HOME=~/tmp/openwhisk/src ~/tmp/openwhisk-catalog/packages/installCatalog.sh \
+		`cat $(PROJECT_HOME)/ansible/files/auth.whisk.system` \
+		$(DOCKER_HOST_IP):443 \
+		$(WSK_CLI)
+
 .PHONY: check-required-ports
 check-required-ports:
 	echo "checking required ports ... "
-	for port in 80 443 2888 5984 8085 8888 9092 2888 8001; do \
+	for port in 80 443 2888 5984 8085 8888 9092 2888 8001 9000 9001; do \
 		pid=`lsof -Pi :$$port -sTCP:LISTEN -t` ; \
 		if [ ! -z "$$pid" ];  then echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; exit 1; fi; \
 	done
@@ -90,14 +126,22 @@ check-required-ports:
 
 .PHONY: setup
 setup:
+	# Put apigateway files in place
 	mkdir -p ~/tmp/openwhisk/apigateway/ssl
 	cd $(PROJECT_HOME)/ansible/roles/nginx/files/ && ./genssl.sh $(DOCKER_HOST_IP) server
 	cp $(PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/apigateway/ssl
 	cp -r ./apigateway/* ~/tmp/openwhisk/apigateway/
+
+	# Put project files in place
+	rsync -a $(PROJECT_HOME)/* ~/tmp/openwhisk/src --exclude .git --exclude build --exclude tests
+	cp -r ./ansible/* ~/tmp/openwhisk/src/ansible
+
+	# Write local environment file
 	> ~/tmp/openwhisk/local.env
 	printf "DOCKER_BINARY=$(DOCKER_BINARY)\n" >> ~/tmp/openwhisk/local.env
 	printf "RUNC_BINARY=$(RUNC_BINARY)\n" >> ~/tmp/openwhisk/local.env
 	printf "DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP)\n" >> ~/tmp/openwhisk/local.env
+	printf "DOCKER_NETWORK=$(DOCKER_NETWORK)\n" >> ~/tmp/openwhisk/local.env
 	printf "DOCKER_REGISTRY=$(DOCKER_REGISTRY)\n" >> ~/tmp/openwhisk/local.env
 	printf "DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX)\n" >> ~/tmp/openwhisk/local.env
 
@@ -135,20 +179,35 @@ rm:
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm
 
 .PHONY: init-couchdb
-init-couchdb:
-	echo "waiting for the database to come up ... "
+init-couchdb: setup
+	echo "waiting for the database to come up ... on $(DOCKER_HOST_IP)"
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):5984/_all_dbs); do printf '.'; sleep 5; done
 
-	echo "initializing the database ... "
-	# make sure the src files are in a shared folder for docker
-	mkdir -p ~/tmp/openwhisk
-	rm -rf ~/tmp/openwhisk/src
-	rsync -a $(PROJECT_HOME)/* ~/tmp/openwhisk/src --exclude .git --exclude build --exclude tests
+	echo "initializing the database ... on $(DOCKER_HOST_IP)"
+
+	# Run database initialisation
+    db_ip_address=$$(docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f "{{.NetworkSettings.Networks.$(DOCKER_NETWORK).IPAddress}}"); \
 	docker run --rm -v ~/tmp/openwhisk/src:/openwhisk -w /openwhisk/ansible \
-	    --network="host" -t \
+	    --network=$(DOCKER_NETWORK) -t \
+	    --add-host="db.docker:$${db_ip_address}" \
 	    ddragosd/ansible:2.3.1.0-debian8  \
-	        ansible-playbook setup.yml initdb.yml wipe.yml \
-	            -e db_host=$(DOCKER_HOST_IP) -e openwhisk_home=/openwhisk -e db_prefix=$(OPEN_WHISK_DB_PREFIX)
+		sh -c "ansible-playbook -i environments/docker setup.yml \
+		    && ansible-playbook -i environments/docker couchdb.yml \
+		    && ansible-playbook -i environments/docker initdb.yml wipe.yml \
+		    -e openwhisk_home=/openwhisk -e db_host=db.docker -e db_prefix=$(OPEN_WHISK_DB_PREFIX)"
+
+.PHONY: init-route-mgmt
+init-route-mgmt:
+	$(PROJECT_HOME)/ansible/roles/routemgmt/files/uninstallRouteMgmt.sh \
+		`cat $(PROJECT_HOME)/ansible/files/auth.whisk.system` \
+		$(DOCKER_HOST_IP):443 \
+		'/whisk.system' \
+		$(WSK_CLI)
+	OPENWHISK_HOME=~/tmp/openwhisk/src $(PROJECT_HOME)/ansible/roles/routemgmt/files/installRouteMgmt.sh \
+		`cat $(PROJECT_HOME)/ansible/files/auth.whisk.system` \
+		$(DOCKER_HOST_IP):443 \
+		'/whisk.system' \
+		$(WSK_CLI)
 
 .PHONY: init-whisk-cli
 init-whisk-cli:
@@ -163,7 +222,11 @@ destroy: stop rm
 	docker ps | grep whisk | awk '{print $$1}' | xargs docker stop | xargs docker rm
 	echo "cleaning dangling docker volumes ... "
 	docker volume ls -qf dangling=true | xargs docker volume rm
-	rm -rf ~/tmp/openwhisk
+	if [ "$(UNAME_STR)" = "Linux" ]; then \
+	  sudo rm -rf ~/tmp/openwhisk ;\
+	else \
+	  rm -rf ~/tmp/openwhisk ;\
+	fi;
 	rm -rf ./openwhisk-master*
 
 # This task runs a hello-world function

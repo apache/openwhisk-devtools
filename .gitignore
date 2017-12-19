@@ -2,3 +2,5 @@ openwhisk-master
 openwhisk-master*
 
 *.iml
+
+.idea/

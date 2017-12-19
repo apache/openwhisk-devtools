@@ -1,0 +1,9 @@
+---
+# This overrides the standard Openwhisk CouchDB playbook for the docker-compose environment.
+# The standard playbook includes a play running against the DB host which requires gathering facts
+# (and hence SSH access) which we don't have in the docker-compose world.
+
+- hosts: localhost
+  tasks:
+  - name: prepare db_local.ini
+    local_action: template src="db_local.ini.j2" dest="{{ playbook_dir }}/db_local.ini"
