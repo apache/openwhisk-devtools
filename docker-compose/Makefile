@@ -17,7 +17,6 @@ DOCKER_IMAGE_PREFIX ?= openwhisk
 PROJECT_HOME ?= ./openwhisk-master
 WSK_CLI ?= $(PROJECT_HOME)/bin/wsk
 
-#OPEN_WHISK_DB_PREFIX ?= whisk_local_
 OPEN_WHISK_DB_PREFIX ?= local_
 
 DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
