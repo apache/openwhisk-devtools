@@ -20,10 +20,13 @@ WSK_CLI ?= $(PROJECT_HOME)/bin/wsk
 OPEN_WHISK_DB_PREFIX ?= local_
 
 DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
-RUNC_BINARY   ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which runc || which docker-runc"); else (which runc || which docker-runc); fi)
-DOCKER_BINARY ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which docker"); else (which docker); fi)
-
-
+ifeq ("$(UNAME_STR)","Linux")
+	RUNC_BINARY   ?= $(shell (which runc || which docker-runc))
+	DOCKER_BINARY ?= $(shell (which docker))
+else 
+	RUNC_BINARY   ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which runc || which docker-runc"); else (which runc || which docker-runc); fi)
+	DOCKER_BINARY ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which docker"); else (which docker); fi)
+endif
 ifndef VERBOSE
 .SILENT:
 endif
@@ -151,18 +154,11 @@ init-couchdb:
     compose_network=$$(docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f '{{range $$index, $$element := .NetworkSettings.Networks}}{{$$index}}{{end}}' | head -n 1); \
     db_ip_address=$$(docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f "{{.NetworkSettings.Networks.$${compose_network}.IPAddress}}"); \
 	docker run --rm -v ~/tmp/openwhisk/src:/openwhisk -w /openwhisk/ansible \
-<<<<<<< HEAD
-	    --network="host" -t \
-	    ddragosd/ansible:2.3.1.0-debian8  \
-	        ansible-playbook setup.yml couchdb.yml initdb.yml wipe.yml --tags=ini \
-	            -e db_host=$(DOCKER_HOST_IP) -e openwhisk_home=/openwhisk -e db_prefix=$(OPEN_WHISK_DB_PREFIX)
-=======
 		--network="$${compose_network}" -t \
 		--add-host="db:$${db_ip_address}" \
 		ddragosd/ansible:2.3.1.0-debian8  \
 		sh -c "ansible-playbook setup.yml && ansible-playbook couchdb.yml --tags=ini && ansible-playbook initdb.yml wipe.yml \
 			-e db_host=db -e openwhisk_home=/openwhisk -e db_prefix=$(OPEN_WHISK_DB_PREFIX)"
->>>>>>> Updates to make this work on Linux
 
 .PHONY: init-whisk-cli
 init-whisk-cli:
