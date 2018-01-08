@@ -1,8 +1,14 @@
+UNAME_STR ?= $(shell uname)
+
 # detect local ip of host as this is needed within containers to find the openwhisk API container
-LOCAL_IP ?= $(shell ifconfig | grep "inet " | grep -v 127.0.0.1 | cut -d\  -f2 | head -1)
-# if no IP was found, fallback to "localhost"
-ifeq ($(LOCAL_IP), )
-	LOCAL_IP = "localhost"
+ifeq ("$(UNAME_STR)","Linux")
+	LOCAL_IP=$(shell route | grep default | tr -s " " | cut -d " " -f 8 | xargs ifconfig | grep "inet addr:" | cut -d ":" -f 2 | cut -d " " -f 1)
+else
+	LOCAL_IP ?= $(shell ifconfig | grep "inet " | grep -v 127.0.0.1 | cut -d\  -f2 | head -1)
+	# if no IP was found, fallback to "localhost"
+	ifeq ($(LOCAL_IP), )
+		LOCAL_IP = "localhost"
+	endif
 endif
 
 DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo ${LOCAL_IP})
@@ -14,12 +20,13 @@ WSK_CLI ?= $(PROJECT_HOME)/bin/wsk
 OPEN_WHISK_DB_PREFIX ?= local_
 
 DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
-RUNC_BINARY   ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which runc || which docker-runc"); else (which runc || which docker-runc); fi)
-DOCKER_BINARY ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which docker"); else (which docker); fi)
-
-
-UNAME_STR ?= $(shell uname)
-
+ifeq ("$(UNAME_STR)","Linux")
+	RUNC_BINARY   ?= $(shell (which runc || which docker-runc))
+	DOCKER_BINARY ?= $(shell (which docker))
+else 
+	RUNC_BINARY   ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which runc || which docker-runc"); else (which runc || which docker-runc); fi)
+	DOCKER_BINARY ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which docker"); else (which docker); fi)
+endif
 ifndef VERBOSE
 .SILENT:
 endif
@@ -136,19 +143,22 @@ rm:
 
 .PHONY: init-couchdb
 init-couchdb:
-	echo "waiting for the database to come up ... "
+	echo "waiting for the database to come up ... on $(DOCKER_HOST_IP)"
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):5984/_all_dbs); do printf '.'; sleep 5; done
-
-	echo "initializing the database ... "
+	echo "initializing the database ... on $(DOCKER_HOST_IP)"
 	# make sure the src files are in a shared folder for docker
 	mkdir -p ~/tmp/openwhisk
 	rm -rf ~/tmp/openwhisk/src
 	rsync -a $(PROJECT_HOME)/* ~/tmp/openwhisk/src --exclude .git --exclude build --exclude tests
+	echo 'Setting up db using ansible container....'; \
+    compose_network=$$(docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f '{{range $$index, $$element := .NetworkSettings.Networks}}{{$$index}}{{end}}' | head -n 1); \
+    db_ip_address=$$(docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f "{{.NetworkSettings.Networks.$${compose_network}.IPAddress}}"); \
 	docker run --rm -v ~/tmp/openwhisk/src:/openwhisk -w /openwhisk/ansible \
-	    --network="host" -t \
-	    ddragosd/ansible:2.3.1.0-debian8  \
-	        ansible-playbook setup.yml couchdb.yml initdb.yml wipe.yml --tags=ini \
-	            -e db_host=$(DOCKER_HOST_IP) -e openwhisk_home=/openwhisk -e db_prefix=$(OPEN_WHISK_DB_PREFIX)
+		--network="$${compose_network}" -t \
+		--add-host="db:$${db_ip_address}" \
+		ddragosd/ansible:2.3.1.0-debian8  \
+		sh -c "ansible-playbook setup.yml && ansible-playbook couchdb.yml --tags=ini && ansible-playbook initdb.yml wipe.yml \
+			-e db_host=db -e openwhisk_home=/openwhisk -e db_prefix=$(OPEN_WHISK_DB_PREFIX)"
 
 .PHONY: init-whisk-cli
 init-whisk-cli:
@@ -163,7 +173,11 @@ destroy: stop rm
 	docker ps | grep whisk | awk '{print $$1}' | xargs docker stop | xargs docker rm
 	echo "cleaning dangling docker volumes ... "
 	docker volume ls -qf dangling=true | xargs docker volume rm
-	rm -rf ~/tmp/openwhisk
+	if [ "$(UNAME_STR)" = "Linux" ]; then \
+	  sudo rm -rf ~/tmp/openwhisk ;\
+	else \
+	  rm -rf ~/tmp/openwhisk ;\
+	fi;
 	rm -rf ./openwhisk-master*
 
 # This task runs a hello-world function
