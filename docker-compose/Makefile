@@ -147,7 +147,7 @@ init-couchdb:
 	docker run --rm -v ~/tmp/openwhisk/src:/openwhisk -w /openwhisk/ansible \
 	    --network="host" -t \
 	    ddragosd/ansible:2.3.1.0-debian8  \
-	        ansible-playbook setup.yml initdb.yml wipe.yml \
+	        ansible-playbook setup.yml couchdb.yml initdb.yml wipe.yml --tags=ini \
 	            -e db_host=$(DOCKER_HOST_IP) -e openwhisk_home=/openwhisk -e db_prefix=$(OPEN_WHISK_DB_PREFIX)
 
 .PHONY: init-whisk-cli
