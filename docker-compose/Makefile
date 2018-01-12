@@ -216,6 +216,9 @@ init-whisk-cli:
 	echo "initializing CLI ... "
 	$(WSK_CLI) -v property set --namespace guest --auth `cat $(PROJECT_HOME)/ansible/files/auth.guest` --apihost $(DOCKER_HOST_IP):443 -i
 
+	# Add dummy API gateway access token to avoid auth errors
+	printf "APIGW_ACCESS_TOKEN=foobar\n" >> ~/.wskprops
+
 .PHONY: destroy
 destroy: stop rm
 	echo "cleaning other openwhisk containers started by the invoker ... "
