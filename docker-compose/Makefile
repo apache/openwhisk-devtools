@@ -34,7 +34,7 @@ ifndef VERBOSE
 endif
 
 .PHONY: deploy
-deploy: download download-cli docker run quick-start-pause postdeploy init-route-mgmt deploy-info
+deploy: download download-cli docker run postdeploy init-route-mgmt deploy-info
 
 .PHONY: deploy-info
 deploy-info:
@@ -47,7 +47,7 @@ deploy-info:
 #   2. then it starts all components using docker-compose
 #   3. it runs a sample hello-world function
 #   To stop and cleanup the environment use: make destroy
-quick-start: download download-cli run quick-start-pause hello-world quick-start-info
+quick-start: download download-cli run hello-world quick-start-info
 
 .PHONY: download
 download:
@@ -92,7 +92,7 @@ download-cli:
 
 
 .PHONY: run
-run: print-host check-required-ports setup start-docker-compose init-couchdb init-whisk-cli
+run: print-host check-required-ports setup start-docker-compose init-couchdb quick-start-pause init-whisk-cli
 
 print-host:
 	echo "host ip address: ${DOCKER_HOST_IP}"
