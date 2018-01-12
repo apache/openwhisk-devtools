@@ -186,7 +186,7 @@ init-couchdb: setup
 	echo "initializing the database ... on $(DOCKER_HOST_IP)"
 
 	# Run database initialisation
-    db_ip_address=$$(docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f "{{.NetworkSettings.Networks.$(DOCKER_NETWORK).IPAddress}}"); \
+	db_ip_address=$$(docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f "{{.NetworkSettings.Networks.$(DOCKER_NETWORK).IPAddress}}"); \
 	docker run --rm -v ~/tmp/openwhisk/src:/openwhisk -w /openwhisk/ansible \
 	    --network=$(DOCKER_NETWORK) -t \
 	    --add-host="db.docker:$${db_ip_address}" \
