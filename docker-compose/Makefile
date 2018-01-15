@@ -15,6 +15,7 @@ DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,
 DOCKER_REGISTRY ?= ""
 DOCKER_IMAGE_PREFIX ?= openwhisk
 PROJECT_HOME ?= ./openwhisk-master
+CATALOG_HOME ?= ./openwhisk-catalog
 WSK_CLI ?= $(PROJECT_HOME)/bin/wsk
 
 OPEN_WHISK_DB_PREFIX ?= local_
@@ -38,6 +39,8 @@ endif
 #   To stop and cleanup the environment use: make destroy
 quick-start: download download-cli run quick-start-pause hello-world quick-start-info
 
+add-catalog: download-catalog setup-catalog init-catalog
+
 .PHONY: download
 download:
 	rm -rf ./openwhisk-master*
@@ -47,6 +50,17 @@ download:
 	    tar -xf ./openwhisk-master.tar.gz --strip 1 -C openwhisk-master; \
 	else \
 	     echo "Skipping downloading the code from git as PROJECT_HOME is not default:" $(PROJECT_HOME); \
+	fi
+
+.PHONY: download-catalog
+download-catalog:
+	rm -rf ./openwhisk-catalog*
+	if [ "$(CATALOG_HOME)" = "./openwhisk-catalog" ]; then \
+	    curl -O ./openwhisk-catalog.tar.gz -L https://api.github.com/repos/apache/incubator-openwhisk-catalog/tarball/master > ./openwhisk-catalog.tar.gz; \
+	    mkdir openwhisk-catalog; \
+	    tar -xf ./openwhisk-catalog.tar.gz --strip 1 -C openwhisk-catalog; \
+	else \
+	     echo "Skipping downloading the code from git as CATALOG_HOME is not default:" $(CATALOG_HOME); \
 	fi
 
 .PHONY: quick-start-pause
@@ -108,6 +122,11 @@ setup:
 	printf "DOCKER_REGISTRY=$(DOCKER_REGISTRY)\n" >> ~/tmp/openwhisk/local.env
 	printf "DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX)\n" >> ~/tmp/openwhisk/local.env
 
+.PHONY: setup-catalog
+setup-catalog:
+	printf "OPENWHISK_HOME=$(PROJECT_HOME)\n" > ~/tmp/openwhisk/catalog.env
+	printf "API_HOST=$(DOCKER_HOST_IP)\n" >> ~/tmp/openwhisk/catalog.env
+
 .PHONY: restart
 restart: stop rm start-docker-compose
 
@@ -166,6 +185,12 @@ init-whisk-cli:
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
 	echo "initializing CLI ... "
 	$(WSK_CLI) -v property set --namespace guest --auth `cat $(PROJECT_HOME)/ansible/files/auth.guest` --apihost $(DOCKER_HOST_IP):443 -i
+
+
+.PHONY: init-catalog
+init-catalog:
+	cd $(CATALOG_HOME) && \
+	$(shell cat ~/tmp/openwhisk/catalog.env) ./packages/installCatalog.sh
 
 .PHONY: destroy
 destroy: stop rm
