@@ -33,15 +33,6 @@ ifndef VERBOSE
 .SILENT:
 endif
 
-.PHONY: deploy
-deploy: download download-cli docker run postdeploy init-route-mgmt deploy-info
-
-.PHONY: deploy-info
-deploy-info:
-	echo "$$(tput setaf 2)To stop openwhisk without destroying the instances use: $$(tput setaf 4)make stop$$(tput sgr0)"
-	echo "$$(tput setaf 2)To start openwhisk after stopping use: $$(tput setaf 4)make run$$(tput sgr0)"
-	echo "$$(tput setaf 2)To stop openwhisk and release all resources use: $$(tput setaf 4)make destroy$$(tput sgr0)"
-
 # Quick-Start is a simple way to get started with OpenWhisk locally
 #   1. at start it builds the project and the docker containers
 #   2. then it starts all components using docker-compose
@@ -92,13 +83,13 @@ download-cli:
 
 
 .PHONY: run
-run: print-host check-required-ports setup start-docker-compose init-couchdb quick-start-pause init-whisk-cli
+run: print-host check-required-ports setup start-docker-compose init-couchdb quick-start-pause init-whisk-cli init-route-mgmt init-whisk-properties
 
 print-host:
 	echo "host ip address: ${DOCKER_HOST_IP}"
 
-.PHONY: postdeploy
-postdeploy:
+.PHONY: init-whisk-properties
+init-whisk-properties:
 	# Set up whisk.properties file
 	docker run --rm -v ~/tmp/openwhisk/src:/openwhisk -w /openwhisk/ansible \
 		--network="host" -t \
@@ -106,6 +97,8 @@ postdeploy:
 		ansible-playbook -i environments/docker properties.yml  \
 		-e openwhisk_home=/openwhisk
 
+.PHONY: init-catalog
+init-catalog:
 	# Install Openwhisk catalog
 	curl -O ./openwhisk-catalog-master.tar.gz -L https://api.github.com/repos/openwhisk/openwhisk-catalog/tarball/master > ~/tmp/openwhisk-catalog-master.tar.gz; \
 	mkdir ~/tmp/openwhisk-catalog; \
