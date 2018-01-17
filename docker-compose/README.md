@@ -149,5 +149,14 @@ These 2 variable allow you to execute a JS action using the container `registry.
 ## Local Docker containers for controllers and invokers
 
 By default this setup uses published images for controller and invokers from `openwhisk` namespace i.e. 
-`openwhisk/controller` and `openwhisk/invoker`. To make use of locally build images you can use `DOCKER_OW_IMAGE_PREFIX`
-variable i.e. `DOCKER_OW_IMAGE_PREFIX=whisk make quick-start`
+`openwhisk/controller` and `openwhisk/invoker`. To make use of locally build images you can use `DOCKER_IMAGE_PREFIX`
+variable i.e. `DOCKER_IMAGE_PREFIX=whisk make quick-start`
+
+## Openwhisk catalog
+
+If you would like to install the [Openwhisk Catalog](https://github.com/apache/incubator-openwhisk-catalog),
+you need to run:
+
+```
+make init-catalog
+```

@@ -1,0 +1,25 @@
+ansible    ansible_connection=local
+
+[edge]
+apigateway.docker   ansible_host=apigateway.docker
+
+[controllers]
+controllers.docker   ansible_host=controllers.docker
+
+[kafkas]
+kafka.docker   ansible_host=kafka.docker
+
+[zookeepers]
+zookeeper.docker   ansible_host=zookeeper.docker
+
+[invokers]
+invoker.docker   ansible_host=invoker.docker
+
+[db]
+db.docker   ansible_host=db.docker
+
+[redis]
+redis.docker   ansible_host=redis.docker
+
+[apigateway]
+apigateway.docker   ansible_host=apigateway.docker
