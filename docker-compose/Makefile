@@ -39,7 +39,7 @@ endif
 #   To stop and cleanup the environment use: make destroy
 quick-start: download download-cli run quick-start-pause hello-world quick-start-info
 
-add-catalog: download-catalog setup-catalog init-catalog
+add-catalog: download-catalog init-catalog
 
 .PHONY: download
 download:
@@ -122,11 +122,6 @@ setup:
 	printf "DOCKER_REGISTRY=$(DOCKER_REGISTRY)\n" >> ~/tmp/openwhisk/local.env
 	printf "DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX)\n" >> ~/tmp/openwhisk/local.env
 
-.PHONY: setup-catalog
-setup-catalog:
-	printf "OPENWHISK_HOME=$(PROJECT_HOME)\n" > ~/tmp/openwhisk/catalog.env
-	printf "API_HOST=$(DOCKER_HOST_IP)\n" >> ~/tmp/openwhisk/catalog.env
-
 .PHONY: restart
 restart: stop rm start-docker-compose
 
@@ -189,8 +184,10 @@ init-whisk-cli:
 
 .PHONY: init-catalog
 init-catalog:
-	cd $(CATALOG_HOME) && \
-	$(shell cat ~/tmp/openwhisk/catalog.env) ./packages/installCatalog.sh
+	OPENWHISK_HOME=$(PROJECT_HOME) $(CATALOG_HOME)/packages/installCatalog.sh \
+	  `cat $(PROJECT_HOME)/ansible/files/auth.whisk.system` \
+	  $(DOCKER_HOST_IP):443 \
+	  $(WSK_CLI)
 
 .PHONY: destroy
 destroy: stop rm
