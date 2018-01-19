@@ -21,10 +21,8 @@ OPEN_WHISK_DB_PREFIX ?= local_
 
 DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
 ifeq ("$(UNAME_STR)","Linux")
-	RUNC_BINARY   ?= $(shell (which runc || which docker-runc))
 	DOCKER_BINARY ?= $(shell (which docker))
 else 
-	RUNC_BINARY   ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which runc || which docker-runc"); else (which runc || which docker-runc); fi)
 	DOCKER_BINARY ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which docker"); else (which docker); fi)
 endif
 ifndef VERBOSE
@@ -103,7 +101,6 @@ setup:
 	cp -r ./apigateway/* ~/tmp/openwhisk/apigateway/
 	> ~/tmp/openwhisk/local.env
 	printf "DOCKER_BINARY=$(DOCKER_BINARY)\n" >> ~/tmp/openwhisk/local.env
-	printf "RUNC_BINARY=$(RUNC_BINARY)\n" >> ~/tmp/openwhisk/local.env
 	printf "DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP)\n" >> ~/tmp/openwhisk/local.env
 	printf "DOCKER_REGISTRY=$(DOCKER_REGISTRY)\n" >> ~/tmp/openwhisk/local.env
 	printf "DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX)\n" >> ~/tmp/openwhisk/local.env
