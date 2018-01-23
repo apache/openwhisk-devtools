@@ -116,8 +116,6 @@ services:
       - ~/tmp/openwhisk/invoker/logs:/logs
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/containers:/containers
-      - ${RUNC_BINARY}:/usr/bin/docker-runc
-      - /run/runc:/run/runc
       - /sys/fs/cgroup:/sys/fs/cgroup
     ports:
       - "8085:8085"
