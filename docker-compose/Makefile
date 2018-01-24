@@ -42,7 +42,9 @@ quick-start: download download-cli run quick-start-pause hello-world quick-start
 download:
 	rm -rf ./openwhisk-master*
 	if [ "$(PROJECT_HOME)" = "./openwhisk-master" ]; then \
-	    curl -O ./openwhisk-master.tar.gz -L https://api.github.com/repos/openwhisk/openwhisk/tarball/master > ./openwhisk-master.tar.gz; \
+        echo "Downloading source tar ball...."; \
+	    curl -o ./openwhisk-master.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/master.tar.gz; \
+        echo "Unpacking tarball."; \
 	    mkdir openwhisk-master; \
 	    tar -xf ./openwhisk-master.tar.gz --strip 1 -C openwhisk-master; \
 	else \
