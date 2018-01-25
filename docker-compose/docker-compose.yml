@@ -38,7 +38,7 @@ services:
   # WHISK CONTROLLER
   controller:
     image: ${DOCKER_OW_IMAGE_PREFIX:-openwhisk}/controller
-    command: /bin/sh -c "controller/bin/controller 0 >> /logs/controller-local_logs.log 2>&1"
+    command: /bin/sh -c "exec /init.sh 0 >> /logs/controller-local_logs.log 2>&1"
     links:
       - db:db.docker
       - kafka:kafka.docker
@@ -77,7 +77,7 @@ services:
   # WHISK INVOKER AGENT
   invoker:
     image: ${DOCKER_OW_IMAGE_PREFIX:-openwhisk}/invoker
-    command: /bin/sh -c "/invoker/bin/invoker 0 >> /logs/invoker-local_logs.log 2>&1"
+    command: /bin/sh -c "exec /init.sh 0 >> /logs/invoker-local_logs.log 2>&1"
     privileged: true
     pid: "host"
     userns_mode: "host"
