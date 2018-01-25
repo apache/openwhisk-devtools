@@ -240,3 +240,7 @@ hello-world-perf-test: create-hello-world-function
 
 	$(WSK_CLI) -i action delete hello-perf
 	rm hello.js
+
+.PHONY: pull
+pull: download setup
+	docker-compose --project-name openwhisk pull
