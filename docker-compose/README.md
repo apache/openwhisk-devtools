@@ -129,11 +129,51 @@ The result of the invokation should be printed on the terminal:
 
 Here is a [tutorial on getting started with actions](https://github.com/IBM-Bluemix/openwhisk-workshops/tree/master/bootcamp#start-your-engines).
 
+## Install Catalog Packages
+
+OpenWhisk has [numerous extra packages](https://github.com/apache/incubator-openwhisk-catalog) that are often installed into the `/whisk.system` namespace.
+
+***These are not included by default with the devtools  `make quick-start` command.***
+
+If you want to install these packages, run the following make command.
+
+```bash
+make add-catalog
+```
+
+Once the installation process has completed, you can check the `whisk.system` namespace to verify it those packages are now available.
+
+```
+wsk package list /whisk.system
+```
+
+## Install Feed Providers
+
+OpenWhisk supports [feed providers](https://github.com/apache/incubator-openwhisk/blob/master/docs/feeds.md) for invoking triggers from external event sources.
+
+***Feed provider packages are not included by default with the devtools  `make quick-start` command.***
+
+Providers for the [`alarms`](https://github.com/apache/incubator-openwhisk-package-alarms), [`kafka`](https://github.com/apache/incubator-openwhisk-package-kafka) and [`cloudant`](https://github.com/apache/incubator-openwhisk-package-cloudant) feeds can be installed individually using the `make` command.
+
+```bash
+make create-provider-alarms
+make create-provider-kafka
+make create-provider-cloudant
+```
+
+Once the installation process has completed, you can check the `whisk.system` namespace to verify it the feed packages are now available.
+
+```
+wsk package list /whisk.system
+```
+
 ## Logs
 
 - OpenWhisk Controller - `~/tmp/openwhisk/controller/logs/`
 - OpenWhisk Invoker - `~/tmp/openwhisk/invoker/logs/`
 - `docker-compose` logs - `~/tmp/openwhisk/docker-compose.log`
+- `docker-compose` feed provider logs - `~/tmp/openwhisk/docker-provider-compose.log`
+- Feed provider instance logs - `~/tmp/openwhisk/<feed_name>provider`
 - Action output such as stdout or console.log(): `wsk -i activation logs <activationId>`
 
 
