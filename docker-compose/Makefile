@@ -66,8 +66,8 @@ docker:
 		./gradlew distdocker -x :core:swift3Action:distDocker -x :core:swiftAction:distDocker
 
 download-cli:
-    if [ "$(PROJECT_HOME)" = "./openwhisk-master" ]; then \
-        echo "downloading the CLI tool ... "
+	echo "downloading the CLI tool ... "
+	if [ "$(PROJECT_HOME)" = "./openwhisk-master" ]; then \
         if [ "$(UNAME_STR)" = "Darwin" ]; then \
           echo "downloading cli for mac" ; \
           curl -o $(PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
@@ -79,9 +79,9 @@ download-cli:
             cd $(PROJECT_HOME)/bin ; \
             tar -xf wsk.tgz ; \
         fi; \
-    else \
+	else \
          echo "Skipping downloading the cli from git as PROJECT_HOME is not default:" $(PROJECT_HOME); \
-    fi
+	fi
 
 
 .PHONY: run
