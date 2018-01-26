@@ -104,6 +104,14 @@ To remove the stopped containers, clean the database files and the temporary fil
  make destroy
  ```
 
+# Add Catalog
+
+The following command adds the [openwhisk-catalog](https://github.com/apache/incubator-openwhisk-catalog):
+
+```bash
+make add-catalog
+```
+
 # Running a hello-world function
 
 Once OpenWhisk is up and running you can execute a `hello-world` function:
