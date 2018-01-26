@@ -80,18 +80,22 @@ docker:
 		./gradlew distdocker -x :core:swift3Action:distDocker -x :core:swiftAction:distDocker
 
 download-cli:
-	echo "downloading the CLI tool ... "
-	if [ "$(UNAME_STR)" = "Darwin" ]; then \
-	  echo "downloading cli for mac" ; \
-	  curl -o $(PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
-		cd $(PROJECT_HOME)/bin ; \
-    unzip -o wsk.zip; \
-	elif [ "$(UNAME_STR)" = "Linux" ]; then \
-	  echo "downloading cli for linux" ; \
-	  curl -o $(PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
-		cd $(PROJECT_HOME)/bin ; \
-		tar -xf wsk.tgz ; \
-	fi; 
+    if [ "$(PROJECT_HOME)" = "./openwhisk-master" ]; then \
+        echo "downloading the CLI tool ... "
+        if [ "$(UNAME_STR)" = "Darwin" ]; then \
+          echo "downloading cli for mac" ; \
+          curl -o $(PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
+            cd $(PROJECT_HOME)/bin ; \
+        unzip -o wsk.zip; \
+        elif [ "$(UNAME_STR)" = "Linux" ]; then \
+          echo "downloading cli for linux" ; \
+          curl -o $(PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
+            cd $(PROJECT_HOME)/bin ; \
+            tar -xf wsk.tgz ; \
+        fi; \
+    else \
+         echo "Skipping downloading the cli from git as PROJECT_HOME is not default:" $(PROJECT_HOME); \
+    fi
 
 
 .PHONY: run
@@ -127,7 +131,7 @@ restart: stop rm start-docker-compose
 .PHONY: restart-controller
 restart-controller:
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop controller
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm controller
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f controller
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up controller 2>&1 >> ~/tmp/openwhisk/docker-compose.log &
 	echo "waiting for the controller to see the invoker is 'up' ... "
 	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "up"); do printf '.'; sleep 5; done
@@ -135,7 +139,7 @@ restart-controller:
 .PHONY: restart-invoker
 restart-invoker:
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop invoker
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm invoker
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f invoker
 	echo "waiting for the invoker to be marked 'down' ... "
 	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "down"); do printf '.'; sleep 5; done
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up invoker 2>&1 >> ~/tmp/openwhisk/docker-compose.log &
@@ -152,7 +156,7 @@ stop:
 
 .PHONY: rm
 rm:
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f
 
 .PHONY: init-couchdb
 init-couchdb:
