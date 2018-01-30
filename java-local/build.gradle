@@ -1,0 +1,25 @@
+apply plugin: 'java'
+
+repositories {
+     mavenCentral()
+}
+
+dependencies {
+    compile 'com.google.code.gson:gson:2.6.2'
+    compile 'info.picocli:picocli:2.2.0'
+
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+}
+
+jar {
+  manifest {
+    attributes(
+      'Main-Class': 'openwhisk.java.local.CLI',
+    )
+  }
+  from {
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+  }
+}
+
