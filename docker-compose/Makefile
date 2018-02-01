@@ -93,6 +93,36 @@ check-required-ports:
 	done
 	echo " ... OK"
 
+.PHONY: check-alarm-ports
+check-alarm-ports:
+	echo "checking required ports ... "
+	for port in 8081; do \
+		pid=`lsof -Pi :$$port -sTCP:LISTEN -t` ; \
+		if [ ! -z "$$pid" ];  then echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; exit 1; fi; \
+	done
+	echo " ... OK"
+
+.PHONY: check-cloudant-ports
+check-cloudant-ports:
+	echo "checking required ports ... "
+	for port in 8082; do \
+		pid=`lsof -Pi :$$port -sTCP:LISTEN -t` ; \
+		if [ ! -z "$$pid" ];  then echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; exit 1; fi; \
+	done
+	echo " ... OK"
+
+.PHONY: check-kafka-ports
+check-kafka-ports:
+	echo "checking required ports ... "
+	for port in 5000; do \
+		pid=`lsof -Pi :$$port -sTCP:LISTEN -t` ; \
+		if [ ! -z "$$pid" ];  then echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; exit 1; fi; \
+	done
+	echo " ... OK"
+
+
+
+
 .PHONY: setup
 setup:
 	mkdir -p ~/tmp/openwhisk/apigateway/ssl
@@ -226,11 +256,11 @@ PACKAGE_CLOUDANT_HOME ?= ./openwhisk-package-cloudant
 PACKAGE_KAFKA_HOME ?= ./openwhisk-package-kafka
 CREATE_PACKAGE_STEPS = download-package- install-package- start-provider-
 
-create-provider-alarms: setup-providers $(addsuffix alarms,$(CREATE_PACKAGE_STEPS))
+create-provider-alarms: check-alarm-ports setup-providers $(addsuffix alarms,$(CREATE_PACKAGE_STEPS))
 
-create-provider-cloudant: setup-providers $(addsuffix cloudant,$(CREATE_PACKAGE_STEPS))
+create-provider-cloudant: check-cloudant-ports setup-providers $(addsuffix cloudant,$(CREATE_PACKAGE_STEPS))
 
-create-provider-kafka: setup-providers $(addsuffix kafka,$(CREATE_PACKAGE_STEPS))
+create-provider-kafka: check-kafka-ports setup-providers $(addsuffix kafka,$(CREATE_PACKAGE_STEPS))
 
 .PHONY: setup-providers
 setup-providers:
