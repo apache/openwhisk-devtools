@@ -1,0 +1,37 @@
+= Maven Example
+
+This example shows how to deploy a Java Action which has external dependency.  This 
+example uses Maven as the dependency manager.
+
+== Build 
+
+[code,sh]
+----
+./mvnw clean install
+---- 
+
+== Deploying the application to OpenWhisk
+
+[code,sh]
+----
+wsk -i action create md5hasher target/maven-example.jar --main org.apache.openwhisk.example.maven.App
+---- 
+
+== Invoking Action
+
+[code,sh]
+----
+wsk -i action invoke md5hasher --result -p text openwhisk 
+---- 
+
+Invoking the above action will return an JSON output which will have original plain text and MD5 hash of the same.
+
+Output of above action:
+
+[code,json]
+----
+{
+    "md5": "803cd3a8fe96ceab1dc654dc6e41be5c",
+    "text": "openwhisk"
+}
+----
