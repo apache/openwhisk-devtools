@@ -14,7 +14,7 @@ example uses Maven as the dependency manager.
 
 [code,sh]
 ----
-wsk -i action create md5hasher target/maven-example.jar --main org.apache.openwhisk.example.maven.App
+wsk -i action create md5hasher target/maven-java.jar --main org.apache.openwhisk.example.maven.App
 ---- 
 
 == Invoking Action
