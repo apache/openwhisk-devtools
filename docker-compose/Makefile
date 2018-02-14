@@ -17,7 +17,6 @@ DOCKER_IMAGE_PREFIX ?= openwhisk
 PROJECT_HOME ?= ./openwhisk-master
 CATALOG_HOME ?= ./openwhisk-catalog
 WSK_CLI ?= $(PROJECT_HOME)/bin/wsk
-
 OPEN_WHISK_DB_PREFIX ?= local_
 
 DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
@@ -81,18 +80,21 @@ docker:
 
 download-cli:
 	echo "downloading the CLI tool ... "
-	if [ "$(UNAME_STR)" = "Darwin" ]; then \
-	  echo "downloading cli for mac" ; \
-	  curl -o $(PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
-		cd $(PROJECT_HOME)/bin ; \
-    unzip -o wsk.zip; \
-	elif [ "$(UNAME_STR)" = "Linux" ]; then \
-	  echo "downloading cli for linux" ; \
-	  curl -o $(PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
-		cd $(PROJECT_HOME)/bin ; \
-		tar -xf wsk.tgz ; \
-	fi; 
-
+	if [ "$(PROJECT_HOME)" = "./openwhisk-master" ]; then \
+        if [ "$(UNAME_STR)" = "Darwin" ]; then \
+          echo "downloading cli for mac" ; \
+          curl -o $(PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
+            cd $(PROJECT_HOME)/bin ; \
+        unzip -o wsk.zip; \
+        elif [ "$(UNAME_STR)" = "Linux" ]; then \
+          echo "downloading cli for linux" ; \
+          curl -o $(PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
+            cd $(PROJECT_HOME)/bin ; \
+            tar -xf wsk.tgz ; \
+        fi; \
+	else \
+         echo "Skipping downloading the cli from git as PROJECT_HOME is not default:" $(PROJECT_HOME); \
+	fi
 
 .PHONY: run
 run: print-host check-required-ports setup start-docker-compose init-couchdb init-whisk-cli
@@ -108,6 +110,36 @@ check-required-ports:
 		if [ ! -z "$$pid" ];  then echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; exit 1; fi; \
 	done
 	echo " ... OK"
+
+.PHONY: check-alarm-ports
+check-alarm-ports:
+	echo "checking required ports ... "
+	for port in 8081; do \
+		pid=`lsof -Pi :$$port -sTCP:LISTEN -t` ; \
+		if [ ! -z "$$pid" ];  then echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; exit 1; fi; \
+	done
+	echo " ... OK"
+
+.PHONY: check-cloudant-ports
+check-cloudant-ports:
+	echo "checking required ports ... "
+	for port in 8082; do \
+		pid=`lsof -Pi :$$port -sTCP:LISTEN -t` ; \
+		if [ ! -z "$$pid" ];  then echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; exit 1; fi; \
+	done
+	echo " ... OK"
+
+.PHONY: check-kafka-ports
+check-kafka-ports:
+	echo "checking required ports ... "
+	for port in 5000; do \
+		pid=`lsof -Pi :$$port -sTCP:LISTEN -t` ; \
+		if [ ! -z "$$pid" ];  then echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; exit 1; fi; \
+	done
+	echo " ... OK"
+
+
+
 
 .PHONY: setup
 setup:
@@ -127,7 +159,7 @@ restart: stop rm start-docker-compose
 .PHONY: restart-controller
 restart-controller:
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop controller
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm controller
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f controller
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up controller 2>&1 >> ~/tmp/openwhisk/docker-compose.log &
 	echo "waiting for the controller to see the invoker is 'up' ... "
 	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "up"); do printf '.'; sleep 5; done
@@ -135,7 +167,7 @@ restart-controller:
 .PHONY: restart-invoker
 restart-invoker:
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop invoker
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm invoker
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f invoker
 	echo "waiting for the invoker to be marked 'down' ... "
 	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "down"); do printf '.'; sleep 5; done
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up invoker 2>&1 >> ~/tmp/openwhisk/docker-compose.log &
@@ -152,7 +184,7 @@ stop:
 
 .PHONY: rm
 rm:
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f
 
 .PHONY: init-couchdb
 init-couchdb:
@@ -244,3 +276,55 @@ hello-world-perf-test: create-hello-world-function
 .PHONY: pull
 pull: download setup
 	docker-compose --project-name openwhisk pull
+
+# Optional package configuration stages. These commands will install and set up
+# the alarms, cloudant and kakfa packages.
+PACKAGES = alarms cloudant kafka
+PACKAGE_ALARMS_HOME ?= ./openwhisk-package-alarms
+PACKAGE_CLOUDANT_HOME ?= ./openwhisk-package-cloudant
+PACKAGE_KAFKA_HOME ?= ./openwhisk-package-kafka
+CREATE_PACKAGE_STEPS = download-package- install-package- start-provider-
+
+create-provider-alarms: check-alarm-ports setup-providers $(addsuffix alarms,$(CREATE_PACKAGE_STEPS))
+
+create-provider-cloudant: check-cloudant-ports setup-providers $(addsuffix cloudant,$(CREATE_PACKAGE_STEPS))
+
+create-provider-kafka: check-kafka-ports setup-providers $(addsuffix kafka,$(CREATE_PACKAGE_STEPS))
+
+.PHONY: setup-providers
+setup-providers:
+	printf "OPENWHISK_HOME=$(realpath $(PROJECT_HOME))\n" > ~/tmp/openwhisk/providers.env
+	printf "ENDPOINT_AUTH=`cat $(realpath $(PROJECT_HOME))/ansible/files/auth.whisk.system`\n" >> ~/tmp/openwhisk/providers.env
+	printf "HOST_MACHINE=$(DOCKER_HOST_IP)\n" >> ~/tmp/openwhisk/providers.env
+	printf "DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP)\n" >> ~/tmp/openwhisk/providers.env
+
+.PHONY: $(addprefix download-package-,$(PACKAGES))
+$(addprefix download-package-,$(PACKAGES)):
+	$(eval PACKAGE_NAME:= $(shell echo $(@) | cut -b 18-))
+	$(eval PACKAGE_HOME := $(PACKAGE_$(shell echo $(PACKAGE_NAME) |  tr 'a-z' 'A-Z')_HOME))
+	echo "Downloading package" $(PACKAGE_NAME) "into" $(PACKAGE_HOME)
+	rm -rf ./openwhisk-package-$(PACKAGE_NAME)*
+	if [ "$(PACKAGE_HOME)" = "./openwhisk-package-$(PACKAGE_NAME)" ]; then \
+	    curl -O ./openwhisk-package-$(PACKAGE_NAME).tar.gz -L https://api.github.com/repos/apache/incubator-openwhisk-package-$(PACKAGE_NAME)/tarball/master > ./openwhisk-package-$(PACKAGE_NAME).tar.gz; \
+	    mkdir openwhisk-package-$(PACKAGE_NAME); \
+	    tar -xf ./openwhisk-package-$(PACKAGE_NAME).tar.gz --strip 1 -C openwhisk-package-$(PACKAGE_NAME); \
+	else \
+	     echo "Skipping downloading the code from git as PACKAGE_HOME is not default:" $(PACKAGE_HOME); \
+	fi
+
+.PHONY: $(addprefix install-package-,$(PACKAGES))
+$(addprefix install-package-,$(PACKAGES)):
+	$(eval PACKAGE_NAME:= $(shell echo $(@) | cut -b 17-))
+	$(eval PACKAGE_HOME := $(PACKAGE_$(shell echo $(PACKAGE_NAME) |  tr 'a-z' 'A-Z')_HOME))
+	cd $(PACKAGE_HOME) && \
+	$(shell cat ~/tmp/openwhisk/providers.env) ./installCatalog.sh $(realpath $(PROJECT_HOME))/ansible/files/auth.whisk.system $(DOCKER_HOST_IP) "http://$(DOCKER_HOST_IP):5984" $(OPEN_WHISK_DB_PREFIX) $(DOCKER_HOST_IP)
+
+.PHONY: $(addprefix start-provider-,$(PACKAGES))
+$(addprefix start-provider-,$(PACKAGES)):
+	$(eval PACKAGE_NAME:= $(shell echo $(@) | cut -b 16-))
+	$(shell cat ~/tmp/openwhisk/providers.env) docker-compose -f docker-compose.yml -f docker-compose.packages.yml --project-name openwhisk up --no-recreate $(PACKAGE_NAME)provider 2>&1 > ~/tmp/openwhisk/docker-provider-compose.log &
+
+.PHONY: $(addprefix stop-provider-,$(PACKAGES))
+$(addprefix stop-provider-,$(PACKAGES)): setup-providers
+	$(eval PACKAGE_NAME:= $(shell echo $(@) | cut -b 15-))
+	$(shell cat ~/tmp/openwhisk/providers.env) docker-compose -f docker-compose.yml -f docker-compose.packages.yml --project-name openwhisk stop $(PACKAGE_NAME)provider
