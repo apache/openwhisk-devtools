@@ -146,7 +146,7 @@ Once the installation process has completed, you can check the `whisk.system` na
 ```
 wsk package list /whisk.system
 ```
-## Updating Oontainers
+## Updating Containers
 
 If you want to pull new containers you can use `make pull` to update all the containers used in the docker-compose file.
 
