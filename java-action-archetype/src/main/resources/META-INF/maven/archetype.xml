@@ -1,0 +1,9 @@
+<archetype>
+  <id>java-action-archetype</id>
+  <sources>
+    <source>src/main/java/FunctionApp.java</source>
+  </sources>
+  <testSources>
+    <source>src/test/java/FunctionAppTest.java</source>
+  </testSources>
+</archetype>

@@ -4,3 +4,4 @@ openwhisk-master*
 *.iml
 .idea
 .vscode
+**/.sts4-cache
