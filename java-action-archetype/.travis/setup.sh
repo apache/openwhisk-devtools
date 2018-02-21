@@ -4,4 +4,4 @@ uname -sm
 
 SCRIPTDIR=$(cd $(dirname "$0") && pwd)
 
-mvn -B clean install -DskipTests=true
+mvn -DskipTests=true -Dmaven.javadoc.skip=true -B -V clean install

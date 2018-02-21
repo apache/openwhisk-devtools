@@ -2,6 +2,6 @@
 
 SCRIPTDIR=$(cd $(dirname "$0") && pwd)
 
-mvn -B clean install
+./mvnw -V test
 
 #TODO steps that can push this artifact to nexus
