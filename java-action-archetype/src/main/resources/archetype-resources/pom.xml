@@ -26,7 +26,7 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>maven-java</finalName>
+    <finalName>$artifactId</finalName>
     <plugins>
       <!-- This helps in packaging the function depeendencies as uber jar-->
       <plugin>
