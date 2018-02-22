@@ -144,7 +144,7 @@ check-kafka-ports:
 .PHONY: setup
 setup:
 	mkdir -p ~/tmp/openwhisk/apigateway/ssl
-	cd $(PROJECT_HOME)/ansible/roles/nginx/files/ && ./genssl.sh $(DOCKER_HOST_IP) server
+	$(PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(PROJECT_HOME)/ansible/roles/nginx/files
 	cp $(PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/apigateway/ssl
 	cp -r ./apigateway/* ~/tmp/openwhisk/apigateway/
 	> ~/tmp/openwhisk/local.env
