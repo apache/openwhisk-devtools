@@ -29,7 +29,7 @@ The following step shows how to deploy the function to OpenWhisk
 ```sh
 cd demo-function
 mvn clean install
-wsk action create demo target/demo-function.jar 
+wsk action create demo target/demo-function.jar --main com.example.FunctionApp
 ```
 
 After successful deployment of the function, we can invoke the same via `wsk action invoke demo --result` to see the response as:
