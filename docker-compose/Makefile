@@ -14,9 +14,9 @@ endif
 DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo ${LOCAL_IP})
 DOCKER_REGISTRY ?= ""
 DOCKER_IMAGE_PREFIX ?= openwhisk
-PROJECT_HOME ?= ./openwhisk-master
-CATALOG_HOME ?= ./openwhisk-catalog
-WSK_CLI ?= $(PROJECT_HOME)/bin/wsk
+OPENWHISK_PROJECT_HOME ?= ./openwhisk-master
+OPENWHISK_CATALOG_HOME ?= ./openwhisk-catalog
+WSK_CLI ?= $(OPENWHISK_PROJECT_HOME)/bin/wsk
 OPEN_WHISK_DB_PREFIX ?= local_
 
 DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
@@ -41,25 +41,25 @@ add-catalog: download-catalog init-catalog
 .PHONY: download
 download:
 	rm -rf ./openwhisk-master*
-	if [ "$(PROJECT_HOME)" = "./openwhisk-master" ]; then \
+	if [ "$(OPENWHISK_PROJECT_HOME)" = "./openwhisk-master" ]; then \
         echo "Downloading source tar ball...."; \
 	    curl -o ./openwhisk-master.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/master.tar.gz; \
         echo "Unpacking tarball."; \
 	    mkdir openwhisk-master; \
 	    tar -xf ./openwhisk-master.tar.gz --strip 1 -C openwhisk-master; \
 	else \
-	     echo "Skipping downloading the code from git as PROJECT_HOME is not default:" $(PROJECT_HOME); \
+	     echo "Skipping downloading the code from git as OPENWHISK_PROJECT_HOME is not default:" $(OPENWHISK_PROJECT_HOME); \
 	fi
 
 .PHONY: download-catalog
 download-catalog:
 	rm -rf ./openwhisk-catalog*
-	if [ "$(CATALOG_HOME)" = "./openwhisk-catalog" ]; then \
+	if [ "$(OPENWHISK_CATALOG_HOME)" = "./openwhisk-catalog" ]; then \
 	    curl -O ./openwhisk-catalog.tar.gz -L https://api.github.com/repos/apache/incubator-openwhisk-catalog/tarball/master > ./openwhisk-catalog.tar.gz; \
 	    mkdir openwhisk-catalog; \
 	    tar -xf ./openwhisk-catalog.tar.gz --strip 1 -C openwhisk-catalog; \
 	else \
-	     echo "Skipping downloading the code from git as CATALOG_HOME is not default:" $(CATALOG_HOME); \
+	     echo "Skipping downloading the code from git as OPENWHISK_CATALOG_HOME is not default:" $(OPENWHISK_CATALOG_HOME); \
 	fi
 
 .PHONY: quick-start-pause
@@ -75,25 +75,25 @@ quick-start-info:
 
 docker:
 	echo "building the docker images ... "
-	cd $(PROJECT_HOME) && \
+	cd $(OPENWHISK_PROJECT_HOME) && \
 		./gradlew distdocker -x :core:swift3Action:distDocker -x :core:swiftAction:distDocker
 
 download-cli:
 	echo "downloading the CLI tool ... "
-	if [ "$(PROJECT_HOME)" = "./openwhisk-master" ]; then \
+	if [ "$(OPENWHISK_PROJECT_HOME)" = "./openwhisk-master" ]; then \
         if [ "$(UNAME_STR)" = "Darwin" ]; then \
           echo "downloading cli for mac" ; \
-          curl -o $(PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
-            cd $(PROJECT_HOME)/bin ; \
+          curl -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
+            cd $(OPENWHISK_PROJECT_HOME)/bin ; \
         unzip -o wsk.zip; \
         elif [ "$(UNAME_STR)" = "Linux" ]; then \
           echo "downloading cli for linux" ; \
-          curl -o $(PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
-            cd $(PROJECT_HOME)/bin ; \
+          curl -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
+            cd $(OPENWHISK_PROJECT_HOME)/bin ; \
             tar -xf wsk.tgz ; \
         fi; \
 	else \
-         echo "Skipping downloading the cli from git as PROJECT_HOME is not default:" $(PROJECT_HOME); \
+         echo "Skipping downloading the cli from git as OPENWHISK_PROJECT_HOME is not default:" $(OPENWHISK_PROJECT_HOME); \
 	fi
 
 .PHONY: run
@@ -144,8 +144,8 @@ check-kafka-ports:
 .PHONY: setup
 setup:
 	mkdir -p ~/tmp/openwhisk/apigateway/ssl
-	$(PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(PROJECT_HOME)/ansible/roles/nginx/files
-	cp $(PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/apigateway/ssl
+	$(OPENWHISK_PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files
+	cp $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/apigateway/ssl
 	cp -r ./apigateway/* ~/tmp/openwhisk/apigateway/
 	> ~/tmp/openwhisk/local.env
 	printf "DOCKER_BINARY=$(DOCKER_BINARY)\n" >> ~/tmp/openwhisk/local.env
@@ -194,7 +194,7 @@ init-couchdb:
 	# make sure the src files are in a shared folder for docker
 	mkdir -p ~/tmp/openwhisk
 	rm -rf ~/tmp/openwhisk/src
-	rsync -a $(PROJECT_HOME)/* ~/tmp/openwhisk/src --exclude .git --exclude build --exclude tests
+	rsync -a $(OPENWHISK_PROJECT_HOME)/* ~/tmp/openwhisk/src --exclude .git --exclude build --exclude tests
 	echo 'Setting up db using ansible container....'; \
     compose_network=$$(docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f '{{range $$index, $$element := .NetworkSettings.Networks}}{{$$index}}{{end}}' | head -n 1); \
     db_ip_address=$$(docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f "{{.NetworkSettings.Networks.$${compose_network}.IPAddress}}"); \
@@ -210,13 +210,13 @@ init-whisk-cli:
 	echo "waiting for the Whisk controller to come up ... "
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
 	echo "initializing CLI ... "
-	$(WSK_CLI) -v property set --namespace guest --auth `cat $(PROJECT_HOME)/ansible/files/auth.guest` --apihost $(DOCKER_HOST_IP):443 -i
+	$(WSK_CLI) -v property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost $(DOCKER_HOST_IP):443 -i
 
 
 .PHONY: init-catalog
 init-catalog:
-	OPENWHISK_HOME=$(PROJECT_HOME) $(CATALOG_HOME)/packages/installCatalog.sh \
-	  `cat $(PROJECT_HOME)/ansible/files/auth.whisk.system` \
+	OPENWHISK_HOME=$(OPENWHISK_PROJECT_HOME) $(OPENWHISK_CATALOG_HOME)/packages/installCatalog.sh \
+	  `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.whisk.system` \
 	  $(DOCKER_HOST_IP):443 \
 	  $(WSK_CLI)
 
@@ -293,8 +293,8 @@ create-provider-kafka: check-kafka-ports setup-providers $(addsuffix kafka,$(CRE
 
 .PHONY: setup-providers
 setup-providers:
-	printf "OPENWHISK_HOME=$(realpath $(PROJECT_HOME))\n" > ~/tmp/openwhisk/providers.env
-	printf "ENDPOINT_AUTH=`cat $(realpath $(PROJECT_HOME))/ansible/files/auth.whisk.system`\n" >> ~/tmp/openwhisk/providers.env
+	printf "OPENWHISK_HOME=$(realpath $(OPENWHISK_PROJECT_HOME))\n" > ~/tmp/openwhisk/providers.env
+	printf "ENDPOINT_AUTH=`cat $(realpath $(OPENWHISK_PROJECT_HOME))/ansible/files/auth.whisk.system`\n" >> ~/tmp/openwhisk/providers.env
 	printf "HOST_MACHINE=$(DOCKER_HOST_IP)\n" >> ~/tmp/openwhisk/providers.env
 	printf "DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP)\n" >> ~/tmp/openwhisk/providers.env
 
@@ -317,7 +317,7 @@ $(addprefix install-package-,$(PACKAGES)):
 	$(eval PACKAGE_NAME:= $(shell echo $(@) | cut -b 17-))
 	$(eval PACKAGE_HOME := $(PACKAGE_$(shell echo $(PACKAGE_NAME) |  tr 'a-z' 'A-Z')_HOME))
 	cd $(PACKAGE_HOME) && \
-	$(shell cat ~/tmp/openwhisk/providers.env) ./installCatalog.sh $(realpath $(PROJECT_HOME))/ansible/files/auth.whisk.system $(DOCKER_HOST_IP) "http://$(DOCKER_HOST_IP):5984" $(OPEN_WHISK_DB_PREFIX) $(DOCKER_HOST_IP)
+	$(shell cat ~/tmp/openwhisk/providers.env) ./installCatalog.sh $(realpath $(OPENWHISK_PROJECT_HOME))/ansible/files/auth.whisk.system $(DOCKER_HOST_IP) "http://$(DOCKER_HOST_IP):5984" $(OPEN_WHISK_DB_PREFIX) $(DOCKER_HOST_IP)
 
 .PHONY: $(addprefix start-provider-,$(PACKAGES))
 $(addprefix start-provider-,$(PACKAGES)):
