@@ -99,6 +99,7 @@ services:
       KAFKA_HOSTS: kafka.docker:9092
       ZOOKEEPER_HOSTS: zookeeper.docker:2181
 
+      CONFIG_whisk_couchdb_provider: CouchDB
       CONFIG_whisk_couchdb_protocol: http
       CONFIG_whisk_couchdb_port: 5984
       CONFIG_whisk_couchdb_host: db.docker
