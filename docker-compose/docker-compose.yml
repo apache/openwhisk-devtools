@@ -56,12 +56,12 @@ services:
       KAFKA_HOSTS: kafka.docker:9092
       ZOOKEEPER_HOSTS: zookeeper.docker:2181
 
-      DB_PROVIDER: CouchDB
-      DB_PROTOCOL: http
-      DB_PORT: 5984
-      DB_HOST: db.docker
-      DB_USERNAME: whisk_admin
-      DB_PASSWORD: some_passw0rd
+      CONFIG_whisk_couchdb_provider: CouchDB
+      CONFIG_whisk_couchdb_protocol: http
+      CONFIG_whisk_couchdb_port: 5984
+      CONFIG_whisk_couchdb_host: db.docker
+      CONFIG_whisk_couchdb_username: whisk_admin
+      CONFIG_whisk_couchdb_password: some_passw0rd
       CONFIG_akka_remote_netty_tcp_hostname: controller
       CONFIG_akka_remote_netty_tcp_port: 2551
       CONFIG_akka_remote_netty_tcp_bindPort: 2551
@@ -99,12 +99,11 @@ services:
       KAFKA_HOSTS: kafka.docker:9092
       ZOOKEEPER_HOSTS: zookeeper.docker:2181
 
-      DB_PROVIDER: CouchDB
-      DB_PROTOCOL: http
-      DB_PORT: 5984
-      DB_HOST: db.docker
-      DB_USERNAME: whisk_admin
-      DB_PASSWORD: some_passw0rd
+      CONFIG_whisk_couchdb_protocol: http
+      CONFIG_whisk_couchdb_port: 5984
+      CONFIG_whisk_couchdb_host: db.docker
+      CONFIG_whisk_couchdb_username: whisk_admin
+      CONFIG_whisk_couchdb_password: some_passw0rd
 
       EDGE_HOST: ${DOCKER_COMPOSE_HOST}
       EDGE_HOST_APIPORT: 443
