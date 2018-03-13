@@ -66,6 +66,8 @@ services:
       CONFIG_akka_remote_netty_tcp_port: 2551
       CONFIG_akka_remote_netty_tcp_bindPort: 2551
 
+      CONFIG_akka_actor_provider: cluster
+
       LOADBALANCER_HOST: ${DOCKER_COMPOSE_HOST}
       LOADBALANCER_HOST_PORT: 443
     volumes:
