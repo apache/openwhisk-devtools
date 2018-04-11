@@ -28,7 +28,7 @@ case $key in
     shift # past argument
     ;;
     --image)
-    actionimage="$2"
+    action_image="$2"
     shift # past argument
     ;;
     --debug)
