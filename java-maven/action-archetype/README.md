@@ -1,12 +1,14 @@
 # Maven Archetype for Java Action
 
+This module is part of the Apache OpenWhisk project.
+
 This archetype helps to generate the Java Action template project.
 
 ## Pre-requisite
 
 The following softwares are required to build and deploy a Java Action to OpenWhisk:
 
-* (Maven v3.3.x)[https://maven.apache.org] or above
+* [Maven v3.3.x]https://maven.apache.org) or above
 * Java 8 or above
 
 [WSK CLI](https://github.com/apache/incubator-openwhisk/blob/master/docs/cli.md) is configured 
