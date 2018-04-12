@@ -6,7 +6,7 @@ This project automatically installs OpenWhisk actions, packages, rules and trigg
 
 The following softwares are required to use this project:
 
-* (Maven v3.3.x)[https://maven.apache.org] or above
+* [Maven v3.3.x](https://maven.apache.org) or above
 * Java 8 or above
 * OpenWhisk CLI
 * [openwhisk-annotations](../annotations/)
