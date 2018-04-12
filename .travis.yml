@@ -6,8 +6,8 @@ env:
   matrix:
     - TOOL: docker-compose
     - TOOL: java-maven/parent
-    - TOOL: java-maven/annotations
-    - TOOL: java-maven/update-maven-plugin
+#    - TOOL: java-maven/annotations
+#    - TOOL: java-maven/update-maven-plugin
     - TOOL: java-maven/action-archetype
 
 services:
