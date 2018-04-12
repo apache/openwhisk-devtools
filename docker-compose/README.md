@@ -81,15 +81,21 @@ make restart-controller
 
 * Check the [issue tracker](https://github.com/apache/incubator-openwhisk-devtools/issues) for more.
 
-# Build
+# Build or Pull
 
+You can pull pre-built image
 ```bash
-make docker
+make docker_pull
 ```
 
-This command builds the docker containers for local testing and development.
+This command pulls the docker images for local testing and development.
 
-> NOTE: The build may skip some components such as Swift actions in order to finish the build faster.
+```bash
+make docker_build
+```
+
+This command builds the docker images for local testing and development.
+
 
 # Start
 
@@ -200,6 +206,6 @@ These 2 variable allow you to execute a JS action using the container `registry.
 
 ## Local Docker containers for controllers and invokers
 
-By default this setup uses published images for controller and invokers from `openwhisk` namespace i.e. 
+By default this setup uses published images for controller and invokers from `openwhisk` namespace i.e.
 `openwhisk/controller` and `openwhisk/invoker`. To make use of locally build images you can use `DOCKER_OW_IMAGE_PREFIX`
 variable i.e. `DOCKER_OW_IMAGE_PREFIX=whisk make quick-start`
