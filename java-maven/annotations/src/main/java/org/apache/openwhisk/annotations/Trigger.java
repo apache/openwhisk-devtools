@@ -44,11 +44,6 @@ public @interface Trigger {
 	 * The name of the trigger
 	 */
 	String name();
-	
-	/**
-	 * The name of the package for this trigger
-	 */
-	String packageName() default "";
 
 	/**
 	 * The parameter values for the trigger

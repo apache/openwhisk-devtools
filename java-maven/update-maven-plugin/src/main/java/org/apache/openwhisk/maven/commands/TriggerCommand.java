@@ -31,7 +31,7 @@ public class TriggerCommand extends Command {
 	private final Logger log = LoggerFactory.getLogger(RuleCommand.class);
 
 	public TriggerCommand(Trigger trigger, List<String> init, List<String> globalFlags) {
-		super(init, trigger.packageName(), trigger.name(), globalFlags);
+		super(init, trigger.name(), globalFlags);
 
 		this.addAnnotations(trigger.annotations());
 		this.addParameters(trigger.parameters());

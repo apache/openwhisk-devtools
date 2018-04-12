@@ -31,7 +31,7 @@ public class PackageCommand extends Command {
 	private final Logger log = LoggerFactory.getLogger(PackageCommand.class);
 
 	public PackageCommand(Package pkg, List<String> init, List<String> globalFlags) {
-		super(init, "", pkg.name(), globalFlags);
+		super(init, pkg.name(), globalFlags);
 
 		this.addAnnotations(pkg.annotations());
 		this.addParameters(pkg.parameters());

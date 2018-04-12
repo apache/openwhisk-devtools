@@ -39,11 +39,6 @@ public @interface Rule {
 	 * The name of the trigger
 	 */
 	String name();
-	
-	/**
-	 * The name of the package for this rule
-	 */
-	String packageName() default "";
 
 	/**
 	 * The name of the trigger to execute this rule

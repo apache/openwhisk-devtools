@@ -31,9 +31,11 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.openwhisk.annotations.Action;
 import org.apache.openwhisk.annotations.Package;
+import org.apache.openwhisk.annotations.Rule;
 import org.apache.openwhisk.annotations.Trigger;
 import org.apache.openwhisk.maven.commands.ActionCommand;
 import org.apache.openwhisk.maven.commands.PackageCommand;
+import org.apache.openwhisk.maven.commands.RuleCommand;
 import org.apache.openwhisk.maven.commands.TriggerCommand;
 import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
@@ -211,6 +213,14 @@ public class UpdateWhiskMojo extends AbstractMojo {
 				for (Trigger trigger : triggers) {
 					TriggerCommand tc = new TriggerCommand(trigger, cmd, globalFlags);
 					tc.execute();
+				}
+			}
+
+			Rule[] rules = mainClass.getDeclaredAnnotationsByType(Rule.class);
+			if (rules != null) {
+				for (Rule rule : rules) {
+					RuleCommand rc = new RuleCommand(rule, cmd, globalFlags);
+					rc.execute();
 				}
 			}
 
