@@ -27,7 +27,6 @@
         <relativePath />
 	</parent>
 	
-	<groupId>org.apache.openwhisk</groupId>
 	<artifactId>openwhisk-annotations</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Apache OpenWhisk Annotations</name>

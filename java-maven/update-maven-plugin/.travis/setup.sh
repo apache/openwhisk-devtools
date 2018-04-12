@@ -9,10 +9,8 @@ TOOLDIR="$SCRIPTDIR/../"
 mkdir -p $TOOLDIR/target
 cd $TOOLDIR/target
 git clone https://github.com/klcodanr/incubator-openwhisk-devtools.git
-cd $TOOLDIR/target/incubator-openwhisk-devtools/java-maven/parent
-mvn -DskipTests=true -Dmaven.javadoc.skip=true -B -V clean install
-cd $TOOLDIR/target/incubator-openwhisk-devtools/java-maven/annotations
-mvn -DskipTests=true -Dmaven.javadoc.skip=true -B -V clean install
+mvn -DskipTests=true -Dmaven.javadoc.skip=true -B -q clean install -f $TOOLDIR/target/incubator-openwhisk-devtools/java-maven/parent/pom.xml
+mvn -DskipTests=true -Dmaven.javadoc.skip=true -B -q clean install -f $TOOLDIR/target/incubator-openwhisk-devtools/java-maven/annotations/pom.xml
 
 cd $TOOLDIR
 
