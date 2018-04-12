@@ -30,10 +30,12 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.openwhisk.annotations.Action;
+import org.apache.openwhisk.annotations.ActionSequence;
 import org.apache.openwhisk.annotations.Package;
 import org.apache.openwhisk.annotations.Rule;
 import org.apache.openwhisk.annotations.Trigger;
 import org.apache.openwhisk.maven.commands.ActionCommand;
+import org.apache.openwhisk.maven.commands.ActionSequenceCommand;
 import org.apache.openwhisk.maven.commands.PackageCommand;
 import org.apache.openwhisk.maven.commands.RuleCommand;
 import org.apache.openwhisk.maven.commands.TriggerCommand;
@@ -205,6 +207,14 @@ public class UpdateWhiskMojo extends AbstractMojo {
 				for (Action action : actions) {
 					ActionCommand ac = new ActionCommand(action, cmd, globalFlags, jar, main);
 					ac.execute();
+				}
+			}
+
+			ActionSequence[] actionSequences = mainClass.getDeclaredAnnotationsByType(ActionSequence.class);
+			if (actionSequences != null) {
+				for (ActionSequence actionSequence : actionSequences) {
+					ActionSequenceCommand asc = new ActionSequenceCommand(actionSequence, cmd, globalFlags);
+					asc.execute();
 				}
 			}
 

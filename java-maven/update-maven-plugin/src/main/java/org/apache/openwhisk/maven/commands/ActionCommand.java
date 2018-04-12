@@ -40,11 +40,6 @@ public class ActionCommand extends Command {
 		this.addAnnotations(action.annotations());
 		this.addParameters(action.parameters());
 
-		if (StringUtils.isNotBlank(action.docker())) {
-			log.debug("Setting docker to " + action.docker());
-			cmd.add("--docker");
-			cmd.add(action.docker());
-		}
 		if (action.logsize() != -1) {
 			log.debug("Setting logsize to " + action.logsize());
 			cmd.add("--logsize");

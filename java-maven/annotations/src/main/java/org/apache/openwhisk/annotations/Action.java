@@ -35,11 +35,6 @@ public @interface Action {
 	Annotation[] annotations() default {};
 
 	/**
-	 * Use provided docker image (a path on DockerHub) to run the action
-	 */
-	String docker() default "";
-
-	/**
 	 * The maximum log size LIMIT in MB for the action (default 10)
 	 */
 	int logsize() default -1;
@@ -63,11 +58,6 @@ public @interface Action {
 	 * The parameter values for the action
 	 */
 	Parameter[] parameters() default {};
-
-	/**
-	 * Treat ACTION as comma separated sequence of actions to invoke
-	 */
-	boolean sequence() default false;
 
 	/**
 	 * The timeout LIMIT in milliseconds after which the action is terminated

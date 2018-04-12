@@ -26,6 +26,17 @@ The `@Action` annotation defines an OpenWhisk [action](https://github.com/apache
 public class FunctionApp {
 ```
 
+
+
+### ActionSequence Annotation
+
+The `@ActionSequence` annotation defines an OpenWhisk [action](https://github.com/apache/incubator-openwhisk/blob/master/docs/actions.md) sequence:
+
+```
+@Action(name = "simple-function", packageName = "test", parameters = { @Parameter(key = "Name", value = "Bob") })
+public class FunctionApp {
+```
+
 ### Package Annotation
 
 The `@Package` annotation defines an OpenWhisk [package](https://github.com/apache/incubator-openwhisk/blob/master/docs/packages.md):
