@@ -1,5 +1,7 @@
 # OpenWhisk Annotations for Java
 
+This module is part of the [Apache OpenWhisk](http://openwhisk.incubator.apache.org/) project.
+
 This project allows developers to define actions, packages, rules and triggers from annotations on java classes.
 
 ## Pre-requisite
