@@ -40,11 +40,83 @@ To enable the plugin in your Maven project, add the following into the build > p
 When you build your code with `mvn clean install`, you should see log messages similar to the following:
 
 ```
-[INFO] --- openwhisk-update-maven-plugin:0.0.1-SNAPSHOT:update (default) @ simple-email-function ---
+[INFO] ok: got package test
+[INFO] {
+[INFO]     "namespace": "user@email_dev",
+[INFO]     "name": "test",
+[INFO]     "version": "0.0.13",
+[INFO]     "publish": false,
+[INFO]     "binding": {},
+[INFO]     "actions": [
+[INFO]         {
+[INFO]             "name": "simple-email",
+[INFO]             "version": "0.0.11",
+[INFO]             "annotations": [
+[INFO]                 {
+[INFO]                     "key": "exec",
+[INFO]                     "value": "java"
+[INFO]                 },
+[INFO]                 {
+[INFO]                     "key": "web-export",
+[INFO]                     "value": true
+[INFO]                 },
+[INFO]                 {
+[INFO]                     "key": "raw-http",
+[INFO]                     "value": false
+[INFO]                 },
+[INFO]                 {
+[INFO]                     "key": "final",
+[INFO]                     "value": true
+[INFO]                 }
+[INFO]             ]
+[INFO]         }
+[INFO]     ]
+[INFO] }
 [INFO] Updating OpenWhisk package test
 [INFO] ok: updated package test
-[INFO] Updating OpenWhisk action simple-function
-[INFO] ok: updated action test/simple-function
+[INFO] ok: got action test/simple-action
+[INFO] {
+[INFO]     "namespace": "user@email/test",
+[INFO]     "name": "simple-action",
+[INFO]     "version": "0.0.11",
+[INFO]     "exec": {
+[INFO]         "kind": "java",
+[INFO]         "main": "com.test.FunctionApp",
+[INFO]         "binary": true
+[INFO]     },
+[INFO]     "annotations": [
+[INFO]         {
+[INFO]             "key": "exec",
+[INFO]             "value": "java"
+[INFO]         },
+[INFO]         {
+[INFO]             "key": "web-export",
+[INFO]             "value": true
+[INFO]         },
+[INFO]         {
+[INFO]             "key": "raw-http",
+[INFO]             "value": false
+[INFO]         },
+[INFO]         {
+[INFO]             "key": "final",
+[INFO]             "value": true
+[INFO]         }
+[INFO]     ],
+[INFO]     "parameters": [
+[INFO]         {
+[INFO]             "key": "Name",
+[INFO]             "value": "Bob"
+[INFO]         }
+[INFO]     ],
+[INFO]     "limits": {
+[INFO]         "timeout": 60000,
+[INFO]         "memory": 256,
+[INFO]         "logs": 10
+[INFO]     },
+[INFO]     "publish": false
+[INFO] }
+[INFO] Updating OpenWhisk action simple-action
+[INFO] ok: updated action test/simple-action
 [INFO] OpenWhisk Updates Successful!
 ```
 

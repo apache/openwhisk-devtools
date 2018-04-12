@@ -42,7 +42,7 @@ Our recommendation would be to add this to a package-info.java class for the pac
 The `@Rule` annotation defines an OpenWhisk [rule](https://github.com/apache/incubator-openwhisk/blob/master/docs/triggers_rules.md):
 
 ```
-@Rule(actionName="test/simple-function", name = "dostuffrule", packageName = "test", triggerName="test/dostuff")
+@Rule(actionName="test/simple-function", name = "dostuffrule", triggerName="dostuff")
 public class FunctionApp {
 ```
 
@@ -52,6 +52,6 @@ public class FunctionApp {
 The `@Trigger` annotation defines an OpenWhisk [trigger](https://github.com/apache/incubator-openwhisk/blob/master/docs/triggers_rules.md):
 
 ```
-@Trigger(feed = "/whisk.system/alarms/alarm", name = "dostuff", packageName = "test", parameters = { @Parameter(key = "cron", value = "5 * * * *")})
+@Trigger(feed = "/whisk.system/alarms/alarm", name = "dostuff", parameters = { @Parameter(key = "cron", value = "5 * * * *")})
 public class FunctionApp {
 ```
