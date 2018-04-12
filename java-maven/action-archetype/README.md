@@ -1,6 +1,6 @@
 # Maven Archetype for Java Action
 
-This module is part of the Apache OpenWhisk project.
+This module is part of the [Apache OpenWhisk](http://openwhisk.incubator.apache.org/) project.
 
 This archetype helps to generate the Java Action template project.
 
