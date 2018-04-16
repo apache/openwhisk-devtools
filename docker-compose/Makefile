@@ -22,7 +22,7 @@ OPEN_WHISK_DB_PREFIX ?= local_
 DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
 ifeq ("$(UNAME_STR)","Linux")
 	DOCKER_BINARY ?= $(shell (which docker))
-else 
+else
 	DOCKER_BINARY ?= $(shell if [[ $(DOCKER_KERNEL) == *-moby || $(DOCKER_KERNEL) ==  *-boot2docker ]]; then (docker run --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh -c "which docker"); else (which docker); fi)
 endif
 ifndef VERBOSE
@@ -34,7 +34,7 @@ endif
 #   2. then it starts all components using docker-compose
 #   3. it runs a sample hello-world function
 #   To stop and cleanup the environment use: make destroy
-quick-start: download download-cli run quick-start-pause hello-world quick-start-info
+quick-start: download download-cli docker_pull run quick-start-pause hello-world quick-start-info
 
 add-catalog: download-catalog init-catalog
 
@@ -73,10 +73,36 @@ quick-start-info:
 	echo "$$(tput setaf 2)To invoke the function again use: $$(tput setaf 4)make hello-world$$(tput sgr0)"
 	echo "$$(tput setaf 2)To stop openwhisk use: $$(tput setaf 4)make destroy$$(tput sgr0)"
 
-docker:
-	echo "building the docker images ... "
+docker_build:
+	echo "building the docker images short list ... "
 	cd $(OPENWHISK_PROJECT_HOME) && \
-		./gradlew distdocker -x :core:swift3Action:distDocker -x :core:swiftAction:distDocker
+		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX) -x :actionRuntimes:pythonAction:distDocker  -x :actionRuntimes:python2Action:distDocker -x actionRuntimes:swift3.1.1Action:distDocker -x actionRuntimes:swift4.1Action:distDocker -x :actionRuntimes:javaAction:distDocker
+
+docker_build_full:
+	echo "building the docker images full list ... "
+	cd $(OPENWHISK_PROJECT_HOME) && \
+		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX)
+
+docker_pull:
+	echo "pulling the docker images short list... "
+	docker pull $(DOCKER_IMAGE_PREFIX)/controller
+	docker pull $(DOCKER_IMAGE_PREFIX)/invoker
+	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action
+	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton
+
+docker_pull_full:
+	echo "pulling the docker images full list ... "
+	docker pull $(DOCKER_IMAGE_PREFIX)/controller
+	docker pull $(DOCKER_IMAGE_PREFIX)/invoker
+	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v8
+	docker pull $(DOCKER_IMAGE_PREFIX)/python2action
+	docker pull $(DOCKER_IMAGE_PREFIX)/python3action
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v3.1.1
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v4.1
+	docker pull $(DOCKER_IMAGE_PREFIX)/java8action
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.1
+	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton
 
 download-cli:
 	echo "downloading the CLI tool ... "
