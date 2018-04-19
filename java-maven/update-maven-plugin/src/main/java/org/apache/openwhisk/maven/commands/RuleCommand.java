@@ -29,8 +29,8 @@ public class RuleCommand extends Command {
 
 	private final Logger log = LoggerFactory.getLogger(RuleCommand.class);
 
-	public RuleCommand(Rule rule, List<String> init, List<String> globalFlags) {
-		super(init, rule.name(), globalFlags);
+	public RuleCommand(String namespace, Rule rule, List<String> init, List<String> globalFlags) {
+		super(init, namespace, rule.name(), globalFlags);
 
 		log.debug("Setting trigger name to {}", rule.triggerName());
 		cmd.add(rule.triggerName());

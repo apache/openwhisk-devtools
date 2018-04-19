@@ -30,8 +30,9 @@ public class ActionSequenceCommand extends Command {
 
 	private final Logger log = LoggerFactory.getLogger(ActionSequenceCommand.class);
 
-	public ActionSequenceCommand(ActionSequence actionSequence, List<String> init, List<String> globalFlags) {
-		super(init, actionSequence.packageName(), actionSequence.name(), globalFlags);
+	public ActionSequenceCommand(String namespace, ActionSequence actionSequence, List<String> init,
+			List<String> globalFlags) {
+		super(init, namespace, actionSequence.packageName(), actionSequence.name(), globalFlags);
 
 		this.addAnnotations(actionSequence.annotations());
 		this.addParameters(actionSequence.parameters());

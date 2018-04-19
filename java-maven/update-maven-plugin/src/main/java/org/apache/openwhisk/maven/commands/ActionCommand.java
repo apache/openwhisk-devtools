@@ -30,8 +30,8 @@ public class ActionCommand extends Command {
 
 	private final Logger log = LoggerFactory.getLogger(ActionCommand.class);
 
-	public ActionCommand(Action action, List<String> init, List<String> globalFlags, String jar, String main) {
-		super(init, action.packageName(), action.name(), globalFlags);
+	public ActionCommand(String namespace, Action action, List<String> init, List<String> globalFlags, String jar, String main) {
+		super(init, namespace, action.packageName(), action.name(), globalFlags);
 		
 		cmd.add(jar);
 		cmd.add("--main");

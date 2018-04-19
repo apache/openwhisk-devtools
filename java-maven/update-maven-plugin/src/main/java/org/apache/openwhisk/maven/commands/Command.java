@@ -44,63 +44,44 @@ public abstract class Command {
 	private List<String> globalFlags = null;
 
 	private String name;
-	
 
-	public Command(List<String> init, String name, List<String> globalFlags) {
-		this(init, "", name, globalFlags);
+	private String namespace;
+
+	public Command(List<String> init, String namespace, String name, List<String> globalFlags) {
+		this(init, namespace, "", name, globalFlags);
 	}
 
-	public Command(List<String> init, String pkg, String name, List<String> globalFlags) {
+	public Command(List<String> init, String namespace, String pkg, String name, List<String> globalFlags) {
 		log.debug("Creating command for {}/{}", pkg, name);
+		this.setNamespace(namespace);
 		this.setName(name);
 		this.cmd.addAll(init);
 		this.cmd.add(getType());
+		
+		// figure out the name
+		String fqn = "";
+		if(StringUtils.isNotEmpty(namespace)) {
+			fqn = "/"+namespace;
+		}
+		if (StringUtils.isNotBlank(pkg)) {
+			fqn+=pkg + "/" ;
+		}
+		fqn+=name;
 
 		// construct the get command
-
 		getCmd.addAll(init);
 		getCmd.add(getType());
 		getCmd.add("get");
-		if (StringUtils.isNotBlank(pkg)) {
-			getCmd.add(pkg + "/" + name);
-		} else {
-			getCmd.add(name);
-		}
+		getCmd.add(fqn);
 		getCmd.addAll(globalFlags);
 
 		if (itemExists()) {
 			this.cmd.add("update");
 		} else {
-
 			this.cmd.add("create");
 		}
-		if (StringUtils.isNotBlank(pkg)) {
-			this.cmd.add(pkg + "/" + name);
-		} else {
-			this.cmd.add(name);
-		}
+		this.cmd.add(fqn);
 		this.globalFlags = globalFlags;
-	}
-
-	private boolean itemExists() {
-		boolean exists = true;
-		try {
-			log.debug("Checking to see if {} {} exists", getType(), name);
-
-			log.debug("Executing OpenWhisk CLI Command with command: {}", getCmd);
-			ProcessBuilder builder = new ProcessBuilder();
-			builder.command(getCmd);
-			Process pr = builder.start();
-
-			readInput(pr.getInputStream(), false);
-			if (readInput(pr.getErrorStream(), false)) {
-				exists = false;
-			}
-		} catch (Exception e) {
-			log.warn("Exception checking to see if entity exists, ", e);
-			exists = false;
-		}
-		return exists;
 	}
 
 	protected void addAnnotations(Annotation[] annotations) {
@@ -145,7 +126,32 @@ public abstract class Command {
 		return name;
 	}
 
+	public String getNamespace() {
+		return namespace;
+	}
+
 	public abstract String getType();
+
+	private boolean itemExists() {
+		boolean exists = true;
+		try {
+			log.debug("Checking to see if {} {} exists", getType(), name);
+
+			log.debug("Executing OpenWhisk CLI Command with command: {}", getCmd);
+			ProcessBuilder builder = new ProcessBuilder();
+			builder.command(getCmd);
+			Process pr = builder.start();
+
+			readInput(pr.getInputStream(), false);
+			if (readInput(pr.getErrorStream(), false)) {
+				exists = false;
+			}
+		} catch (Exception e) {
+			log.warn("Exception checking to see if entity exists, ", e);
+			exists = false;
+		}
+		return exists;
+	}
 
 	private boolean readInput(InputStream is, boolean err) {
 		boolean read = false;
@@ -168,5 +174,9 @@ public abstract class Command {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
 	}
 }

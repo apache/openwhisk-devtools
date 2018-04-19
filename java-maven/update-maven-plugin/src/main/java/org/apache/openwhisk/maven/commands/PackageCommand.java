@@ -30,8 +30,8 @@ public class PackageCommand extends Command {
 
 	private final Logger log = LoggerFactory.getLogger(PackageCommand.class);
 
-	public PackageCommand(Package pkg, List<String> init, List<String> globalFlags) {
-		super(init, pkg.name(), globalFlags);
+	public PackageCommand(String namespace, Package pkg, List<String> init, List<String> globalFlags) {
+		super(init, namespace, pkg.name(), globalFlags);
 
 		this.addAnnotations(pkg.annotations());
 		this.addParameters(pkg.parameters());
@@ -42,6 +42,7 @@ public class PackageCommand extends Command {
 			cmd.add(pkg.shared());
 		}
 	}
+
 
 	@Override
 	public String getType() {
