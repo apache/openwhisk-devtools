@@ -100,7 +100,7 @@ public class UpdateWhiskMojo extends AbstractMojo {
 	/**
 	 * The jar file for OpenWhisk to use for creating the functions
 	 */
-	@Parameter(defaultValue = "target/${project.build.finalName}.jar", property = "openwhisk.jar", required = true)
+	@Parameter(defaultValue = "${project.build.directory}/${project.build.finalName}.jar", property = "openwhisk.jar", required = true)
 	private String jar;
 
 	/**
@@ -119,6 +119,12 @@ public class UpdateWhiskMojo extends AbstractMojo {
 	 */
 	@Parameter(defaultValue = "false", required = true)
 	private String main;
+
+	/**
+	 * The namespace to use to deploy to OpenWhisk
+	 */
+	@Parameter(property = "openwhisk.namespace", required = false)
+	private String namespace;
 
 	public void execute() throws MojoExecutionException {
 
@@ -197,7 +203,7 @@ public class UpdateWhiskMojo extends AbstractMojo {
 			Package[] packages = mainClass.getDeclaredAnnotationsByType(Package.class);
 			if (packages != null) {
 				for (Package pkg : packages) {
-					PackageCommand pc = new PackageCommand(pkg, cmd, globalFlags);
+					PackageCommand pc = new PackageCommand(namespace, pkg, cmd, globalFlags);
 					pc.execute();
 				}
 			}
@@ -205,7 +211,7 @@ public class UpdateWhiskMojo extends AbstractMojo {
 			Action[] actions = mainClass.getDeclaredAnnotationsByType(Action.class);
 			if (actions != null) {
 				for (Action action : actions) {
-					ActionCommand ac = new ActionCommand(action, cmd, globalFlags, jar, main);
+					ActionCommand ac = new ActionCommand(namespace, action, cmd, globalFlags, jar, mc);
 					ac.execute();
 				}
 			}
@@ -213,7 +219,7 @@ public class UpdateWhiskMojo extends AbstractMojo {
 			ActionSequence[] actionSequences = mainClass.getDeclaredAnnotationsByType(ActionSequence.class);
 			if (actionSequences != null) {
 				for (ActionSequence actionSequence : actionSequences) {
-					ActionSequenceCommand asc = new ActionSequenceCommand(actionSequence, cmd, globalFlags);
+					ActionSequenceCommand asc = new ActionSequenceCommand(namespace, actionSequence, cmd, globalFlags);
 					asc.execute();
 				}
 			}
@@ -221,7 +227,7 @@ public class UpdateWhiskMojo extends AbstractMojo {
 			Trigger[] triggers = mainClass.getDeclaredAnnotationsByType(Trigger.class);
 			if (triggers != null) {
 				for (Trigger trigger : triggers) {
-					TriggerCommand tc = new TriggerCommand(trigger, cmd, globalFlags);
+					TriggerCommand tc = new TriggerCommand(namespace, trigger, cmd, globalFlags);
 					tc.execute();
 				}
 			}
@@ -229,15 +235,17 @@ public class UpdateWhiskMojo extends AbstractMojo {
 			Rule[] rules = mainClass.getDeclaredAnnotationsByType(Rule.class);
 			if (rules != null) {
 				for (Rule rule : rules) {
-					RuleCommand rc = new RuleCommand(rule, cmd, globalFlags);
+					RuleCommand rc = new RuleCommand(namespace, rule, cmd, globalFlags);
 					rc.execute();
 				}
 			}
 
 		} catch (ClassNotFoundException e) {
 			log.error("Unable to find main class: " + main, e);
+			throw new MojoExecutionException("Unable to find main class: " + main, e);
 		} catch (MalformedURLException e) {
 			log.error("Malformed URL for class directory: " + classesDirectory, e);
+			throw new MojoExecutionException("Malformed URL for class directory: " + classesDirectory, e);
 		} finally {
 			if (cl != null) {
 				try {
