@@ -123,7 +123,7 @@ download-cli:
 	fi
 
 .PHONY: run
-run: print-host check-required-ports setup start-docker-compose init-couchdb init-whisk-cli
+run: print-host check-required-ports setup start-docker-compose init-couchdb init-whisk-cli init-api-management
 
 print-host:
 	echo "host ip address: ${DOCKER_HOST_IP}"
@@ -131,7 +131,7 @@ print-host:
 .PHONY: check-required-ports
 check-required-ports:
 	echo "checking required ports ... "
-	for port in 80 443 2888 5984 8085 8888 9092 2888 8001; do \
+	for port in 80 2888 5984 8085 8888 9092 2888 8001; do \
 		pid=`lsof -Pi :$$port -sTCP:LISTEN -t` ; \
 		if [ ! -z "$$pid" ];  then echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; exit 1; fi; \
 	done
@@ -164,20 +164,38 @@ check-kafka-ports:
 	done
 	echo " ... OK"
 
-
-
-
 .PHONY: setup
 setup:
-	mkdir -p ~/tmp/openwhisk/apigateway/ssl
-	$(OPENWHISK_PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files
-	cp $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/apigateway/ssl
-	cp -r ./apigateway/* ~/tmp/openwhisk/apigateway/
+	mkdir -p ~/tmp/openwhisk
 	> ~/tmp/openwhisk/local.env
 	printf "DOCKER_BINARY=$(DOCKER_BINARY)\n" >> ~/tmp/openwhisk/local.env
 	printf "DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP)\n" >> ~/tmp/openwhisk/local.env
 	printf "DOCKER_REGISTRY=$(DOCKER_REGISTRY)\n" >> ~/tmp/openwhisk/local.env
 	printf "DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX)\n" >> ~/tmp/openwhisk/local.env
+
+	echo "  ... preparing api-gateway configuration"
+	rm -rf ~/tmp/openwhisk/api-gateway-config
+	mkdir -p ~/tmp/openwhisk/api-gateway-config/api-gateway
+	cp -r ./apigateway/* ~/tmp/openwhisk/api-gateway-config/api-gateway/
+	cp -r ./apigateway/rclone ~/tmp/openwhisk
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up minio 2>&1 > ~/tmp/openwhisk/setup.log &
+	until (curl --silent http://$(DOCKER_HOST_IP):9001/); do printf '.'; sleep 5; done
+	docker run --rm -v ~/tmp/openwhisk/rclone:/root/.config/rclone \
+					--link="openwhisk_minio_1:minio.docker" --network=openwhisk_default \
+					--entrypoint=rclone openwhisk/apigateway mkdir minio:api-gateway
+	docker run --rm -v ~/tmp/openwhisk/api-gateway-config/api-gateway/generated-conf.d:/etc/api-gateway/generated-conf.d \
+					-v ~/tmp/openwhisk/rclone:/root/.config/rclone \
+					--link="openwhisk_minio_1:minio.docker" --network=openwhisk_default \
+					--entrypoint=rclone openwhisk/apigateway copy --exclude .git /etc/api-gateway/ minio:api-gateway/
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop minio
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f minio
+	$(OPENWHISK_PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files
+	mkdir -p ~/tmp/openwhisk/api-gateway-ssl
+	cp $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/api-gateway-ssl
+
+.PHONY: gw 
+gw:
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up apigateway
 
 .PHONY: restart
 restart: stop rm start-docker-compose
@@ -236,8 +254,14 @@ init-whisk-cli:
 	echo "waiting for the Whisk controller to come up ... "
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
 	echo "initializing CLI ... "
-	$(WSK_CLI) -v property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost $(DOCKER_HOST_IP):443 -i
+	$(WSK_CLI) -v property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i
 
+.PHONY: init-api-management
+init-api-management:
+	$(WSK_CLI) -v property set --namespace whisk.system --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.whisk.system` --apihost $(DOCKER_HOST_IP) -i
+	GW_USER="" GW_PWD="" GW_HOST_V2="http://$(DOCKER_HOST_IP):9000/v2" OPENWHISK_HOME=$(OPENWHISK_PROJECT_HOME) \
+		$(OPENWHISK_PROJECT_HOME)/ansible/roles/routemgmt/files/installRouteMgmt.sh $(shell cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.whisk.system) $(DOCKER_HOST_IP) /whisk.system $(WSK_CLI)
+	$(WSK_CLI) -v property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost $(DOCKER_HOST_IP) -i
 
 .PHONY: init-catalog
 init-catalog:

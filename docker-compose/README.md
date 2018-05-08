@@ -18,7 +18,8 @@ The following are required to build and deploy OpenWhisk with Docker Compose:
 
 These ports must be available:
 
-- `80` and `443` for the API Gateway
+- `80`, `443`, `9000`, `9001`, and `9090` for the API Gateway
+- `6379` for Redis
 - `2181` for Zookeeper
 - `5984` for CouchDB
 - `8085` for OpenWhisk's Invoker
