@@ -187,8 +187,8 @@ setup:
 					-v ~/tmp/openwhisk/rclone:/root/.config/rclone \
 					--link="openwhisk_minio_1:minio.docker" --network=openwhisk_default \
 					--entrypoint=rclone openwhisk/apigateway copy --exclude .git /etc/api-gateway/ minio:api-gateway/
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop minio
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f minio
+	# $(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop minio
+	# $(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f minio
 	$(OPENWHISK_PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files
 	mkdir -p ~/tmp/openwhisk/api-gateway-ssl
 	cp $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/api-gateway-ssl
@@ -298,6 +298,13 @@ hello-world: create-hello-world-function
 	res=`$(WSK_CLI) -i action invoke hello --blocking --result` \
 	    && echo "invokation result:" $$res \
 	    && (echo $$res | grep "Hello, World") || ($(WSK_CLI) -i action delete hello && tail -n 200 ~/tmp/openwhisk/invoker/logs/invoker-local_logs.log ~/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
+
+	echo "$$(tput setaf 4) creating an API from the hello function ...$$(tput sgr0)"
+	$(WSK_CLI) -i action update "/guest/hello" --web true
+	web_action=`$(WSK_CLI) -i api create /hello /world get hello --response-type json | tail -n 1` \
+	    && echo "invoking: " $$web_action \
+	    && (echo $$web_action | xargs curl -sS | grep "Hello, World") || ($(WSK_CLI) -i action delete hello && echo "Error invoking the web action" && tail -n 200 ~/tmp/openwhisk/invoker/logs/invoker-local_logs.log ~/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
+	$(WSK_CLI) -i api list /hello
 
 	echo "$$(tput setaf 1)deleting the function ...$$(tput sgr0)"
 	$(WSK_CLI) -i action delete hello

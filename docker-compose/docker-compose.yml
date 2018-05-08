@@ -160,6 +160,7 @@ services:
       - minio
     volumes:
       - ~/tmp/openwhisk/api-gateway-ssl:/etc/ssl:ro
+      - ~/tmp/openwhisk/api-gateway-config/api-gateway/generated-conf.d:/etc/api-gateway/generated-conf.d
       - ~/tmp/openwhisk/rclone:/root/.config/rclone:rw
     ports:
       - "80:80"
