@@ -296,7 +296,7 @@ hello-world: create-hello-world-function
 
 	echo "$$(tput setaf 4)invoking the function ...$$(tput sgr0)"
 	res=`$(WSK_CLI) -i action invoke hello --blocking --result` \
-	    && echo "invokation result:" $$res \
+	    && echo "invocation result:" $$res \
 	    && (echo $$res | grep "Hello, World") || ($(WSK_CLI) -i action delete hello && tail -n 200 ~/tmp/openwhisk/invoker/logs/invoker-local_logs.log ~/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
 
 	echo "$$(tput setaf 4) creating an API from the hello function ...$$(tput sgr0)"
