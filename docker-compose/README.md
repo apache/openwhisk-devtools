@@ -136,7 +136,7 @@ function main(params) {
     return {payload: "Hello, " + name + "!"};
 }
 ```
-The result of the invokation should be printed on the terminal:
+The result of the invocation should be printed on the terminal:
 ```
 {
     "payload": "Hello, World!"
