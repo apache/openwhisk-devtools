@@ -3,12 +3,16 @@ UNAME_STR ?= $(shell uname)
 # detect local ip of host as this is needed within containers to find the openwhisk API container
 ifeq ("$(UNAME_STR)","Linux")
 	LOCAL_IP=$(shell route | grep default | tr -s " " | cut -d " " -f 8 | xargs /sbin/ifconfig | grep "inet addr:" | cut -d ":" -f 2 | cut -d " " -f 1)
+	# inet addr: not present, trying with inet.
+	ifeq ($(LOCAL_IP), )
+		LOCAL_IP=$(shell route | grep default | tr -s " " | cut -d " " -f 8 | xargs /sbin/ifconfig | grep "inet " | tr -s " " | cut -d " " -f 3)
+	endif
 else
 	LOCAL_IP ?= $(shell ifconfig | grep "inet " | grep -v 127.0.0.1 | cut -d\  -f2 | head -1)
-	# if no IP was found, fallback to "localhost"
-	ifeq ($(LOCAL_IP), )
-		LOCAL_IP = "localhost"
-	endif
+endif
+# if no IP was found, fallback to "localhost"
+ifeq ($(LOCAL_IP), )
+	LOCAL_IP = "localhost"
 endif
 
 DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo ${LOCAL_IP})
