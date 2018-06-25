@@ -12,7 +12,7 @@ The following are required to build and deploy OpenWhisk with Docker Compose:
     - [Docker for Mac](https://www.docker.com/docker-mac) - only this currently works on Mac OSX
       + Install via homebrew: `brew cask install docker`
 - Other Systems:
-    - [Docker 1.12+](https://www.docker.com/products/docker)
+    - [Docker 1.13+](https://www.docker.com/products/docker)
     - [Docker Compose 1.6+](https://docs.docker.com/compose/install/)
 - [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
