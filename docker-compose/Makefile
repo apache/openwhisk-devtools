@@ -78,14 +78,9 @@ quick-start-info:
 	echo "$$(tput setaf 2)To stop openwhisk use: $$(tput setaf 4)make destroy$$(tput sgr0)"
 
 docker_build:
-	echo "building the docker images short list ... "
+	echo "building the openwhisk core docker images ... "
 	cd $(OPENWHISK_PROJECT_HOME) && \
-		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX) -x :actionRuntimes:pythonAction:distDocker  -x :actionRuntimes:python2Action:distDocker -x actionRuntimes:swift3.1.1Action:distDocker -x actionRuntimes:swift4.1Action:distDocker -x :actionRuntimes:javaAction:distDocker
-
-docker_build_full:
-	echo "building the docker images full list ... "
-	cd $(OPENWHISK_PROJECT_HOME) && \
-		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX)
+		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX) 
 
 docker_pull:
 	echo "pulling the docker images short list... "
