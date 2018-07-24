@@ -82,7 +82,7 @@ make restart-controller
 
 * Check the [issue tracker](https://github.com/apache/incubator-openwhisk-devtools/issues) for more.
 
-# Build or Pull
+# Pull and build local OpenWhisk core images
 
 You can pull pre-built image
 ```bash
@@ -95,7 +95,7 @@ This command pulls the docker images for local testing and development.
 make docker_build
 ```
 
-This command builds the docker images for local testing and development.
+This command builds the opewnhisk core docker images for local testing and development.
 
 
 # Start
