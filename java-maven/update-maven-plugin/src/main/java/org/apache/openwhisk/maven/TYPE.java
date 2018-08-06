@@ -1,5 +1,3 @@
-package $groupId;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -16,16 +14,30 @@ package $groupId;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import com.google.gson.JsonObject;
+package org.apache.openwhisk.maven;
 
 /**
- * Hello FunctionApp
+ * An enum of the different types supported by OpenWhisk
  */
-public class FunctionApp {
-  public static JsonObject main(JsonObject args) {
-    JsonObject response = new JsonObject();
-    response.addProperty("greetings", "Hello! Welcome to OpenWhisk");
-    return response;
-  }
+public enum TYPE {
+
+	/**
+	 * @see https://github.com/apache/incubator-openwhisk/blob/master/docs/actions.md
+	 */
+	ACTION,
+
+	/**
+	 * @see https://github.com/apache/incubator-openwhisk/blob/master/docs/packages.md
+	 */
+	PACKAGE,
+
+	/**
+	 * @see https://github.com/apache/incubator-openwhisk/blob/master/docs/triggers_rules.md#associating-triggers-and-actions-by-using-rules
+	 */
+	RULE,
+
+	/**
+	 * @see https://github.com/apache/incubator-openwhisk/blob/master/docs/triggers_rules.md
+	 */
+	TRIGGER
 }

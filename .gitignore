@@ -5,3 +5,9 @@ openwhisk-master*
 .idea
 .vscode
 **/.sts4-cache
+target/
+.project
+.settings/
+bin/
+.classpath
+.DS_Store

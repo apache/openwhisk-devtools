@@ -5,7 +5,10 @@ env:
     - DOCKER_COMPOSE_VERSION: 1.13.0
   matrix:
     - TOOL: docker-compose
-    - TOOL: java-action-archetype
+    - TOOL: java-maven/parent
+    - TOOL: java-maven/annotations
+    - TOOL: java-maven/update-maven-plugin
+    - TOOL: java-maven/action-archetype
 
 services:
   - docker

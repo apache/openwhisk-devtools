@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or
+    more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information regarding
+    copyright ownership. The ASF licenses this file to you under the
+    Apache License, Version 2.0 (the "License"); you may not use
+    this file except in compliance with the License. You may obtain
+    a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0 Unless required by
+    applicable law or agreed to in writing, software distributed
+    under the License is distributed on an "AS IS" BASIS, WITHOUT
+    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions
+    and limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>19</version>
+        <relativePath />
+    </parent>
+
+    <groupId>org.apache.openwhisk</groupId>
+    <artifactId>openwhisk</artifactId>
+    <packaging>pom</packaging>
+    <version>1-SNAPSHOT</version>
+
+    <name>Apache OpenWhisk - Parent</name>
+    <description>The parent project for Apache OpenWhisk</description>
+    <inceptionYear>2016</inceptionYear>
+
+    <url>http://openwhisk.incubator.apache.org/</url>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/apache/incubator-openwhisk/issues</url>
+    </issueManagement>
+
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <scm>
+        <connection>scm:git:https://gitbox.apache.org/repos/asf?p=incubator-openwhisk-devtools.git</connection>
+        <developerConnection>scm:git:https://gitbox.apache.org/repos/asf?p=incubator-openwhisk-devtools.git</developerConnection>
+        <url>https://gitbox.apache.org/repos/asf?p=incubator-openwhisk-devtools.git</url>
+      <tag>HEAD</tag>
+  </scm>
+
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+                <configuration>
+                    <stylesheet>maven</stylesheet>
+                    <excludePackageNames>*.impl:*.internal:${site.javadoc.exclude}</excludePackageNames>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </reporting>
+
+
+    <build>
+        <plugins>
+
+            <!-- Attach sources for all builds -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>ianal-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>verify-legal-files</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Fail the build if any artifacts are missing legal files -->
+                            <strict>true</strict>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.release</groupId>
+                        <artifactId>maven-release-oddeven-policy</artifactId>
+                        <version>2.5.3</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <projectVersionPolicyId>OddEvenVersionPolicy</projectVersionPolicyId>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes combine.children="append">
+                        <!--  Used by maven-remote-resources-plugin -->
+                        <exclude>src/main/appended-resources/META-INF/*</exclude>
+                        <!--  Generated by maven-remote-resources-plugin -->
+                        <exclude>velocity.log</exclude>
+                        <!-- don't check anything in target -->
+                        <exclude>target/*</exclude>
+                        <!-- README files in markdown format -->
+                        <exclude>README.md</exclude>
+                        <!-- Ignore files generated bei IDE plugins e.g. maven-eclipse-plugin -->
+                        <exclude>maven-eclipse.xml</exclude>
+                        <exclude>.*</exclude>
+                        <exclude>.*/**</exclude>
+                        <!-- Exclude all JSON files -->
+                        <exclude>**/*.json</exclude>
+                        <!-- Generated for release source archives -->
+                        <exclude>DEPENDENCIES</exclude>
+                        <!-- .rej files from svn/patch -->
+                        <exclude>**/*.rej</exclude>
+                        <!-- Exclude Java crash log files -->
+                        <exclude>hs_err_*.log</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>ianal-maven-plugin</artifactId>
+                    <version>1.0-alpha-1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <mailingLists>
+        <mailingList>
+            <name>Apache OpenWhisk Development List</name>
+            <subscribe>
+                dev-subscribe@openwhisk.incubator.apache.org
+            </subscribe>
+            <unsubscribe>
+                dev-unsubscribe@openwhisk.incubator.apache.org
+            </unsubscribe>
+            <post>dev at sling.apache.org</post>
+            <archive>
+                http://mail-archives.apache.org/mod_mbox/openwhisk-dev/
+            </archive>
+            <otherArchives>
+                <otherArchive>
+                    http://openwhisk-dev.markmail.org/
+                </otherArchive>
+                <otherArchive>
+                    http://www.mail-archive.com/dev@openwhisk.incubator.apache.org/
+                </otherArchive>
+            </otherArchives>
+        </mailingList>
+    </mailingLists>
+
+    <!-- Please visit our website for the current information about the
+         Apache Sling project team. (see #SLING-1120 why we don't include
+         the list here) -->
+    <developers>
+        <developer>
+            <name>Apache OpenWhisk Project</name>
+            <id>OpenWhisk</id>
+            <url>http://openwhisk.incubator.apache.org/contributors</url>
+        </developer>
+    </developers>
+
+    <dependencyManagement>
+
+        <dependencies>
+            
+            <!-- Basic dependencies for Unit Tests -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
+</project>
