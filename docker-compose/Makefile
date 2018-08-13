@@ -39,12 +39,12 @@ endif
 #   2. then it starts all components using docker-compose
 #   3. it runs a sample hello-world function
 #   To stop and cleanup the environment use: make destroy
-quick-start: download download-cli docker_pull run quick-start-pause hello-world quick-start-info
+quick-start: download-src download-cli docker_pull run quick-start-pause hello-world quick-start-info
 
 add-catalog: download-catalog init-catalog
 
-.PHONY: download
-download:
+.PHONY: download-src
+download-src:
 	if [[ -z `ls -A $(OPENWHISK_PROJECT_HOME) 2>/dev/null` || "$(OPENWHISK_VERSION)" == "master" ]]; then \
         echo "Downloading source tar ball $(OPENWHISK_VERSION)...."; \
 	    if [ "$(OPENWHISK_VERSION)" == "master" ]; then \
@@ -336,7 +336,7 @@ hello-world-perf-test: create-hello-world-function
 	rm hello.js
 
 .PHONY: pull
-pull: download setup
+pull: download-src setup
 	docker-compose --project-name openwhisk pull
 
 # Optional package configuration stages. These commands will install and set up
