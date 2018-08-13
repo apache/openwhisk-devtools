@@ -145,6 +145,9 @@ The result of the invocation should be printed on the terminal:
 
 Here is a [tutorial on getting started with actions](https://github.com/IBM-Bluemix/openwhisk-workshops/tree/master/bootcamp#start-your-engines).
 
+Note that these commands will use `-i` to bypass security check as we are running
+it on localhost
+
 ## Install Catalog Packages
 
 OpenWhisk has [numerous extra packages](https://github.com/apache/incubator-openwhisk-catalog) that are often installed into the `/whisk.system` namespace.
