@@ -18,8 +18,8 @@ endif
 DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo ${LOCAL_IP})
 DOCKER_REGISTRY ?= ""
 DOCKER_IMAGE_PREFIX ?= openwhisk
-OPENWHISK_PROJECT_HOME_DEFAULT = "./openwhisk-0.9.0"
-OPENWHISK_PROJECT_HOME ?= $OPENWHISK_PROJECT_HOME_DEFAULT
+OPENWHISK_VERSION ?= master
+OPENWHISK_PROJECT_HOME ?= ./openwhisk-src
 OPENWHISK_CATALOG_HOME ?= ./openwhisk-catalog
 WSK_CLI ?= $(OPENWHISK_PROJECT_HOME)/bin/wsk
 OPEN_WHISK_DB_PREFIX ?= local_
@@ -45,15 +45,20 @@ add-catalog: download-catalog init-catalog
 
 .PHONY: download
 download:
-	if [ "$(OPENWHISK_PROJECT_HOME)" = "$(OPENWHISK_PROJECT_HOME_DEFAULT)" ]; then \
-	    rm -rf $(OPENWHISK_PROJECT_HOME_DEFAULT)* \
-        echo "Downloading source tar ball...."; \
-	    curl -o ./openwhisk-0.9.0.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/0.9.0-incubating.tar.gz; \
+	if [[ -z `ls -A $(OPENWHISK_PROJECT_HOME) 2>/dev/null` || "$(OPENWHISK_VERSION)" == "master" ]]; then \
+        echo "Downloading source tar ball $(OPENWHISK_VERSION)...."; \
+	    if [ "$(OPENWHISK_VERSION)" == "master" ]; then \
+	        rm -rf "$(OPENWHISK_PROJECT_HOME)"; \
+	        curl -o ./openwhisk-src.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/master.tar.gz; \
+        elif [ "$(OPENWHISK_VERSION)" == "0.9.0" ]; then \
+	        curl -o ./openwhisk-src.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/0.9.0-incubating.tar.gz; \
+        fi; \
         echo "Unpacking tarball."; \
-	    mkdir $(OPENWHISK_PROJECT_HOME_DEFAULT); \
-	    tar -xf ./openwhisk-0.9.0.tar.gz --strip 1 -C $(OPENWHISK_PROJECT_HOME_DEFAULT); \
+	    mkdir -p $(OPENWHISK_PROJECT_HOME); \
+	    tar -xf ./openwhisk-src.tar.gz --strip 1 -C $(OPENWHISK_PROJECT_HOME); \
+	    rm ./openwhisk-src.tar.gz; \
 	else \
-	     echo "Skipping downloading the code from git as OPENWHISK_PROJECT_HOME is not default:" $(OPENWHISK_PROJECT_HOME); \
+	     echo "Skipping downloading the code as OPENWHISK_PROJECT_HOME is set to " $(OPENWHISK_PROJECT_HOME); \
 	fi
 
 .PHONY: download-catalog
@@ -106,7 +111,7 @@ docker_pull_full:
 
 download-cli:
 	echo "downloading the CLI tool ... "
-	if [ "$(OPENWHISK_PROJECT_HOME)" = "$(OPENWHISK_PROJECT_HOME_DEFAULT)" ]; then \
+	if [ ! -e "$(WSK_CLI)" ]; then \
         if [ "$(UNAME_STR)" = "Darwin" ]; then \
           echo "downloading cli for mac" ; \
           curl -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
@@ -119,7 +124,7 @@ download-cli:
             tar -xf wsk.tgz ; \
         fi; \
 	else \
-         echo "Skipping downloading the cli from git as OPENWHISK_PROJECT_HOME is not default:" $(OPENWHISK_PROJECT_HOME); \
+         echo "Skipping downloading the cli as OPENWHISK_PROJECT_HOME is set to " $(OPENWHISK_PROJECT_HOME); \
 	fi
 
 .PHONY: run
