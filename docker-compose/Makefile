@@ -80,7 +80,7 @@ quick-start-info:
 docker_build:
 	echo "building the openwhisk core docker images ... "
 	cd $(OPENWHISK_PROJECT_HOME) && \
-		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX) 
+		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX)
 
 docker_pull:
 	echo "pulling the docker images short list... "
@@ -101,6 +101,7 @@ docker_pull_full:
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v4.1
 	docker pull $(DOCKER_IMAGE_PREFIX)/java8action
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.1
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-ruby-v2.5
 	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton
 
 download-cli:
@@ -192,7 +193,7 @@ setup:
 	mkdir -p ~/tmp/openwhisk/api-gateway-ssl
 	cp $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/api-gateway-ssl
 
-.PHONY: gw 
+.PHONY: gw
 gw:
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up apigateway
 
