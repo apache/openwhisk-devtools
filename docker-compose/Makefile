@@ -45,12 +45,12 @@ add-catalog: download-catalog init-catalog
 
 .PHONY: download-src
 download-src:
-	if [[ -z `ls -A $(OPENWHISK_PROJECT_HOME) 2>/dev/null` || "$(OPENWHISK_VERSION)" == "master" ]]; then \
+	if [ ! -d $(OPENWHISK_PROJECT_HOME) -o "$(OPENWHISK_VERSION)" = "master" ]; then \
         echo "Downloading source tar ball $(OPENWHISK_VERSION)...."; \
-	    if [ "$(OPENWHISK_VERSION)" == "master" ]; then \
+	    if [ "$(OPENWHISK_VERSION)" = "master" ]; then \
 	        rm -rf "$(OPENWHISK_PROJECT_HOME)"; \
 	        curl -o ./openwhisk-src.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/master.tar.gz; \
-        elif [ "$(OPENWHISK_VERSION)" == "0.9.0" ]; then \
+        elif [ "$(OPENWHISK_VERSION)" = "0.9.0" ]; then \
 	        curl -o ./openwhisk-src.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/0.9.0-incubating.tar.gz; \
         fi; \
         echo "Unpacking tarball."; \
