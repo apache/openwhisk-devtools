@@ -38,7 +38,7 @@ endif
 #   2. then it starts all components using docker-compose
 #   3. it runs a sample hello-world function
 #   To stop and cleanup the environment use: make destroy
-quick-start: download download-cli docker_pull run quick-start-pause hello-world quick-start-info
+quick-start: download download-cli docker-pull run quick-start-pause hello-world quick-start-info
 
 add-catalog: download-catalog init-catalog
 
@@ -78,19 +78,38 @@ quick-start-info:
 	echo "$$(tput setaf 2)To invoke the function again use: $$(tput setaf 4)make hello-world$$(tput sgr0)"
 	echo "$$(tput setaf 2)To stop OpenWhisk use: $$(tput setaf 4)make destroy$$(tput sgr0)"
 
+# deprecated commands
+.PHONY: docker_build
 docker_build:
+	echo "$$(tput setaf 2)ERROR: command deprecated"
+	echo "$$(tput setaf 2)please use $$(tput setaf 3)$$ $$(tput setaf 4)make docker-build$$(tput sgr0)"
+
+.PHONY: docker_pull
+docker_pull:
+	echo "$$(tput setaf 2)ERROR: command deprecated"
+	echo "please use $$(tput setaf 3)$$ $$(tput setaf 4)make docker-pull$$(tput sgr0)"
+
+.PHONY: docker_pull_full
+docker_pull_full:
+	echo "$$(tput setaf 2)ERROR: command deprecated"
+	echo "please use $$(tput setaf 3)$$ $$(tput setaf 4)make docker-pull-full$$(tput sgr0)"
+
+.PHONY: docker-build
+docker-build:
 	echo "building the OpenWhisk core docker images ... "
 	cd $(OPENWHISK_PROJECT_HOME) && \
 		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX)
 
-docker_pull:
+.PHONY: docker-pull
+docker-pull:
 	echo "pulling the docker images short list... "
 	docker pull $(DOCKER_IMAGE_PREFIX)/controller
 	docker pull $(DOCKER_IMAGE_PREFIX)/invoker
 	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action
 	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton
 
-docker_pull_full:
+.PHONY: docker-pull-full
+docker-pull-full:
 	echo "pulling the docker images full list ... "
 	docker pull $(DOCKER_IMAGE_PREFIX)/controller
 	docker pull $(DOCKER_IMAGE_PREFIX)/invoker
