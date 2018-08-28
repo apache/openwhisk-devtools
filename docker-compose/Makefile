@@ -1,6 +1,6 @@
 UNAME_STR ?= $(shell uname)
 
-# detect local ip of host as this is needed within containers to find the openwhisk API container
+# detect local ip of host as this is needed within containers to find the OpenWhisk API container
 ifeq ("$(UNAME_STR)","Linux")
 	LOCAL_IP=$(shell route | grep default | tr -s " " | cut -d " " -f 8 | xargs /sbin/ifconfig | grep "inet addr:" | cut -d ":" -f 2 | cut -d " " -f 1)
 	# inet addr: not present, trying with inet.
@@ -70,15 +70,16 @@ download-catalog:
 quick-start-pause:
 	echo "waiting for the Whisk invoker to come up ... "
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8085/ping); do printf '.'; sleep 5; done
+	echo " ... OK"
 	sleep 30
 
 .PHONY: quick-start-info
 quick-start-info:
 	echo "$$(tput setaf 2)To invoke the function again use: $$(tput setaf 4)make hello-world$$(tput sgr0)"
-	echo "$$(tput setaf 2)To stop openwhisk use: $$(tput setaf 4)make destroy$$(tput sgr0)"
+	echo "$$(tput setaf 2)To stop OpenWhisk use: $$(tput setaf 4)make destroy$$(tput sgr0)"
 
 docker_build:
-	echo "building the openwhisk core docker images ... "
+	echo "building the OpenWhisk core docker images ... "
 	cd $(OPENWHISK_PROJECT_HOME) && \
 		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX)
 
@@ -179,7 +180,9 @@ setup:
 	cp -r ./apigateway/* ~/tmp/openwhisk/api-gateway-config/api-gateway/
 	cp -r ./apigateway/rclone ~/tmp/openwhisk
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up minio 2>&1 > ~/tmp/openwhisk/setup.log &
+	echo "pinging minio..."
 	until (curl --silent http://$(DOCKER_HOST_IP):9001/); do printf '.'; sleep 5; done
+	echo " ... OK"
 	docker run --rm -v ~/tmp/openwhisk/rclone:/root/.config/rclone \
 					--link="openwhisk_minio_1:minio.docker" --network=openwhisk_default \
 					--entrypoint=rclone openwhisk/apigateway mkdir minio:api-gateway
@@ -272,7 +275,7 @@ init-catalog:
 
 .PHONY: destroy
 destroy: stop rm
-	echo "cleaning other openwhisk containers started by the invoker ... "
+	echo "cleaning other OpenWhisk containers started by the invoker ... "
 	docker ps | grep whisk | awk '{print $$1}' | xargs docker stop | xargs docker rm
 	echo "cleaning dangling docker volumes ... "
 	docker volume ls -qf dangling=true | xargs docker volume rm
