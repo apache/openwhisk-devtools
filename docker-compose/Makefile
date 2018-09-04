@@ -131,11 +131,17 @@ print-host:
 .PHONY: check-required-ports
 check-required-ports:
 	echo "checking required ports ... "
+	@occupiedports=0; \
 	for port in 2888 5984 8085 8888 9092 8001; do \
 		pid=`lsof -Pi :$$port -sTCP:LISTEN -t` ; \
-		if [ ! -z "$$pid" ];  then echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; exit 1; fi; \
-	done
-	echo " ... OK"
+		if [ ! -z "$$pid" ];  then let "occupiedports+=1" ; echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; fi; \
+	done; \
+	if [ "$$occupiedports" = 0 ]; then \
+		echo " ... OK"; \
+	else \
+		echo "$$(tput setaf 2)Ports occupied. To stop openwhisk use: $$(tput setaf 4)make destroy$$(tput setaf 2) or: $$(tput setaf 4)make stop$$(tput sgr0)"; \
+		exit 1; \
+	fi
 
 .PHONY: check-alarm-ports
 check-alarm-ports:
