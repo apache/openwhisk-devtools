@@ -1,7 +1,7 @@
 version: '3'
 services:
   db:
-    image: couchdb:1.6
+    image: apache/couchdb:2.1
     ports:
       - "5984:5984"
     environment:
