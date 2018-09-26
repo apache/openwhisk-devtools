@@ -65,7 +65,7 @@ download-src:
 .PHONY: download-catalog
 download-catalog:
 	if [ "$(OPENWHISK_CATALOG_HOME)" = "./openwhisk-catalog" ]; then \
-	    rm -rf ./openwhisk-catalog* \
+	    rm -rf ./openwhisk-catalog*; \
 	    curl -O ./openwhisk-catalog.tar.gz -L https://api.github.com/repos/apache/incubator-openwhisk-catalog/tarball/master > ./openwhisk-catalog.tar.gz; \
 	    mkdir openwhisk-catalog; \
 	    tar -xf ./openwhisk-catalog.tar.gz --strip 1 -C openwhisk-catalog; \
