@@ -11,6 +11,11 @@ The following softwares are required to build and deploy a Java Action to OpenWh
 
 [WSK CLI](https://github.com/apache/incubator-openwhisk/blob/master/docs/cli.md) is configured 
 
+## Install the archetype
+```sh
+mvn -DskipTests=true -Dmaven.javadoc.skip=true -B -V clean install
+```
+
 ## Generate project 
 
 ```sh

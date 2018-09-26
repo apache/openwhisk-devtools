@@ -1,5 +1,4 @@
-openwhisk-master
-openwhisk-master*
+openwhisk-src
 
 *.iml
 .idea

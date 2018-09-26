@@ -42,12 +42,13 @@ At the end of the execution it prints the output of the function:
 ```
 
 If `OPENWHISK_PROJECT_HOME` variable is set ( i.e. `OPENWHISK_PROJECT_HOME=/path/to/openwhisk make quick-start`)
-then the command skips downloading the `master` branch and uses instead the source code found in the `PROJECT_HOME` folder.
+then the command skips downloading the sources and uses instead the source code found in the `OPENWHISK_PROJECT_HOME` folder.
 This is useful for working with a local clone, making changes to the code, and run it with `docker-compose`.
 
 This is the set of environment variables that can be set:
 
 * `OPENWHISK_PROJECT_HOME` - a checkout of [openwhisk](https://github.com/apache/incubator-openwhisk)
+* `OPENWHISK_VERSION` - defaults to `master` but can be set to [releases](https://github.com/apache/incubator-openwhisk/releases) such as `0.9.0`
 * `OPENWHISK_CATALOG_HOME` - a checkout of [openwhisk-catalog](https://github.com/apache/incubator-openwhisk-catalog)
 * `WSK_CLI` - the directory where the [`wsk` command line tool](https://github.com/apache/incubator-openwhisk-cli) can be found
 * `DOCKER_IMAGE_PREFIX` - the prefix of the docker images used for actions. If you are building and testing checkouts of runtimes locally, then consider setting this to `whisk`.
