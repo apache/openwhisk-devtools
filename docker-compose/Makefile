@@ -213,7 +213,7 @@ setup:
 	cp -r ./apigateway/rclone ~/tmp/openwhisk
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up minio 2>&1 > ~/tmp/openwhisk/setup.log &
 	echo "pinging minio..."
-	until (curl --silent http://$(DOCKER_HOST_IP):9001/); do printf '.'; sleep 5; done
+	until (curl --silent http://$(DOCKER_HOST_IP):9001/ > /dev/null); do printf '.'; sleep 5; done
 	echo " ... OK"
 	docker run --rm -v ~/tmp/openwhisk/rclone:/root/.config/rclone \
 					--link="openwhisk_minio_1:minio.docker" --network=openwhisk_default \
