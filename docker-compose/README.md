@@ -87,13 +87,13 @@ make restart-controller
 
 You can pull pre-built image
 ```bash
-make docker_pull
+make docker-pull
 ```
 
 This command pulls the docker images for local testing and development.
 
 ```bash
-make docker_build
+make docker-build
 ```
 
 This command builds the opewnhisk core docker images for local testing and development.
