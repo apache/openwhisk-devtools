@@ -334,12 +334,15 @@ hello-world: create-hello-world-function
 	    && echo "invocation result:" $$res \
 	    && (echo $$res | grep "Hello, World") || ($(WSK_CLI) -i action delete hello && tail -n 200 ~/tmp/openwhisk/invoker/logs/invoker-local_logs.log ~/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
 
-	echo "$$(tput setaf 4) creating an API from the hello function ...$$(tput sgr0)"
+	echo "$$(tput setaf 4)creating an API from the hello function ...$$(tput sgr0)"
 	$(WSK_CLI) -i action update "/guest/hello" --web true
 	web_action=`$(WSK_CLI) -i api create /hello /world get hello --response-type json | tail -n 1` \
 	    && echo "invoking: " $$web_action \
-	    && (echo $$web_action | xargs curl -sS | grep "Hello, World") || ($(WSK_CLI) -i action delete hello && echo "Error invoking the web action" && tail -n 200 ~/tmp/openwhisk/invoker/logs/invoker-local_logs.log ~/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
+	    && (echo $$web_action | xargs curl -sS | grep "Hello, World") || (echo "Error invoking the web action" && tail -n 200 ~/tmp/openwhisk/invoker/logs/invoker-local_logs.log ~/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
 	$(WSK_CLI) -i api list /hello
+
+	echo "$$(tput setaf 1)deleting the API ...$$(tput sgr0)"
+	$(WSK_CLI) -i api delete /hello
 
 	echo "$$(tput setaf 1)deleting the function ...$$(tput sgr0)"
 	$(WSK_CLI) -i action delete hello
