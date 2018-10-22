@@ -75,6 +75,7 @@ services:
     ports:
       - "8888:8888"
       - "2551:2551"
+      - "9222:9222"
 
   # WHISK INVOKER AGENT
   invoker:
@@ -121,6 +122,7 @@ services:
       - /sys/fs/cgroup:/sys/fs/cgroup
     ports:
       - "8085:8085"
+      - "9333:9222"
 
   # The API Gateway is currently used to expose the Controller API
   #   see apigateway/conf/whisk-docker-compose.conf
