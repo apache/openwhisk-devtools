@@ -209,6 +209,15 @@ These ports are available for debugging on `localhost`:
 - `9333` for the Invoker
 - `9222` for the Controller
 
+Using IntelliJ:
+
+Follow these steps to create a new `Run/Debug Configuration` for the `Invoker`. Same can be done for the `Controller`: 
+- Go to `Run` -> `Edit Configurations` -> `Add new Configuration` -> `Remote`
+- Change port to `9333` and leave the host as `localhost`
+- You can now debug the `Invoker` remotely by setting breakpoints inside the code 
+
+> Please be aware that changes done in the code are not automatically deployed. In order to be able to debug new changes, you need to rebuild the application and redeploy it with `docker-compose`.  
+ 
 
 ## Custom Docker containers for actions
 
