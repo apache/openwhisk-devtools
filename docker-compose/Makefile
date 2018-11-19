@@ -122,6 +122,7 @@ docker-pull-full:
 	docker pull $(DOCKER_IMAGE_PREFIX)/invoker
 	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v8
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v10
 	docker pull $(DOCKER_IMAGE_PREFIX)/python2action
 	docker pull $(DOCKER_IMAGE_PREFIX)/python3action
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v3.1.1
