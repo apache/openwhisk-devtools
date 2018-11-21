@@ -1,6 +1,6 @@
 UNAME_STR ?= $(shell uname)
 
-# detect local ip of host as this is needed within containers to find the openwhisk API container
+# detect local ip of host as this is needed within containers to find the OpenWhisk API container
 ifeq ("$(UNAME_STR)","Linux")
 	LOCAL_IP=$(shell route | grep default | tr -s " " | cut -d " " -f 8 | xargs /sbin/ifconfig | grep "inet addr:" | cut -d ":" -f 2 | cut -d " " -f 1)
 	# inet addr: not present, trying with inet.
@@ -18,7 +18,8 @@ endif
 DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo ${LOCAL_IP})
 DOCKER_REGISTRY ?= ""
 DOCKER_IMAGE_PREFIX ?= openwhisk
-OPENWHISK_PROJECT_HOME ?= ./openwhisk-master
+OPENWHISK_VERSION ?= master
+OPENWHISK_PROJECT_HOME ?= ./openwhisk-src
 OPENWHISK_CATALOG_HOME ?= ./openwhisk-catalog
 WSK_CLI ?= $(OPENWHISK_PROJECT_HOME)/bin/wsk
 OPEN_WHISK_DB_PREFIX ?= local_
@@ -38,27 +39,33 @@ endif
 #   2. then it starts all components using docker-compose
 #   3. it runs a sample hello-world function
 #   To stop and cleanup the environment use: make destroy
-quick-start: download download-cli docker_pull run quick-start-pause hello-world quick-start-info
+
+quick-start: download-src download-cli docker-pull run quick-start-pause hello-world quick-start-info
 
 add-catalog: download-catalog init-catalog
 
-.PHONY: download
-download:
-	rm -rf ./openwhisk-master*
-	if [ "$(OPENWHISK_PROJECT_HOME)" = "./openwhisk-master" ]; then \
-        echo "Downloading source tar ball...."; \
-	    curl -o ./openwhisk-master.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/master.tar.gz; \
+.PHONY: download-src
+download-src:
+	if [ ! -d $(OPENWHISK_PROJECT_HOME) -o "$(OPENWHISK_VERSION)" = "master" ]; then \
+        echo "Downloading source tar ball $(OPENWHISK_VERSION)...."; \
+	    if [ "$(OPENWHISK_VERSION)" = "master" ]; then \
+	        rm -rf "$(OPENWHISK_PROJECT_HOME)"; \
+	        curl -o ./openwhisk-src.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/master.tar.gz; \
+        elif [ "$(OPENWHISK_VERSION)" = "0.9.0" ]; then \
+	        curl -o ./openwhisk-src.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/0.9.0-incubating.tar.gz; \
+        fi; \
         echo "Unpacking tarball."; \
-	    mkdir openwhisk-master; \
-	    tar -xf ./openwhisk-master.tar.gz --strip 1 -C openwhisk-master; \
+	    mkdir -p $(OPENWHISK_PROJECT_HOME); \
+	    tar -xf ./openwhisk-src.tar.gz --strip 1 -C $(OPENWHISK_PROJECT_HOME); \
+	    rm ./openwhisk-src.tar.gz; \
 	else \
-	     echo "Skipping downloading the code from git as OPENWHISK_PROJECT_HOME is not default:" $(OPENWHISK_PROJECT_HOME); \
+	     echo "Skipping downloading the code as OPENWHISK_PROJECT_HOME is set to " $(OPENWHISK_PROJECT_HOME); \
 	fi
 
 .PHONY: download-catalog
 download-catalog:
-	rm -rf ./openwhisk-catalog*
 	if [ "$(OPENWHISK_CATALOG_HOME)" = "./openwhisk-catalog" ]; then \
+	    rm -rf ./openwhisk-catalog*; \
 	    curl -O ./openwhisk-catalog.tar.gz -L https://api.github.com/repos/apache/incubator-openwhisk-catalog/tarball/master > ./openwhisk-catalog.tar.gz; \
 	    mkdir openwhisk-catalog; \
 	    tar -xf ./openwhisk-catalog.tar.gz --strip 1 -C openwhisk-catalog; \
@@ -70,43 +77,65 @@ download-catalog:
 quick-start-pause:
 	echo "waiting for the Whisk invoker to come up ... "
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8085/ping); do printf '.'; sleep 5; done
+	echo " ... OK"
 	sleep 30
 
 .PHONY: quick-start-info
 quick-start-info:
 	echo "$$(tput setaf 2)To invoke the function again use: $$(tput setaf 4)make hello-world$$(tput sgr0)"
-	echo "$$(tput setaf 2)To stop openwhisk use: $$(tput setaf 4)make destroy$$(tput sgr0)"
+	echo "$$(tput setaf 2)To stop OpenWhisk use: $$(tput setaf 4)make destroy$$(tput sgr0)"
 
+# deprecated commands
+.PHONY: docker_build
 docker_build:
-	echo "building the openwhisk core docker images ... "
+	echo "$$(tput setaf 2)ERROR: command deprecated"
+	echo "$$(tput setaf 2)please use $$(tput setaf 3)$$ $$(tput setaf 4)make docker-build$$(tput sgr0)"
+
+.PHONY: docker_pull
+docker_pull:
+	echo "$$(tput setaf 2)ERROR: command deprecated"
+	echo "please use $$(tput setaf 3)$$ $$(tput setaf 4)make docker-pull$$(tput sgr0)"
+
+.PHONY: docker_pull_full
+docker_pull_full:
+	echo "$$(tput setaf 2)ERROR: command deprecated"
+	echo "please use $$(tput setaf 3)$$ $$(tput setaf 4)make docker-pull-full$$(tput sgr0)"
+
+.PHONY: docker-build
+docker-build:
+	echo "building the OpenWhisk core docker images ... "
 	cd $(OPENWHISK_PROJECT_HOME) && \
 		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX)
 
-docker_pull:
+.PHONY: docker-pull
+docker-pull:
 	echo "pulling the docker images short list... "
 	docker pull $(DOCKER_IMAGE_PREFIX)/controller
 	docker pull $(DOCKER_IMAGE_PREFIX)/invoker
 	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action
 	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton
 
-docker_pull_full:
+.PHONY: docker-pull-full
+docker-pull-full:
 	echo "pulling the docker images full list ... "
 	docker pull $(DOCKER_IMAGE_PREFIX)/controller
 	docker pull $(DOCKER_IMAGE_PREFIX)/invoker
 	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v8
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v10
 	docker pull $(DOCKER_IMAGE_PREFIX)/python2action
 	docker pull $(DOCKER_IMAGE_PREFIX)/python3action
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v3.1.1
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v4.1
 	docker pull $(DOCKER_IMAGE_PREFIX)/java8action
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.1
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.2
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-ruby-v2.5
+	docker pull $(DOCKER_IMAGE_PREFIX)/actionloop-golang-v1.11
 	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton
 
 download-cli:
 	echo "downloading the CLI tool ... "
-	if [ "$(OPENWHISK_PROJECT_HOME)" = "./openwhisk-master" ]; then \
+	if [ ! -e "$(WSK_CLI)" ]; then \
         if [ "$(UNAME_STR)" = "Darwin" ]; then \
           echo "downloading cli for mac" ; \
           curl -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
@@ -119,7 +148,7 @@ download-cli:
             tar -xf wsk.tgz ; \
         fi; \
 	else \
-         echo "Skipping downloading the cli from git as OPENWHISK_PROJECT_HOME is not default:" $(OPENWHISK_PROJECT_HOME); \
+         echo "Skipping downloading the cli as OPENWHISK_PROJECT_HOME is set to " $(OPENWHISK_PROJECT_HOME); \
 	fi
 
 .PHONY: run
@@ -131,11 +160,17 @@ print-host:
 .PHONY: check-required-ports
 check-required-ports:
 	echo "checking required ports ... "
+	@occupiedports=0; \
 	for port in 2888 5984 8085 8888 9092 8001; do \
 		pid=`lsof -Pi :$$port -sTCP:LISTEN -t` ; \
-		if [ ! -z "$$pid" ];  then echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; exit 1; fi; \
-	done
-	echo " ... OK"
+		if [ ! -z "$$pid" ];  then let "occupiedports+=1" ; echo "$$(tput setaf 1)Port $$port is taken by PID:$$pid.$$(tput sgr0)"; fi; \
+	done; \
+	if [ "$$occupiedports" = 0 ]; then \
+		echo " ... OK"; \
+	else \
+		echo "$$(tput setaf 2)Ports occupied. To stop openwhisk use: $$(tput setaf 4)make destroy$$(tput setaf 2) or: $$(tput setaf 4)make stop$$(tput sgr0)"; \
+		exit 1; \
+	fi
 
 .PHONY: check-alarm-ports
 check-alarm-ports:
@@ -179,7 +214,9 @@ setup:
 	cp -r ./apigateway/* ~/tmp/openwhisk/api-gateway-config/api-gateway/
 	cp -r ./apigateway/rclone ~/tmp/openwhisk
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up minio 2>&1 > ~/tmp/openwhisk/setup.log &
-	until (curl --silent http://$(DOCKER_HOST_IP):9001/); do printf '.'; sleep 5; done
+	echo "pinging minio..."
+	until (curl --silent http://$(DOCKER_HOST_IP):9001/ > /dev/null); do printf '.'; sleep 5; done
+	echo " ... OK"
 	docker run --rm -v ~/tmp/openwhisk/rclone:/root/.config/rclone \
 					--link="openwhisk_minio_1:minio.docker" --network=openwhisk_default \
 					--entrypoint=rclone openwhisk/apigateway mkdir minio:api-gateway
@@ -272,7 +309,7 @@ init-catalog:
 
 .PHONY: destroy
 destroy: stop rm
-	echo "cleaning other openwhisk containers started by the invoker ... "
+	echo "cleaning other OpenWhisk containers started by the invoker ... "
 	docker ps | grep whisk | awk '{print $$1}' | xargs docker stop | xargs docker rm
 	echo "cleaning dangling docker volumes ... "
 	docker volume ls -qf dangling=true | xargs docker volume rm
@@ -299,12 +336,15 @@ hello-world: create-hello-world-function
 	    && echo "invocation result:" $$res \
 	    && (echo $$res | grep "Hello, World") || ($(WSK_CLI) -i action delete hello && tail -n 200 ~/tmp/openwhisk/invoker/logs/invoker-local_logs.log ~/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
 
-	echo "$$(tput setaf 4) creating an API from the hello function ...$$(tput sgr0)"
+	echo "$$(tput setaf 4)creating an API from the hello function ...$$(tput sgr0)"
 	$(WSK_CLI) -i action update "/guest/hello" --web true
 	web_action=`$(WSK_CLI) -i api create /hello /world get hello --response-type json | tail -n 1` \
 	    && echo "invoking: " $$web_action \
-	    && (echo $$web_action | xargs curl -sS | grep "Hello, World") || ($(WSK_CLI) -i action delete hello && echo "Error invoking the web action" && tail -n 200 ~/tmp/openwhisk/invoker/logs/invoker-local_logs.log ~/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
+	    && (echo $$web_action | xargs curl -sS | grep "Hello, World") || (echo "Error invoking the web action" && tail -n 200 ~/tmp/openwhisk/invoker/logs/invoker-local_logs.log ~/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
 	$(WSK_CLI) -i api list /hello
+
+	echo "$$(tput setaf 1)deleting the API ...$$(tput sgr0)"
+	$(WSK_CLI) -i api delete /hello
 
 	echo "$$(tput setaf 1)deleting the function ...$$(tput sgr0)"
 	$(WSK_CLI) -i action delete hello
@@ -331,7 +371,7 @@ hello-world-perf-test: create-hello-world-function
 	rm hello.js
 
 .PHONY: pull
-pull: download setup
+pull: download-src setup
 	docker-compose --project-name openwhisk pull
 
 # Optional package configuration stages. These commands will install and set up
