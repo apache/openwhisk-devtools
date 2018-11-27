@@ -223,6 +223,8 @@ setup:
 	# $(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f minio
 	$(OPENWHISK_PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files
 	mkdir -p ~/tmp/openwhisk/api-gateway-ssl
+	# travis CI has some oddities when it comes to permissions, lets open it up...
+	chmod a=rwx ~/tmp/openwhisk/api-gateway-ssl
 	ls -l $(OPENWHISK_PROJECT_HOME) ~/tmp/openwhisk/api-gateway-ssl ~/tmp/openwhisk
 	cp $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/api-gateway-ssl
 
