@@ -211,23 +211,18 @@ setup:
 	echo "  ... preparing api-gateway configuration"
 	rm -rf ~/tmp/openwhisk/api-gateway-config
 	mkdir -p ~/tmp/openwhisk/api-gateway-config/api-gateway
+	mkdir -p ~/tmp/openwhisk/api-gateway-ssl
 	cp -r ./apigateway/* ~/tmp/openwhisk/api-gateway-config/api-gateway/
 	cp -r ./apigateway/rclone ~/tmp/openwhisk
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up minio 2>&1 > ~/tmp/openwhisk/setup.log &
 	echo "pinging minio..."
 	until (curl --silent http://$(DOCKER_HOST_IP):9001/ > /dev/null); do printf '.'; sleep 5; done
 	echo " ... OK"
-	docker run --rm -v ~/tmp/openwhisk/rclone:/root/.config/rclone \
-					--link="openwhisk_minio_1:minio.docker" --network=openwhisk_default \
-					--entrypoint=rclone openwhisk/apigateway mkdir minio:api-gateway
-	docker run --rm -v ~/tmp/openwhisk/api-gateway-config/api-gateway/generated-conf.d:/etc/api-gateway/generated-conf.d \
-					-v ~/tmp/openwhisk/rclone:/root/.config/rclone \
-					--link="openwhisk_minio_1:minio.docker" --network=openwhisk_default \
-					--entrypoint=rclone openwhisk/apigateway copy --exclude .git /etc/api-gateway/ minio:api-gateway/
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk run --no-deps apigateway rclone mkdir minio:api-gateway
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk run --no-deps apigateway rclone copy --exclude .git /etc/api-gateway/ minio:api-gateway/
 	# $(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop minio
 	# $(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f minio
 	$(OPENWHISK_PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files
-	mkdir -p ~/tmp/openwhisk/api-gateway-ssl
 	cp $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/api-gateway-ssl
 
 .PHONY: gw
