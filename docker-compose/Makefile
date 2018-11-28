@@ -46,20 +46,15 @@ add-catalog: download-catalog init-catalog
 
 .PHONY: download-src
 download-src:
-	if [ ! -d $(OPENWHISK_PROJECT_HOME) -o "$(OPENWHISK_VERSION)" = "master" ]; then \
-        echo "Downloading source tar ball $(OPENWHISK_VERSION)...."; \
-	    if [ "$(OPENWHISK_VERSION)" = "master" ]; then \
-	        rm -rf "$(OPENWHISK_PROJECT_HOME)"; \
-	        curl -o ./openwhisk-src.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/master.tar.gz; \
-        elif [ "$(OPENWHISK_VERSION)" = "0.9.0" ]; then \
-	        curl -o ./openwhisk-src.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/0.9.0-incubating.tar.gz; \
-        fi; \
-        echo "Unpacking tarball."; \
+	if [ ! $(OPENWHISK_PROJECT_HOME) = "./openwhisk-src" ]; then \
+		echo "Skipping downloading the code as OPENWHISK_PROJECT_HOME is set to " $(OPENWHISK_PROJECT_HOME); \
+	else \
+		rm -rf ./openwhisk-src; \
+		curl -o ./openwhisk-src.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/$(OPENWHISK_VERSION).tar.gz; \
+		echo "Unpacking tarball."; \
 	    mkdir -p $(OPENWHISK_PROJECT_HOME); \
 	    tar -xf ./openwhisk-src.tar.gz --strip 1 -C $(OPENWHISK_PROJECT_HOME); \
 	    rm ./openwhisk-src.tar.gz; \
-	else \
-	     echo "Skipping downloading the code as OPENWHISK_PROJECT_HOME is set to " $(OPENWHISK_PROJECT_HOME); \
 	fi
 
 .PHONY: download-catalog
