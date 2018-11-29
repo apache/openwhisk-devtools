@@ -22,8 +22,8 @@ These ports must be available:
 - `6379` for Redis
 - `2181` for Zookeeper
 - `5984` for CouchDB
-- `8085` for OpenWhisk's Invoker
-- `8888` for OpenWhisk's Controller
+- `8085`, `9333` for OpenWhisk's Invoker
+- `8888`, `9222` for OpenWhisk's Controller
 - `9092` for Kafka
 - `8001` for Kafka Topics UI
 
@@ -199,6 +199,25 @@ wsk package list /whisk.system
 - Feed provider instance logs - `~/tmp/openwhisk/<feed_name>provider`
 - Action output such as stdout or console.log(): `wsk -i activation logs <activationId>`
 
+## Debugging OpenWhisk Invoker and Controller
+Both invoker and controller can be remotely debugged using any preferred IDE by setting these command line arguments for the remote JVM: 
+
+```
+-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$port
+```
+These ports are available for debugging on `localhost`: 
+- `9333` for the Invoker
+- `9222` for the Controller
+
+Using IntelliJ:
+
+Follow these steps to create a new `Run/Debug Configuration` for the `Invoker`. Same can be done for the `Controller`: 
+- Go to `Run` -> `Edit Configurations` -> `Add new Configuration` -> `Remote`
+- Change port to `9333` and leave the host as `localhost`
+- You can now debug the `Invoker` remotely by setting breakpoints inside the code 
+
+> Please be aware that changes done in the code are not automatically deployed. In order to be able to debug new changes, you need to rebuild the application and redeploy it with `docker-compose`.  
+ 
 
 ## Custom Docker containers for actions
 
