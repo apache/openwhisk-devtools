@@ -214,8 +214,8 @@ setup:
 	echo "pinging minio..."
 	until (curl --silent http://$(DOCKER_HOST_IP):9001/ > /dev/null); do printf '.'; sleep 5; done
 	echo " ... OK"
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk run --no-deps apigateway rclone mkdir minio:api-gateway
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk run --no-deps apigateway rclone copy --exclude .git /etc/api-gateway/ minio:api-gateway/
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk run --rm --no-deps apigateway rclone mkdir minio:api-gateway
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk run --rm --no-deps apigateway rclone copy --exclude .git /etc/api-gateway/ minio:api-gateway/
 	# $(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop minio
 	# $(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f minio
 	$(OPENWHISK_PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files
@@ -351,7 +351,7 @@ create-hello-world-function:
 hello-world-perf-test: create-hello-world-function
 	$(WSK_CLI) -i action create hello-perf hello.js
 
-	docker run \
+	docker run --rm \
 	    --net openwhisk_default \
 	    --link controller jordi/ab ab -k -n 2000 -c 20 \
 	    -m POST -H "Authorization:Basic MjNiYzQ2YjEtNzFmNi00ZWQ1LThjNTQtODE2YWE0ZjhjNTAyOjEyM3pPM3haQ0xyTU42djJCS0sxZFhZRnBYbFBrY2NPRnFtMTJDZEFzTWdSVTRWck5aOWx5R1ZDR3VNREdJd1A=" \
