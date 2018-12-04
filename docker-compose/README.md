@@ -48,7 +48,7 @@ This is useful for working with a local clone, making changes to the code, and r
 This is the set of environment variables that can be set:
 
 * `OPENWHISK_PROJECT_HOME` - a checkout of [openwhisk](https://github.com/apache/incubator-openwhisk)
-* `OPENWHISK_VERSION` - defaults to `master` but can be set to [releases](https://github.com/apache/incubator-openwhisk/releases) such as `0.9.0`
+* `OPENWHISK_VERSION` - defaults to `master` but can be set to [releases](https://github.com/apache/incubator-openwhisk/releases) such as `0.9.0-incubating`
 * `OPENWHISK_CATALOG_HOME` - a checkout of [openwhisk-catalog](https://github.com/apache/incubator-openwhisk-catalog)
 * `WSK_CLI` - the directory where the [`wsk` command line tool](https://github.com/apache/incubator-openwhisk-cli) can be found
 * `DOCKER_IMAGE_PREFIX` - the prefix of the docker images used for actions. If you are building and testing checkouts of runtimes locally, then consider setting this to `whisk`.
