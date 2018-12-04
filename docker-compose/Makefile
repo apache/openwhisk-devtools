@@ -207,6 +207,7 @@ setup:
 	rm -rf ~/tmp/openwhisk/api-gateway-config
 	mkdir -p ~/tmp/openwhisk/api-gateway-config/api-gateway
 	mkdir -p ~/tmp/openwhisk/api-gateway-ssl
+	mkdir -p ~/tmp/openwhisk/minio
 	cp -r ./apigateway/* ~/tmp/openwhisk/api-gateway-config/api-gateway/
 	cp -r ./apigateway/rclone ~/tmp/openwhisk
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up minio 2>&1 > ~/tmp/openwhisk/setup.log &
