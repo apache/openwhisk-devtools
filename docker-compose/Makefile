@@ -127,6 +127,7 @@ docker-pull-full:
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-ruby-v2.5
 	docker pull $(DOCKER_IMAGE_PREFIX)/actionloop-golang-v1.11
 	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-dotnet-v2.2
 
 download-cli:
 	echo "downloading the CLI tool ... "
