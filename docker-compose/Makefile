@@ -124,6 +124,7 @@ docker-pull-full:
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v4.1
 	docker pull $(DOCKER_IMAGE_PREFIX)/java8action
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.2
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.3
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-ruby-v2.5
 	docker pull $(DOCKER_IMAGE_PREFIX)/actionloop-golang-v1.11
 	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton
