@@ -23,6 +23,7 @@ OPENWHISK_PROJECT_HOME ?= ./openwhisk-src
 OPENWHISK_CATALOG_HOME ?= ./openwhisk-catalog
 WSK_CLI ?= $(OPENWHISK_PROJECT_HOME)/bin/wsk
 OPEN_WHISK_DB_PREFIX ?= local_
+OPENWHISK_PROPS_FILE ?= ~/.wskprops
 
 DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
 ifeq ("$(UNAME_STR)","Linux")
@@ -284,7 +285,14 @@ init-whisk-cli:
 	echo "waiting for the Whisk controller to come up ... "
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
 	echo "initializing CLI ... "
-	$(WSK_CLI) -v property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i
+	if [ "$(OPENWHISK_PROPS_FILE)" = "~/.wskprops" ]; then \
+	echo 'copying the existing wskprops file to docker-compose root directory under wskprops_backups....'; \
+	sudo mkdir wskprops_backups; \
+	sudo cp ~/.wskprops ./wskprops_backups/wskprops_bk_$$(date +%Y%m%d%H%M%S) ;\
+	$(WSK_CLI) -v property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i ;\
+	else \
+	$(WSK_CLI) -v property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i ;\
+	fi;
 
 .PHONY: init-api-management
 init-api-management:
