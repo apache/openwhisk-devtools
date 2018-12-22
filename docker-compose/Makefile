@@ -287,8 +287,8 @@ init-whisk-cli:
 	echo "initializing CLI ... "
 	if [ "$(OPENWHISK_PROPS_FILE)" = "~/.wskprops" ]; then \
 	echo 'copying the existing wskprops file to docker-compose root directory under wskprops_backups....'; \
-	sudo mkdir wskprops_backups; \
-	sudo cp ~/.wskprops ./wskprops_backups/wskprops_bk_$$(date +%Y%m%d%H%M%S) ;\
+	mkdir wskprops_backups; \
+	cp ~/.wskprops ./wskprops_backups/wskprops_bk_$$(date +%Y%m%d%H%M%S) ;\
 	$(WSK_CLI) -v property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i ;\
 	else \
 	$(WSK_CLI) -v property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i ;\
