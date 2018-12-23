@@ -80,6 +80,8 @@ quick-start-pause:
 quick-start-info:
 	echo "$$(tput setaf 2)To invoke the function again use: $$(tput setaf 4)make hello-world$$(tput sgr0)"
 	echo "$$(tput setaf 2)To stop OpenWhisk use: $$(tput setaf 4)make destroy$$(tput sgr0)"
+	echo "$$(tput setaf 2)To view the old wskprops file check: $$(tput setaf 4)/docker-compose/wskprops_backups$$(tput sgr0)"
+	echo "$$(tput setaf 2)To override the default wskprops path export: $$(tput setaf 4)WSK_CONFIG_FILE$$(tput sgr0)"
 
 # deprecated commands
 .PHONY: docker_build
@@ -284,11 +286,15 @@ init-couchdb:
 init-whisk-cli:
 	echo "waiting for the Whisk controller to come up ... "
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
-	echo "initializing CLI ... "
+	echo "initializing CLI ... ";
+	if [ ! -e "./wskprops_backups" ]; then \
+	mkdir ./wskprops_backups; \
+	else \
+	echo 'wskprops backup directory already existing so skipping this step'; \
+	fi;
 	if [ "$(OPENWHISK_PROPS_FILE)" = "~/.wskprops" ]; then \
 	echo 'copying the existing wskprops file to docker-compose root directory under wskprops_backups....'; \
-	mkdir wskprops_backups; \
-	cp ~/.wskprops ./wskprops_backups/wskprops_bk_$$(date +%Y%m%d%H%M%S) ;\
+	cat ~/.wskprops >> ./wskprops_backups/wskprops.compose-$$(date +%Y%m%d%H%M%S) ;\
 	$(WSK_CLI) -v property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i ;\
 	else \
 	$(WSK_CLI) -v property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i ;\
