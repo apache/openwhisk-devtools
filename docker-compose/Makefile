@@ -122,6 +122,7 @@ docker-pull-full:
 	docker pull $(DOCKER_IMAGE_PREFIX)/python3action
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v3.1.1
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v4.1
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v4.2
 	docker pull $(DOCKER_IMAGE_PREFIX)/java8action
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.2
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.3
