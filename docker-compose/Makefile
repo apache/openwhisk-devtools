@@ -221,7 +221,15 @@ setup:
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk run --rm --no-deps apigateway rclone copy --exclude .git /etc/api-gateway/ minio:api-gateway/
 	# $(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop minio
 	# $(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f minio
-	$(OPENWHISK_PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files
+	
+	# Check if the user has provided SSL certificates, if not generate them
+	if [ -f "$(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/openwhisk-server-key.pem" ] && \
+		[ -f "$(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/openwhisk-server-cert.pem" ]; then \
+			echo "using certificates present in $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/"; \
+	else \
+		$(OPENWHISK_PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files; \
+	fi;
+	mkdir -p ~/tmp/openwhisk/api-gateway-ssl
 	cp $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/api-gateway-ssl
 
 .PHONY: gw
