@@ -19,8 +19,8 @@ DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,
 DOCKER_REGISTRY ?= ""
 DOCKER_IMAGE_PREFIX ?= openwhisk
 OPENWHISK_VERSION ?= master
-OPENWHISK_PROJECT_HOME ?= ./openwhisk-src
-OPENWHISK_CATALOG_HOME ?= ./openwhisk-catalog
+OPENWHISK_PROJECT_HOME ?= $(CURDIR)/openwhisk-src
+OPENWHISK_CATALOG_HOME ?= $(CURDIR)/openwhisk-catalog
 WSK_CLI ?= $(OPENWHISK_PROJECT_HOME)/bin/wsk
 OPEN_WHISK_DB_PREFIX ?= local_
 
@@ -46,10 +46,10 @@ add-catalog: download-catalog init-catalog
 
 .PHONY: download-src
 download-src:
-	if [ ! $(OPENWHISK_PROJECT_HOME) = "./openwhisk-src" ]; then \
+	if [ ! $(OPENWHISK_PROJECT_HOME) = "$(CURDIR)/openwhisk-src" ]; then \
 		echo "Skipping downloading the code as OPENWHISK_PROJECT_HOME is set to " $(OPENWHISK_PROJECT_HOME); \
 	else \
-		rm -rf ./openwhisk-src; \
+		rm -rf $(CURDIR)/openwhisk-src; \
 		curl -o ./openwhisk-src.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/$(OPENWHISK_VERSION).tar.gz; \
 		echo "Unpacking tarball."; \
 	    mkdir -p $(OPENWHISK_PROJECT_HOME); \
@@ -59,8 +59,8 @@ download-src:
 
 .PHONY: download-catalog
 download-catalog:
-	if [ "$(OPENWHISK_CATALOG_HOME)" = "./openwhisk-catalog" ]; then \
-	    rm -rf ./openwhisk-catalog*; \
+	if [ "$(OPENWHISK_CATALOG_HOME)" = "$(CURDIR)/openwhisk-catalog" ]; then \
+	    rm -rf $(CURDIR)/openwhisk-catalog*; \
 	    curl -O ./openwhisk-catalog.tar.gz -L https://api.github.com/repos/apache/incubator-openwhisk-catalog/tarball/master > ./openwhisk-catalog.tar.gz; \
 	    mkdir openwhisk-catalog; \
 	    tar -xf ./openwhisk-catalog.tar.gz --strip 1 -C openwhisk-catalog; \
@@ -293,14 +293,16 @@ init-whisk-cli:
 	echo "waiting for the Whisk controller to come up ... "
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
 	echo "initializing CLI ... "
-	$(WSK_CLI) -v property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i
+	$(WSK_CLI) property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i
 
 .PHONY: init-api-management
 init-api-management:
-	$(WSK_CLI) -v property set --namespace whisk.system --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.whisk.system` --apihost $(DOCKER_HOST_IP) -i
-	GW_USER="" GW_PWD="" GW_HOST_V2="http://$(DOCKER_HOST_IP):9000/v2" OPENWHISK_HOME=$(OPENWHISK_PROJECT_HOME) \
-		$(OPENWHISK_PROJECT_HOME)/ansible/roles/routemgmt/files/installRouteMgmt.sh $(shell cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.whisk.system) $(DOCKER_HOST_IP) /whisk.system $(WSK_CLI)
-	$(WSK_CLI) -v property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost $(DOCKER_HOST_IP) -i
+	touch $(OPENWHISK_PROJECT_HOME)/whisk.properties
+	GW_USER="" \
+	GW_PWD="" \
+	GW_HOST_V2="http://$(DOCKER_HOST_IP):9000/v2" \
+	OPENWHISK_HOME=$(OPENWHISK_PROJECT_HOME) \
+	$(OPENWHISK_PROJECT_HOME)/ansible/roles/routemgmt/files/installRouteMgmt.sh $(shell cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.whisk.system) $(DOCKER_HOST_IP) /whisk.system $(WSK_CLI)
 
 .PHONY: init-catalog
 init-catalog:
