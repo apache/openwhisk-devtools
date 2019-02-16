@@ -1,4 +1,5 @@
 openwhisk-src
+.wskprops
 
 *.iml
 .idea

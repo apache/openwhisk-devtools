@@ -22,6 +22,7 @@ OPENWHISK_VERSION ?= master
 OPENWHISK_PROJECT_HOME ?= $(CURDIR)/openwhisk-src
 OPENWHISK_CATALOG_HOME ?= $(CURDIR)/openwhisk-catalog
 WSK_CLI ?= $(OPENWHISK_PROJECT_HOME)/bin/wsk
+WSK_CONFIG_FILE=$(CURDIR)/.wskprops
 OPEN_WHISK_DB_PREFIX ?= local_
 
 DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
@@ -77,9 +78,10 @@ quick-start-pause:
 
 .PHONY: quick-start-info
 quick-start-info:
-	echo "$$(tput setaf 2)To invoke the function again use: $$(tput setaf 4)make hello-world$$(tput sgr0)"
-	echo "$$(tput setaf 2)To stop OpenWhisk use: $$(tput setaf 4)make destroy$$(tput sgr0)"
-
+	echo "$$(tput setaf 2)To invoke the function again use: $$(tput setaf 6)make hello-world$$(tput sgr0)"
+	echo "$$(tput setaf 2)To stop OpenWhisk use: $$(tput setaf 6)make destroy$$(tput sgr0)"
+	echo "$$(tput setaf 2)To use the wsk CLI: $$(tput setaf 6)export WSK_CONFIG_FILE=$(WSK_CONFIG_FILE)$$(tput sgr0)"
+	echo "                    $$(tput setaf 6)or copy the file to $(HOME)/.wskprops$$(tput sgr0)"
 # deprecated commands
 .PHONY: docker_build
 docker_build:
@@ -284,8 +286,8 @@ init-couchdb:
 init-whisk-cli:
 	echo "waiting for the Whisk controller to come up ... "
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
-	echo "initializing CLI ... "
-	$(WSK_CLI) property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i
+	echo "initializing CLI properties into $(WSK_CONFIG_FILE)"
+	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i
 
 .PHONY: init-api-management
 init-api-management:
@@ -325,25 +327,25 @@ hello-world: create-hello-world-function
 	echo "invoking the hello-world function ... "
 
 	echo "$$(tput setaf 4)adding the function to whisk ...$$(tput sgr0)"
-	$(WSK_CLI) -i action create hello hello.js
+	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i action create hello hello.js
 
 	echo "$$(tput setaf 4)invoking the function ...$$(tput sgr0)"
-	res=`$(WSK_CLI) -i action invoke hello --blocking --result` \
+	res=`WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i action invoke hello --blocking --result` \
 	    && echo "invocation result:" $$res \
-	    && (echo $$res | grep "Hello, World") || ($(WSK_CLI) -i action delete hello && tail -n 200 ~/tmp/openwhisk/invoker/logs/invoker-local_logs.log ~/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
+	    && (echo $$res | grep "Hello, World") || (WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i action delete hello && tail -n 200 ~/tmp/openwhisk/invoker/logs/invoker-local_logs.log ~/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
 
 	echo "$$(tput setaf 4)creating an API from the hello function ...$$(tput sgr0)"
-	$(WSK_CLI) -i action update "/guest/hello" --web true
-	web_action=`$(WSK_CLI) -i api create /hello /world get hello --response-type json | tail -n 1` \
+	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i action update "/guest/hello" --web true
+	web_action=`WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i api create /hello /world get hello --response-type json | tail -n 1` \
 	    && echo "invoking: " $$web_action \
 	    && (echo $$web_action | xargs curl -sS | grep "Hello, World") || (echo "Error invoking the web action" && tail -n 200 ~/tmp/openwhisk/invoker/logs/invoker-local_logs.log ~/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
-	$(WSK_CLI) -i api list /hello
+	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i api list /hello
 
 	echo "$$(tput setaf 1)deleting the API ...$$(tput sgr0)"
-	$(WSK_CLI) -i api delete /hello
+	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i api delete /hello
 
 	echo "$$(tput setaf 1)deleting the function ...$$(tput sgr0)"
-	$(WSK_CLI) -i action delete hello
+	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i action delete hello
 	rm hello.js
 
 .PHONY: create-hello-world-function
@@ -354,7 +356,7 @@ create-hello-world-function:
 # Using the hello-world function this task executes a performance test using Apache Benchmark
 .PHONY: hello-world-perf-test
 hello-world-perf-test: create-hello-world-function
-	$(WSK_CLI) -i action create hello-perf hello.js
+	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i action create hello-perf hello.js
 
 	docker run --rm \
 	    --net openwhisk_default \
@@ -363,7 +365,7 @@ hello-world-perf-test: create-hello-world-function
 	            -H "Content-Type:application/json" \
 	            http://controller:8888/api/v1/namespaces/guest/actions/hello-perf?blocking=true
 
-	$(WSK_CLI) -i action delete hello-perf
+	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i action delete hello-perf
 	rm hello.js
 
 .PHONY: pull
