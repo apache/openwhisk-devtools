@@ -1,0 +1,48 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: BuildTemplate
+metadata:
+  name: openwhisk-nodejs-runtime
+spec:
+  parameters:
+  - name: TARGET_IMAGE_NAME
+    description: name of the image to be tagged and pushed
+  - name: TARGET_IMAGE_TAG
+    description: tag the image before pushing
+    default: "latest"
+  - name: DOCKERFILE
+    description: name of the dockerfile
+  - name: OW_RUNTIME_DEBUG
+    description: flag to indicate debug mode should be on/off
+    default: "false"
+  - name: OW_RUNTIME_PLATFORM
+    description: flag to indicate the platform, one of ["openwhisk", "knative", ... ]
+    default: "knative"
+  - name: OW_ACTION_NAME
+    description: name of the action
+  - name: OW_ACTION_CODE
+    description: JavaScript source code to be evaluated
+  - name: OW_ACTION_MAIN
+    description: name of the function in the "__OW_ACTION_CODE" to call as the action handler
+    default: "main"
+  - name: OW_ACTION_BINARY
+    description: flag to indicate zip function, for zip actions, "__OW_ACTION_CODE" must be base64 encoded string
+    default: "false"
+  steps:
+  - name: add-ow-env-to-dockerfile
+    image: "gcr.io/kaniko-project/executor:debug"
+    command:
+    - /busybox/sh
+    args:
+    - -c
+    - |
+      cat <<EOF >> ${DOCKERFILE}
+        ENV __OW_RUNTIME_DEBUG "${OW_RUNTIME_DEBUG}"
+        ENV __OW_RUNTIME_PLATFORM "${OW_RUNTIME_PLATFORM}"
+        ENV __OW_ACTION_NAME "${OW_ACTION_NAME}"
+        ENV __OW_ACTION_CODE "${OW_ACTION_CODE}"
+        ENV __OW_ACTION_MAIN "${OW_ACTION_MAIN}"
+        ENV __OW_ACTION_BINARY "${OW_ACTION_BINARY}"
+      EOF
+  - name: build-openwhisk-nodejs-runtime
+    image: "gcr.io/kaniko-project/executor:latest"
+    args: ["--destination=${TARGET_IMAGE_NAME}:${TARGET_IMAGE_TAG}", "--dockerfile=${DOCKERFILE}"]

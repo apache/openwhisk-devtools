@@ -1,0 +1,24 @@
+POST http://localhost:8080/ HTTP/1.1
+content-type: application/json
+
+{
+  "init": {
+    "name" : "nodejs-web-action-json-params",
+    "main" : "main",
+    "binary": false,
+    "code": "function main(params) { return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: params }};"
+  },
+  "activation": {
+    "namespace": "default",
+    "action_name": "nodejs-web-action-json-params",
+    "api_host": "",
+    "api_key": "",
+    "activation_id": "",
+    "deadline": "4102498800000"
+  },
+  "value": {
+    "name": "Joe"
+  }
+}
+
+###

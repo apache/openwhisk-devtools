@@ -1,0 +1,11 @@
+{ 
+    "value": {
+        "name": "Joe"
+    },
+    "namespace": "default",
+    "action_name": "nodejs-web-action-helloworld",
+    "api_host": "",
+    "api_key": "",
+    "activation_id": "",
+    "deadline": "4102498800000"
+}

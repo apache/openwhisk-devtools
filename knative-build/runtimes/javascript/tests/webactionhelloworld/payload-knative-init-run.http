@@ -1,0 +1,24 @@
+POST http://localhost:8080/ HTTP/1.1
+content-type: application/json
+
+{
+  "init": {
+    "name" : "nodejs-web-action-helloworld",
+    "main" : "main",
+    "binary": false,
+    "code" : "function main({name}) { var msg = 'you did not tell me who you are.'; if (name) { msg = `hello ${name}` } return {body: `<html><body><h3>${msg}</h3></body></html>`} }"
+  },
+  "activation": {
+    "namespace": "default",
+    "action_name": "nodejs-web-action-helloworld",
+    "api_host": "",
+    "api_key": "",
+    "activation_id": "",
+    "deadline": "4102498800000"
+  },
+  "value": {
+    "name": "Joe"
+  }
+}
+
+###

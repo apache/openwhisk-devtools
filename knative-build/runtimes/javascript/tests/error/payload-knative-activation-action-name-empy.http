@@ -1,0 +1,25 @@
+POST http://localhost:8080/ HTTP/1.1
+content-type: application/json
+
+{
+  "init": {
+    "name": "nodejs-helloworld-from-init",
+    "main": "main",
+    "binary": false,
+    "code": "function main() {return {payload: 'Hello World!  (' + process.env[\"__OW_ACTION_NAME\"] + ')'};}"
+  },
+  "activation": {
+    "namespace": "default",
+    "action_name": "",
+    "api_host": "",
+    "api_key": "",
+    "activation_id": "",
+    "deadline": "4102498800000"
+  },
+  "value": {
+    "name": "Joe",
+    "place": "TX"
+  }
+}
+
+###

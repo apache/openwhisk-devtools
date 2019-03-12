@@ -1,0 +1,13 @@
+POST http://localhost:8080/init HTTP/1.1
+content-type: application/json
+
+{
+  "value": {
+    "name" : "nodejs-web-action-to-redirect",
+    "main" : "main",
+    "binary": false,
+    "code" : "function main() { return { headers: { location: 'http://openwhisk.org' }, statusCode: 302 }}"
+  }
+}
+
+###

@@ -1,0 +1,16 @@
+{
+    "name": "action-nodejs-v8",
+    "version": "1.0.0",
+    "description": "Apache OpenWhisk NodeJS Runtime",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:apache/incubator-openwhisk-runtime-nodejs.git"
+    },
+    "license": "Apache-2.0",
+    "dependencies": {
+        "body-parser": "^1.18.3",
+        "express": "^4.16.4",
+        "openwhisk": "3.18.0",
+        "serialize-error": "^3.0.0"
+    }
+}
