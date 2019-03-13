@@ -14,10 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 var dbg = require('./utils/debug');
 var DEBUG = new dbg();
-
 DEBUG.trace("Hello World from NodeJS runtime");
 DEBUG.dumpObject(process.env, "process.env");
 
@@ -48,9 +46,6 @@ var app = express();
  */
 var service = require('./src/service').getService(config);
 
-// TODO: do not use express to hold config vars. for us, as we make the entire config. avail. to the service
-// app.set('port', config.port);
-
 /**
  * setup a middleware layer to restrict the request body size
  * this middleware is called every time a request is sent to the server
@@ -66,8 +61,10 @@ if( typeof targetPlatform === "undefined") {
     targetPlatform = runtime_platform.openwhisk;
 }
 
-// Register different endpoint handlers depending on target PLATFORM and its expected behavior.
-// In addition, register request pre-processors and/or response post-processors as needed.
+/**
+ * Register different endpoint handlers depending on target PLATFORM and its expected behavior.
+ * In addition, register request pre-processors and/or response post-processors as needed.
+ */
 if (targetPlatform === runtime_platform.openwhisk ) {
     app.post('/init', wrapEndpoint(service.initCode));
     app.post('/run', wrapEndpoint(service.runCode));
