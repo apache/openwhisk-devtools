@@ -1,0 +1,23 @@
+POST http://localhost:8080/ HTTP/1.1
+content-type: application/json
+
+{
+  "init": {
+    "name" : "nodejs-web-action-set-a-cookie",
+    "main" : "main",
+    "binary": false,
+    "code" : "function main() { return { headers: { 'Set-Cookie': 'UserID=Jane; Max-Age=3600; Version=', 'Content-Type': 'text/html'}, statusCode: 200, body: '<html><body><h3>hello</h3></body></html>' }}"
+  },
+  "activation": {
+    "namespace": "default",
+    "action_name": "nodejs-web-action-set-a-cookie",
+    "api_host": "",
+    "api_key": "",
+    "activation_id": "",
+    "deadline": "4102498800000"
+  },
+  "value": {
+  }
+}
+
+###

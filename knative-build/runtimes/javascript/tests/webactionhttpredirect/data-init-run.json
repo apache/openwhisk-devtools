@@ -1,0 +1,18 @@
+{
+  "init": {
+    "name" : "nodejs-web-action-to-redirect",
+    "main" : "main",
+    "binary": false,
+    "code" : "function main() { return { headers: { location: 'http://openwhisk.org' }, statusCode: 302 }}"
+  },
+  "activation": {
+    "namespace": "default",
+    "action_name": "nodejs-web-action-to-redirect",
+    "api_host": "",
+    "api_key": "",
+    "activation_id": "",
+    "deadline": "4102498800000"
+  },
+  "value": {
+  }
+}

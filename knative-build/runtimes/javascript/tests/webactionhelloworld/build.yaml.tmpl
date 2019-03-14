@@ -1,0 +1,24 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  name: nodejs-10-web-action-helloworld
+spec:
+  serviceAccountName: openwhisk-runtime-builder
+  source:
+    git:
+      url: "https://github.com/mrutkows/openwhisk-knative-build.git"
+      revision: "master"
+  template:
+    name: openwhisk-nodejs-runtime
+    arguments:
+      - name: TARGET_IMAGE_NAME
+        value: "docker.io/${DOCKER_USERNAME}/nodejs-10-web-action-helloworld"
+      - name: DOCKERFILE
+        value: "./runtimes/javascript/Dockerfile"
+      - name: OW_RUNTIME_DEBUG
+        value: "true"
+      - name: OW_ACTION_NAME
+        value: "nodejs-web-action-helloworld"
+      - name: OW_ACTION_CODE
+        "value" : "function main({name}) { var msg = 'you did not tell me who you are.'; if (name) { msg = `hello ${name}` } return {body: `<html><body><h3>${msg}</h3></body></html>`} }"
+
