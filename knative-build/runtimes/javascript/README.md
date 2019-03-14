@@ -31,13 +31,13 @@ Complete the pre-requisites and Knative installation and configuration instructi
 
 Verify **kube-system**, **istio-system**, and **knative-xxx** pods are all **Running**
 ```
-$ kubectl get pods --all-namespaces 
+$ kubectl get pods --all-namespaces
 ```
 <details>
     <summary>Sample output</summary>
-    
+
 ```
-$ kubectl get pods --all-namespaces 
+$ kubectl get pods --all-namespaces
 NAMESPACE          NAME                                            READY   STATUS      RESTARTS   AGE
 istio-system       cluster-local-gateway-547467ccf6-p8n72          1/1     Running     1          8d
 istio-system       istio-citadel-7d64db8bcf-m7gsj                  1/1     Running     0          8d
@@ -77,7 +77,7 @@ kube-system        kube-scheduler-docker-desktop                   1/1     Runni
 ## Intall the BuildTemplate for the NodeJS runtime
 
 ```
-$ kubectl apply --filename buildtemplate.yaml 
+$ kubectl apply --filename buildtemplate.yaml
 buildtemplate.build.knative.dev/openwhisk-nodejs-runtime created
 ```
 
@@ -96,7 +96,7 @@ $ kubectl get buildtemplate -o yaml
 
 <details>
     <summary>Sample output</summary>
-    
+
 ```
 apiVersion: v1
 items:
@@ -163,7 +163,7 @@ metadata:
   selfLink: ""
 ```
 </details>
-    
+
 ## Building a Knative service using the NodeJS BuildTemplate
 
 We will use the simple "helloworld" test case to demonstrate how to use Knative to Build your function into container image and then deploy it as a Service.
@@ -173,13 +173,13 @@ The testcase resides within this repo. at:
 
 For a complete listing of testcases, please view the [README](tests/README.md) in the tests subdirectory.
 
-### Build HelloWorld 
+### Build HelloWorld
 
 #### Configure build.yaml
 
 You will need to configure the build template to point to the Docker Hub repo. you wish the image to be "pushed" to once built.
 
-To do this, 
+To do this,
 - Copy [build.yaml.tmpl](tests/helloworld/build.yaml.tmpl) to `build.yaml`.
 - Replace ```${DOCKER_USERNAME}``` with your own Docker username in `build.yaml`.
 
@@ -269,11 +269,11 @@ kubectl exec <build-pod-name> -- env
 
 #### Configure service.yaml
 
-Now that you have built the OpenWhisk NodeJS runtime image with the `helloworld` function "baked" into it, you can can deploy the image as a Knative Service.  
+Now that you have built the OpenWhisk NodeJS runtime image with the `helloworld` function "baked" into it, you can can deploy the image as a Knative Service.
 
 You will need to configure the Service template to point to the Docker Hub repo. where your Knative OpenWhisk runtime (with the Hello World function) will be "pulled" from.
 
-To do this, 
+To do this,
 - Copy [service.yaml.tmpl](tests/helloworld/service.yaml.tmpl) to `service.yaml`.
 - Replace ```${DOCKER_USERNAME}``` with your own Docker username in `service.yaml`.
 

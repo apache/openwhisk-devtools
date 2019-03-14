@@ -30,7 +30,7 @@ The general pre-requisites are as follows:
 - [x] kubectl
 - [x] Knative v0.3.0
 
-Specifically, for developement and testing on Mac OS, the following components and versions were used:
+Specifically, for development and testing on Mac OS, the following components and versions were used:
 
 - [x] [Docker Desktop for Mac Docker Community Edition 2.0.1.0 2019-01-11](https://docs.docker.com/docker-for-mac/edge-release-notes/) which includes:
     - Docker 18.09.1
@@ -75,8 +75,8 @@ $ kubectl get pods --namespace kube-system
 ```
 <details>
     <summary>Sample output</summary>
-    
-```    
+
+```
 NAME                                     READY     STATUS    RESTARTS   AGE
 coredns-86c58d9df4-ms8qs                 1/1       Running   0          4d22h
 coredns-86c58d9df4-x29vt                 1/1       Running   0          4d22h
@@ -105,8 +105,8 @@ $ kubectl get pods --namespace istio-system
 ```
 <details>
     <summary>Sample output</summary>
-    
-```    
+
+```
 NAME                                       READY     STATUS      RESTARTS   AGE
 cluster-local-gateway-547467ccf6-p8n72     1/1       Running     1          4d21h
 istio-citadel-7d64db8bcf-m7gsj             1/1       Running     0          4d21h
@@ -125,16 +125,16 @@ knative-ingressgateway-75644679c7-c2kxj    1/1       Running     1          4d21
 ```
 </details>
 
-#### Verify your default namespace uses Istio for all services 
+#### Verify your default namespace uses Istio for all services
 
 Check the `default` namespace has the label **istio-injection** and it is set to **enabled**:
 
 ```bash
 $ kubectl get namespace default -o yaml
 ```
-   
+
 Example output:
-```    
+```
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -157,7 +157,7 @@ status:
 
 # Building and Serving OpenWhisk Runtime Build Templates
 
-All OpenWhisk Runtime Build Templates require a valid Kubernetes **Service Account** with access to a Kubernetes **Secret** that containst base64 encoded versions of your Docker Hub username and password.  This credential will be used as part of the Knative Build process to "push" your Knative application image containing your OpenWhisk Action to Docker Hub.  
+All OpenWhisk Runtime Build Templates require a valid Kubernetes **Service Account** with access to a Kubernetes **Secret** that containst base64 encoded versions of your Docker Hub username and password.  This credential will be used as part of the Knative Build process to "push" your Knative application image containing your OpenWhisk Action to Docker Hub.
 
 ## Clone this repository
 
@@ -239,7 +239,7 @@ namespace "default" labeled
 
 <p>
     <details>
-    <summary>Sample output: Successful Knative resources creation</summary>    
+    <summary>Sample output: Successful Knative resources creation</summary>
 
 ```
 clusterrole "knative-build-admin" created

@@ -1,3 +1,22 @@
+<!--
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+-->
+
 # App Deployment with Knative 0.2.2 on Docker for Desktop
 
 This guide walks us over the set of instructions we followed to get sample applications deployed on Knative.
@@ -230,7 +249,7 @@ Hello Go Sample v1!
 
 Yay! We have `helloworld-go` application deployed and reachable.
 
-Now, lets try and deploy one more application. 
+Now, lets try and deploy one more application.
 
 ## Source Code in a Git Repository to a Running Application
 
@@ -249,9 +268,9 @@ Use the following commands to generate base64 encoded values of Docker Hub usern
 $ echo -n "your username" | base64 -b 0
 eW91ciB1c2VybmFtZQ==
 
-$ echo -n "your password" | base64 -b 
+$ echo -n "your password" | base64 -b
 0eW91ciBwYXNzd29yZA==
-``` 
+```
 
 Create a new `secret` manifest named `docker-secret.yaml`:
 
@@ -297,7 +316,7 @@ metadata:
   name: build-bot
 secrets:
   - name: basic-user-pass
-``` 
+```
 
 Apply `service account` manifest:
 
@@ -384,8 +403,3 @@ $ curl -H "Host: app-from-source.default.example.com" http://localhost:32380
 ```
 
 Hurray! We could deploy applications on Knative and interact with them. Watch this space for more experiments with Knative.
-
-
-
-
-

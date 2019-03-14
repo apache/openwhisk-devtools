@@ -70,7 +70,7 @@
           <li><sub>OpenWhisk /run data: <a href="helloworldwithparams/data-run.json">data-run.json</a></sub></li>
           <li><sub>Knative Payload: <a href="helloworldwithparams/payload-knative-init-run.http">payload-knative-init-run.http</a></sub></li>
           <li><sub>OpenWhisk /init Payload: <a href="helloworldwithparams/payload-openwhisk-init.http">payload-openwhisk-init.http</a></sub></li>
-          <li><sub>OpenWhisk /run Payload: <a href="helloworldwithparams/payload-openwhisk-run.http">payload-openwhisk-run.http</a></sub></li>          
+          <li><sub>OpenWhisk /run Payload: <a href="helloworldwithparams/payload-openwhisk-run.http">payload-openwhisk-run.http</a></sub></li>
         </ul>
       </td>
     </tr>
@@ -95,14 +95,14 @@
           <li><sub>OpenWhisk /init Payload: <a href="helloworldwithparamsfromenv/payload-openwhisk-init.http">payload-openwhisk-init.http</a></sub></li>
           <li><sub>OpenWhisk /run Payload: <a href="helloworldwithparamsfromenv/payload-openwhisk-run.http">payload-openwhisk-run.http</a></sub></li>
         </ul>
-      </td>  
+      </td>
     </tr>
     <!-- webactionhelloworld -->
     <tr align="left" valign="top">
       <td>
         <a href="webactionhelloworld">webactionhelloworld</a>
-        <p><sub>A Web Action that takes the HTTP request's query parameters and makes them available as arguments to 
-        the <em>main</em> function. In this case, the value for the <em>name</em> query parameter is used in a 
+        <p><sub>A Web Action that takes the HTTP request's query parameters and makes them available as arguments to
+        the <em>main</em> function. In this case, the value for the <em>name</em> query parameter is used in a
         Hello World function.</sub></p>
       </td>
       <td>
@@ -113,12 +113,12 @@
       </td>
       <td>
         <ul>
-          <li><sub>Knative data: <a href="webactionhelloworld/data-init.json">data-init-run.json</a></sub></li>          
+          <li><sub>Knative data: <a href="webactionhelloworld/data-init.json">data-init-run.json</a></sub></li>
           <li><sub>Knative Payload: <a href="webactionhelloworld/payload-knative-init-run.http">payload-knative-init-run.http</a></sub></li>
           <li><sub>OpenWhisk /init Payload: <a href="webactionhelloworld/payload-openwhisk-init.http">payload-openwhisk-init.http</a></sub></li>
           <li><sub>OpenWhisk /run Payload: <a href="webactionhelloworld/payload-openwhisk-run.http">payload-openwhisk-run.http</a></sub></li>
         </ul>
-      </td>  
+      </td>
     </tr>
     <!-- webactionhttpredirect -->
     <tr align="left" valign="top">
@@ -134,12 +134,12 @@
       </td>
       <td>
         <ul>
-          <li><sub>Knative data: <a href="webactionhttpredirect/data-init.json">data-init-run.json</a></sub></li>          
+          <li><sub>Knative data: <a href="webactionhttpredirect/data-init.json">data-init-run.json</a></sub></li>
           <li><sub>Knative Payload: <a href="webactionhttpredirect/payload-knative-init-run.http">payload-knative-init-run.http</a></sub></li>
           <li><sub>OpenWhisk /init Payload: <a href="webactionhttpredirect/payload-openwhisk-init.http">payload-openwhisk-init.http</a></sub></li>
           <li><sub>OpenWhisk /run Payload: <a href="webactionhttpredirect/payload-openwhisk-run.http">payload-openwhisk-run.http</a></sub></li>
         </ul>
-      </td>  
+      </td>
     </tr>
     <!-- webactionjsonparams -->
     <tr align="left" valign="top">
@@ -155,12 +155,12 @@
       </td>
       <td>
         <ul>
-          <li><sub>Knative data: <a href="webactionjsonparams/data-init.json">data-init-run.json</a></sub></li>          
+          <li><sub>Knative data: <a href="webactionjsonparams/data-init.json">data-init-run.json</a></sub></li>
           <li><sub>Knative Payload: <a href="webactionjsonparams/payload-knative-init-run.http">payload-knative-init-run.http</a></sub></li>
           <li><sub>OpenWhisk /init Payload: <a href="webactionjsonparams/payload-openwhisk-init.http">payload-openwhisk-init.http</a></sub></li>
           <li><sub>OpenWhisk /run Payload: <a href="webactionjsonparams/payload-openwhisk-run.http">payload-openwhisk-run.http</a></sub></li>
         </ul>
-      </td>  
+      </td>
     </tr>
     <!-- webactionsettingcookie -->
     <tr align="left" valign="top">
@@ -176,12 +176,12 @@
       </td>
       <td>
         <ul>
-          <li><sub>Knative data: <a href="webactionsettingcookie/data-init.json">data-init-run.json</a></sub></li>          
+          <li><sub>Knative data: <a href="webactionsettingcookie/data-init.json">data-init-run.json</a></sub></li>
           <li><sub>Knative Payload: <a href="webactionsettingcookie/payload-knative-init-run.http">payload-knative-init-run.http</a></sub></li>
           <li><sub>OpenWhisk /init Payload: <a href="webactionsettingcookie/payload-openwhisk-init.http">payload-openwhisk-init.http</a></sub></li>
           <li><sub>OpenWhisk /run Payload: <a href="webactionsettingcookie/payload-openwhisk-run.http">payload-openwhisk-run.http</a></sub></li>
         </ul>
-      </td>  
+      </td>
     </tr>
     <!-- webactionpng -->
     <tr align="left" valign="top">
@@ -197,15 +197,15 @@
       </td>
       <td>
         <ul>
-          <li><sub>Knative data: <a href="webactionpng/data-init.json">data-init-run.json</a></sub></li>          
+          <li><sub>Knative data: <a href="webactionpng/data-init.json">data-init-run.json</a></sub></li>
           <li><sub>Knative Payload: <a href="webactionpng/payload-knative-init-run.http">payload-knative-init-run.http</a></sub></li>
           <li><sub>OpenWhisk /init Payload: <a href="webactionpng/payload-openwhisk-init.http">payload-openwhisk-init.http</a></sub></li>
           <li><sub>OpenWhisk /run Payload: <a href="webactionpng/payload-openwhisk-run.http">payload-openwhisk-run.http</a></sub></li>
         </ul>
-      </td>  
+      </td>
     </tr>
   </tbody>
-</table>   
+</table>
 
 # Running the Tests
 
@@ -219,7 +219,7 @@ NAME                       CREATED AT
 openwhisk-nodejs-runtime   10m
 ```
 
-### Configure and Deploy Build YAML 
+### Configure and Deploy Build YAML
 
 ```
 export DOCKER_USERNAME="myusername"
@@ -248,18 +248,18 @@ Currently, the following platform (values) are supported:
 ## Running with OW_RUNTIME_PLATFORM set to "knative"
 
 Under the Knative platform, the developer has 2 choices:
-1. Use the Knative "build" step to "bake the function" into the runtime resulting in a dedicated runtime 
+1. Use the Knative "build" step to "bake the function" into the runtime resulting in a dedicated runtime
 (service) container for your running a specific function.
-2. Use Knative build to create a "stem cell" runtime that allows some control plane to inject the function 
+2. Use Knative build to create a "stem cell" runtime that allows some control plane to inject the function
 dynamically.
 
-The test case cases under this directory presume option 2 ("stem cells") where both the both runtime 
-initialization, as well as function execution (Activation) happen sequentially.  
+The test case cases under this directory presume option 2 ("stem cells") where both the both runtime
+initialization, as well as function execution (Activation) happen sequentially.
 
-However, as OW runtimes do not allow "re-initialization" at this time, once you send the "init data" once to the runtime you 
+However, as OW runtimes do not allow "re-initialization" at this time, once you send the "init data" once to the runtime you
 cannot send it again or it will result in an error.
 
-Below are some options for invoking the endpoint (route) manually using common developer tooling 
+Below are some options for invoking the endpoint (route) manually using common developer tooling
 in conjunction with prepared data:
 
 #### Using the 'curl' command
@@ -280,8 +280,8 @@ curl -H "Host: <hostname>" -d "@data-init-run.json" -H "Content-Type: applicatio
 
 #### Using Http Clients
 
-If using an IDE such as VSCode or IntelliJ you can simply "run" the HTTP payload files named  
-*'payload-knative-init-run.http'* which both initializes the runtime with the function and 
+If using an IDE such as VSCode or IntelliJ you can simply "run" the HTTP payload files named
+*'payload-knative-init-run.http'* which both initializes the runtime with the function and
 configuration and executes the function with the provided *"values"* data.
 
 For example, the HelloWorld with parameters payload looks like this:
@@ -313,22 +313,22 @@ content-type: application/json
 ```
 
 please note that the *"activation"* data is also provided, but defaulted in most cases as these would
-be provided by a control-plane which would manage pools of the runtimes and track Activations. 
+be provided by a control-plane which would manage pools of the runtimes and track Activations.
 
 ---
 
 ## Running with OW_RUNTIME_PLATFORM set to "openwhisk"
 
-The standard OW methods used to run functions is done through calls to 2 separte endpoints. 
+The standard OW methods used to run functions is done through calls to 2 separte endpoints.
 In short, The control plane would:
 
 1. first, invoke the */init* route with strictly the OW "init. data" (JSON format) including the funtional
 code itself.
-2. then, invoke */run* route which executes the function (i.e., Activates the function) with caller-provided 
-parameters via OW "value data" (JSON format) along with per-activation information which would normally be 
+2. then, invoke */run* route which executes the function (i.e., Activates the function) with caller-provided
+parameters via OW "value data" (JSON format) along with per-activation information which would normally be
 provided and tracked by the control plane (default/dummy key-values provided for tests).
 
-Below are some options for invoking these routes manually using common developer tooling 
+Below are some options for invoking these routes manually using common developer tooling
 in conjunction with prepared data:
 
 ### Using the 'curl' command

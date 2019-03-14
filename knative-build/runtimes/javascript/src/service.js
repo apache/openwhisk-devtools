@@ -90,7 +90,7 @@ function NodeActionService(cfg) {
         DEBUG.functionStart("status=" + status);
 
         if (status === Status.ready && userCodeRunner === undefined) {
-            
+
             setStatus(Status.starting);
 
             var body = req.body || {};
