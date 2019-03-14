@@ -1,3 +1,22 @@
+<!--
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+-->
+
 # How to setup OpenWhisk with Docker Compose
 
 [![Build Status](https://travis-ci.org/apache/incubator-openwhisk-devtools.svg?branch=master)](https://travis-ci.org/apache/incubator-openwhisk-devtools)
@@ -200,24 +219,24 @@ wsk package list /whisk.system
 - Action output such as stdout or console.log(): `wsk -i activation logs <activationId>`
 
 ## Debugging OpenWhisk Invoker and Controller
-Both invoker and controller can be remotely debugged using any preferred IDE by setting these command line arguments for the remote JVM: 
+Both invoker and controller can be remotely debugged using any preferred IDE by setting these command line arguments for the remote JVM:
 
 ```
 -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$port
 ```
-These ports are available for debugging on `localhost`: 
+These ports are available for debugging on `localhost`:
 - `9333` for the Invoker
 - `9222` for the Controller
 
 Using IntelliJ:
 
-Follow these steps to create a new `Run/Debug Configuration` for the `Invoker`. Same can be done for the `Controller`: 
+Follow these steps to create a new `Run/Debug Configuration` for the `Invoker`. Same can be done for the `Controller`:
 - Go to `Run` -> `Edit Configurations` -> `Add new Configuration` -> `Remote`
 - Change port to `9333` and leave the host as `localhost`
-- You can now debug the `Invoker` remotely by setting breakpoints inside the code 
+- You can now debug the `Invoker` remotely by setting breakpoints inside the code
 
-> Please be aware that changes done in the code are not automatically deployed. In order to be able to debug new changes, you need to rebuild the application and redeploy it with `docker-compose`.  
- 
+> Please be aware that changes done in the code are not automatically deployed. In order to be able to debug new changes, you need to rebuild the application and redeploy it with `docker-compose`.
+
 
 ## Custom Docker containers for actions
 
