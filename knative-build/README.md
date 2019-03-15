@@ -90,7 +90,7 @@ kube-scheduler-docker-desktop            1/1       Running   3          4d22h
 
 ## Knative Install on a Kubernetes Cluster
 
-The following instructions where used to install Knative: [Knative Install on a Kubernetes Cluster](https://github.com/knative/docs/blob/master/install/Knative-with-any-k8s.md)
+The following instructions were used to install Knative: [Knative Install on a Kubernetes Cluster](https://github.com/knative/docs/blob/master/install/Knative-with-any-k8s.md)
 
 These instructions take you through the installation of
 - [x] [Istio v1.0.1](https://github.com/istio/istio/releases) using resources specifically configured for use with Knative Serving
@@ -267,7 +267,7 @@ statefulset "prometheus-system" created
 
 #### PROBLEM: Knative build fails initializing at `Init:1/4`
 
-Check the GitHub version is set to right branch:
+Check the GitHub revision is set to right branch:
 
 ```
   source:
