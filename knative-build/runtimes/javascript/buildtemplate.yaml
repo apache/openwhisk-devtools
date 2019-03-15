@@ -29,6 +29,9 @@ spec:
   - name: OW_ACTION_BINARY
     description: flag to indicate zip function, for zip actions, "__OW_ACTION_CODE" must be base64 encoded string
     default: "false"
+  - name: OW_HTTP_METHODS
+    description: list of HTTP methods, any combination of [GET, POST, PUT, and DELETE], default is [POST]
+    default: "[POST]"
   steps:
   - name: add-ow-env-to-dockerfile
     image: "gcr.io/kaniko-project/executor:debug"
