@@ -201,7 +201,7 @@ spec:
   serviceAccountName: openwhisk-runtime-builder
   source:
     git:
-      url: "https://github.com/mrutkows/openwhisk-knative-build.git"
+      url: "https://github.com/apache/incubator-openwhisk-devtools.git"
       revision: "master"
   template:
     name: openwhisk-nodejs-runtime
@@ -209,7 +209,7 @@ spec:
       - name: TARGET_IMAGE_NAME
         value: "docker.io/${DOCKER_USERNAME}/nodejs-10-helloworld"
       - name: DOCKERFILE
-        value: "./runtimes/javascript/Dockerfile"
+        value: "./knative-build/runtimes/javascript/Dockerfile"
       - name: OW_DEBUG
         value: "true"
       - name: OW_ACTION_NAME
