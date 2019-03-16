@@ -47,6 +47,7 @@ spec:
         ENV __OW_ACTION_CODE "${OW_ACTION_CODE}"
         ENV __OW_ACTION_MAIN "${OW_ACTION_MAIN}"
         ENV __OW_ACTION_BINARY "${OW_ACTION_BINARY}"
+        ENV __OW_HTTP_METHODS "${OW_HTTP_METHODS}"
       EOF
   - name: build-openwhisk-nodejs-runtime
     image: "gcr.io/kaniko-project/executor:latest"
