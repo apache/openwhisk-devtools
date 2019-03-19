@@ -1,0 +1,116 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import groovy.time.*
+
+/**
+ * Utility to build docker images based in gradle projects
+ *
+ * This extends gradle's 'application' plugin logic with a 'distDocker' task which builds
+ * a docker image from the Dockerfile of the project that applies this file. The image
+ * is automatically tagged and pushed if a tag and/or a registry is given.
+ *
+ * Parameters that can be set on project level:
+ * - dockerImageName (required): The name of the image to build (e.g. controller)
+ * - dockerRegistry (optional): The registry to push to
+ * - dockerImageTag (optional, default 'latest'): The tag for the image
+ * - dockerImagePrefix (optional, default 'whisk'): The prefix for the image,
+ *       'controller' becomes 'whisk/controller' per default
+ * - dockerTimeout (optional, default 840): Timeout for docker operations in seconds
+ * - dockerRetries (optional, default 3): How many times to retry docker operations
+ * - dockerBinary (optional, default 'docker'): The binary to execute docker commands
+ * - dockerBuildArgs (options, default ''): Project specific custom docker build arguments
+ * - dockerHost (optional): The docker host to run commands on, default behaviour is
+ *       docker's own DOCKER_HOST environment variable
+ */
+
+ext {
+    dockerRegistry = project.hasProperty('dockerRegistry') ? dockerRegistry + '/' : ''
+    dockerImageTag = project.hasProperty('dockerImageTag') ? dockerImageTag : 'latest'
+    dockerImagePrefix = project.hasProperty('dockerImagePrefix') ? dockerImagePrefix : 'whisk'
+    dockerTimeout = project.hasProperty('dockerTimeout') ? dockerTimeout.toInteger() : 840
+    dockerRetries = project.hasProperty('dockerRetries') ? dockerRetries.toInteger() : 3
+    dockerBinary = project.hasProperty('dockerBinary') ? [dockerBinary] : ['docker']
+    dockerBuildArg = ['build']
+}
+ext.dockerTaggedImageName = dockerRegistry + dockerImagePrefix + '/' + dockerImageName + ':' + dockerImageTag
+
+if(project.hasProperty('dockerHost')) {
+    dockerBinary += ['--host', project.dockerHost]
+}
+
+if(project.hasProperty('dockerBuildArgs')) {
+    dockerBuildArgs.each { arg  ->
+        dockerBuildArg += ['--build-arg', arg]
+    }
+}
+
+task distDocker {
+    doLast {
+        def start = new Date()
+        def cmd = dockerBinary + dockerBuildArg + ['-t', dockerImageName, project.buildscript.sourceFile.getParentFile().getAbsolutePath()]
+        retry(cmd, dockerRetries, dockerTimeout)
+        println("Building '${dockerImageName}' took ${TimeCategory.minus(new Date(), start)}")
+    }
+}
+task tagImage {
+    doLast {
+        def versionString = (dockerBinary + ['-v']).execute().text
+        def matched = (versionString =~ /(\d+)\.(\d+)\.(\d+)/)
+
+        def major = matched[0][1] as int
+        def minor = matched[0][2] as int
+
+        def dockerCmd = ['tag']
+        if(major == 1 && minor < 12) {
+            dockerCmd += ['-f']
+        }
+        retry(dockerBinary + dockerCmd + [dockerImageName, dockerTaggedImageName], dockerRetries, dockerTimeout)
+    }
+}
+
+task pushImage {
+    doLast {
+        def cmd = dockerBinary + ['push', dockerTaggedImageName]
+        retry(cmd, dockerRetries, dockerTimeout)
+    }
+}
+pushImage.dependsOn tagImage
+pushImage.onlyIf { dockerRegistry != '' }
+distDocker.finalizedBy pushImage
+
+def retry(cmd, retries, timeout) {
+    println("${new Date()}: Executing '${cmd.join(" ")}'")
+    def proc = cmd.execute()
+    proc.consumeProcessOutput(System.out, System.err)
+    proc.waitForOrKill(timeout * 1000)
+    if(proc.exitValue() != 0) {
+        def message = "${new Date()}: Command '${cmd.join(" ")}' failed with exitCode ${proc.exitValue()}"
+        if(proc.exitValue() == 143) { // 143 means the process was killed (SIGTERM signal)
+            message = "${new Date()}: Command '${cmd.join(" ")}' was killed after ${timeout} seconds"
+        }
+
+        if(retries > 1) {
+            println("${message}, ${retries-1} retries left, retrying...")
+            retry(cmd, retries-1, timeout)
+        }
+        else {
+            println("${message}, no more retries left, aborting...")
+            throw new GradleException(message)
+        }
+    }
+}
