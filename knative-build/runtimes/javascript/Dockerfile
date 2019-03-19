@@ -23,8 +23,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /nodejsAction
 COPY . .
 # COPY the package.json to root container, so we can install npm packages a level up from user's packages, so user's packages take precedence
-COPY ./runtimes/javascript/package.json /
+COPY ./knative-build/runtimes/javascript/package.json /
 RUN cd / && npm install --no-package-lock \
     && npm cache clean --force
 EXPOSE 8080
-CMD node --expose-gc ./runtimes/javascript/app.js
+CMD node --expose-gc ./knative-build/runtimes/javascript/app.js
