@@ -150,7 +150,7 @@ download-cli:
 	fi
 
 .PHONY: run
-run: print-host check-required-ports setup start-docker-compose init-couchdb init-whisk-cli init-api-management
+run: print-host check-required-ports setup start-docker-compose wait-for-docker-compose-up init-couchdb init-whisk-cli init-api-management
 
 print-host:
 	echo "host ip address: ${DOCKER_HOST_IP}"
@@ -259,7 +259,45 @@ restart-invoker:
 
 .PHONY: start-docker-compose
 start-docker-compose:
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up 2>&1 > ~/tmp/openwhisk/docker-compose.log &
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up --abort-on-container-exit 2>&1 > ~/tmp/openwhisk/docker-compose.log &
+
+.PHONY: wait-for-docker-compose-up
+wait-for-docker-compose-up:
+	echo "Waiting till all containers are powered up... ";
+	sleep 1;
+	@trycount=0; \
+	trycounttimeout=30; \
+	up=`$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk ps | grep Up -c`; \
+	servicescount=`$(shell cat ~/tmp/openwhisk/local.env) docker-compose config --services | wc -l | xargs`; \
+	docker_ps() { \
+		docker ps --format 'table {{.Image}}\t{{.Status}}' --filter "label=com.docker.compose.project=openwhisk" -a; \
+	}; \
+	echo_output() { \
+		if [ "$(VERBOSE)" != "true" ]; then return;	fi; \
+		output=$$(docker_ps); \
+		echoprefix=""; \
+		if [ "$$trycount" != 0 ]; then \
+			lines=$$(echo "$$output" | wc -l | xargs); \
+			echoprefix="\033[$${lines}A\033[0J"; \
+		fi; \
+		echo "$${echoprefix}$$output"; \
+	}; \
+	until [ "$$up" -eq "$$servicescount" ]; do \
+		echo_output; \
+	  sleep 1; \
+	  up=`$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk ps | grep Up -c`; \
+	  if [ "$$up" != "$$servicescount" ]; then \
+	    if [ "$$trycount" -eq "$$trycounttimeout" ]; then \
+				echo "\n$$(docker_ps)"; \
+	      echo "\nERROR: Timed out waiting for docker services to launch..."; \
+	      exit 1; \
+	    else \
+	      let "trycount+=1"; \
+	    fi; \
+	  fi; \
+	done; \
+	echo_output;
+	echo " ... OK: all containers up!"
 
 .PHONY: stop
 stop:
