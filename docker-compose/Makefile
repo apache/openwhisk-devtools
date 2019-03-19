@@ -267,12 +267,12 @@ wait-for-docker-compose-up:
 	sleep 1;
 	@trycount=0; \
 	trycounttimeout=30; \
-	up=`docker-compose --project-name openwhisk ps | grep Up -c`; \
-	servicescount=`docker-compose config --services | wc -l | xargs`; \
-	function docker_ps { \
+	up=`$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk ps | grep Up -c`; \
+	servicescount=`$(shell cat ~/tmp/openwhisk/local.env) docker-compose config --services | wc -l | xargs`; \
+	docker_ps() { \
 		docker ps --format 'table {{.Image}}\t{{.Status}}' --filter "label=com.docker.compose.project=openwhisk" -a; \
 	}; \
-	function echo_output { \
+	echo_output() { \
 		if [ "$(VERBOSE)" != "true" ]; then return;	fi; \
 		output=$$(docker_ps); \
 		echoprefix=""; \
@@ -285,7 +285,7 @@ wait-for-docker-compose-up:
 	until [ "$$up" -eq "$$servicescount" ]; do \
 		echo_output; \
 	  sleep 1; \
-	  up=`docker-compose --project-name openwhisk ps | grep Up -c`; \
+	  up=`$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk ps | grep Up -c`; \
 	  if [ "$$up" != "$$servicescount" ]; then \
 	    if [ "$$trycount" -eq "$$trycounttimeout" ]; then \
 				echo "\n$$(docker_ps)"; \
