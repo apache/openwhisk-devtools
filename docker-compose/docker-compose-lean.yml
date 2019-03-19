@@ -1,0 +1,107 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more contributor
+# license agreements; and to You under the Apache License, Version 2.0.
+version: '3'
+services:
+  db:
+    image: apache/couchdb:2.1
+    ports:
+      - "5984:5984"
+    environment:
+      COUCHDB_USER: whisk_admin
+      COUCHDB_PASSWORD: some_passw0rd
+    volumes:
+      - ~/tmp/openwhisk/couchdb:/usr/local/var/lib/couchdb:rw
+
+  # WHISK CONTROLLER
+  controller:
+    image: ${DOCKER_IMAGE_PREFIX:-openwhisk}/controller
+    command: /bin/sh -c "exec /init.sh 0 >> /home/owuser/controller-local_logs.log 2>&1"
+    privileged: true
+    pid: "host"
+    userns_mode: "host"
+    links:
+      - db:db.docker
+    depends_on:
+      - db
+    env_file:
+      - ./docker-whisk-controller.env   # env vars shared
+      - ~/tmp/openwhisk/local.env       # generated during make setup
+    environment:
+      COMPONENT_NAME: controller
+      PORT: 8888
+
+      CONFIG_whisk_couchdb_provider: CouchDB
+      CONFIG_whisk_couchdb_protocol: http
+      CONFIG_whisk_couchdb_port: 5984
+      CONFIG_whisk_couchdb_host: db.docker
+      CONFIG_whisk_couchdb_username: whisk_admin
+      CONFIG_whisk_couchdb_password: some_passw0rd
+
+      CONFIG_akka_actor_provider: local
+
+      LOADBALANCER_HOST: ${DOCKER_COMPOSE_HOST}
+      LOADBALANCER_HOST_PORT: 443
+
+      #invoker env
+      EDGE_HOST: ${DOCKER_COMPOSE_HOST}
+      EDGE_HOST_APIPORT: 443
+      CONFIG_whisk_containerFactory_containerArgs_network: openwhisk_default
+      WHISK_API_HOST_NAME: ${DOCKER_COMPOSE_HOST}
+
+      #required by lean controller
+      CONFIG_whisk_spi_MessagingProvider: org.apache.openwhisk.connector.lean.LeanMessagingProvider
+      CONFIG_whisk_spi_LoadBalancerProvider: org.apache.openwhisk.core.loadBalancer.LeanBalancer
+    volumes:
+      - ~/tmp/openwhisk/controller/logs:/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/containers
+      - /sys/fs/cgroup:/sys/fs/cgroup
+    ports:
+      - "8888:8888"
+      - "9222:9222"
+
+  # The API Gateway is currently used to expose the Controller API
+  #   see apigateway/conf/whisk-docker-compose.conf
+  # Minio is used to mock an object storage ( i.e. S3) that hosts the api-gateway configuration.
+  # Minio also exposes a web UI to browse the files: http://localhost:9001/minio/api-gateway/
+  minio:
+    image: minio/minio:RELEASE.2018-07-13T00-09-07Z
+    command:
+      - server
+      - /data
+    environment:
+      - MINIO_ACCESS_KEY=5VCTEQOQ0GR0NV1T67GN
+      - MINIO_SECRET_KEY=8MBK5aJTR330V1sohz4n1i7W5Wv/jzahARNHUzi3
+    volumes:
+      - ~/tmp/openwhisk/minio:/data:rw
+    ports:
+      - "9001:9000"
+  redis:
+    image: redis:2.8
+    ports:
+      - "6379:6379"
+  apigateway:
+    image: openwhisk/apigateway:latest
+    links:
+      - controller:whisk.controller
+      - redis:redis.docker
+      - minio:minio.docker
+    environment:
+      - REDIS_HOST=${DOCKER_COMPOSE_HOST}
+      - REDIS_PORT=6379
+      - PUBLIC_MANAGEDURL_PORT=9090
+      - PUBLIC_MANAGEDURL_HOST=${DOCKER_COMPOSE_HOST}
+      - REMOTE_CONFIG=minio:api-gateway
+    depends_on:
+      - controller
+      - redis
+      - minio
+    volumes:
+      - ~/tmp/openwhisk/api-gateway-ssl:/etc/ssl:ro
+      - ~/tmp/openwhisk/api-gateway-config/api-gateway/generated-conf.d:/etc/api-gateway/generated-conf.d
+      - ~/tmp/openwhisk/rclone:/root/.config/rclone:rw
+    ports:
+      - "80:80"
+      - "443:443"
+      - "9000:9000"
+      - "9090:8080"

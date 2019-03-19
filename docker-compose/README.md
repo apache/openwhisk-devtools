@@ -252,3 +252,11 @@ These 2 variable allow you to execute a JS action using the container `registry.
 By default this setup uses published images for controller and invokers from `openwhisk` namespace i.e.
 `openwhisk/controller` and `openwhisk/invoker`. To make use of locally build images you can use `DOCKER_IMAGE_PREFIX`
 variable i.e. `DOCKER_IMAGE_PREFIX=whisk make quick-start`
+
+## Lean setup
+
+To have a lean setup (no Kafka, Zookeeper and no Invokers as separate entities):
+
+```bash
+make lean
+```
