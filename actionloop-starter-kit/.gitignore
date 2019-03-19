@@ -1,0 +1,36 @@
+action/
+results/
+logs/
+out/
+build/
+*.retry
+
+# Linux
+*~
+
+# Mac
+.DS_Store
+
+# Gradle
+.gradle
+build/
+!/tools/build/
+
+# Python
+.ipynb_checkpoints/
+*.pyc
+
+# NodeJS
+node_modules
+
+# Vagrant
+.vagrant*
+
+# IntelliJ
+.idea
+*.class
+*.iml
+out/
+
+# .zip files must be explicited whitelisted
+*.zip
