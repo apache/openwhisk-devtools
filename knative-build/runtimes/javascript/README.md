@@ -311,4 +311,4 @@ kubectl apply -f service.yaml
 
 ### See Hello World Live in Action
 
-* [Screen Recording of Hello World](https://github.com/apache/incubator-openwhisk-devtools/blob/master/knative-build/media/demo-nodejs-helloworld.mov)
+* [Screen Recording of Hello World](https://youtu.be/BG1t2t7UvUA)
