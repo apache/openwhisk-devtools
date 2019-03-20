@@ -74,7 +74,7 @@ kube-system        kube-scheduler-docker-desktop                   1/1     Runni
 ```
 </details>
 
-## Intsall the BuildTemplate for the NodeJS runtime
+## Install the BuildTemplate for the NodeJS runtime
 
 ```
 $ kubectl apply --filename buildtemplate.yaml
