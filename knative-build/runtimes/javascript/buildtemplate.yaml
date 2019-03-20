@@ -21,8 +21,10 @@ spec:
     default: "knative"
   - name: OW_ACTION_NAME
     description: name of the action
+    default: ""
   - name: OW_ACTION_CODE
     description: JavaScript source code to be evaluated
+    default: ""
   - name: OW_ACTION_MAIN
     description: name of the function in the "__OW_ACTION_CODE" to call as the action handler
     default: "main"
