@@ -29,14 +29,14 @@ Depending on the value you set in [buildtemplate.yaml](../../buildtemplate.yaml)
 
 ```
 curl -H "Host: nodejs-web-action-raw.default.example.com" -X POST http://localhost/
-{  
-   "response":{  
+{
+   "response":{
       "__ow_body":"eyJuYW1lIjoiSm9lIn0=",
       "__ow_query":{
       },
       "__ow_user":"",
       "__ow_method":"POST",
-      "__ow_headers":{  
+      "__ow_headers":{
          "host":"localhost",
          "user-agent":"curl/7.54.0",
          "accept":"*/*",
@@ -66,8 +66,8 @@ Execute the function using the ```/run``` endpoint.
 
 ```
 curl -H "Host: nodejs-web-action-raw.default.example.com" -d "@data-run.json" -H "Content-Type: application/json" -X POST http://localhost/run
-{  
-   "response":{  
+{
+   "response":{
       "name":"Joe"
    }
 }

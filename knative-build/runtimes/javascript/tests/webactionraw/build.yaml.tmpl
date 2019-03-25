@@ -12,7 +12,7 @@ spec:
     name: openwhisk-nodejs-runtime
     arguments:
       - name: TARGET_IMAGE_NAME
-        value: "docker.io/pritidesai/nodejs-10-web-action-raw"
+        value: "docker.io/${DOCKER_USERNAME}/nodejs-10-web-action-raw"
       - name: DOCKERFILE
         value: "./knative-build/runtimes/javascript/Dockerfile"
       - name: OW_RUNTIME_DEBUG
