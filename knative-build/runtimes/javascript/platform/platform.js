@@ -34,26 +34,32 @@ function preProcessInitData(env, initdata, valuedata, activationdata) {
         var binary = (typeof env.__OW_ACTION_BINARY === 'undefined') ? false : env.__OW_ACTION_BINARY.toLowerCase() === "true";
         // TODO: deault to empty?
         var actionName = (typeof env.__OW_ACTION_NAME === 'undefined') ? "" : env.__OW_ACTION_NAME;
+        var raw = (typeof env.__OW_ACTION_RAW === 'undefined') ? false : env.__OW_ACTION_BINARY.toLowerCase() === "true";
+
         DEBUG.dumpObject(actionName, "Action name");
         DEBUG.dumpObject(main, "Action main");
         DEBUG.dumpObject(code, "Action code");
         DEBUG.dumpObject(binary, "Action binary");
+        DEBUG.dumpObject(raw, "Action Raw");
 
         // Look for init data within the request (i.e., "stem cell" runtime, where code is injected by request)
         if (typeof(initdata) !== "undefined") {
             if (initdata.name && typeof initdata.name === 'string') {
-                // TODO: Throw error if BINARY is not 'true' or 'false'
                 actionName = initdata.name;
             }
             if (initdata.main && typeof initdata.main === 'string') {
-                main = initdata.main
+                main = initdata.main;
             }
             if (initdata.code && typeof initdata.code === 'string') {
-                code = initdata.code
+                code = initdata.code;
             }
             if (initdata.binary && typeof initdata.binary === 'boolean') {
                 // TODO: Throw error if BINARY is not 'true' or 'false'
-                binary = initdata.binary
+                binary = initdata.binary;
+            }
+            if (initdata.raw && typeof initdata.raw === 'boolean') {
+                // TODO: Throw error if RAW is not 'true' or 'false'
+                binary = initdata.raw;
             }
         }
 
@@ -62,6 +68,7 @@ function preProcessInitData(env, initdata, valuedata, activationdata) {
         valuedata.main = main;
         valuedata.code = code;
         valuedata.binary = binary;
+        valuedata.raw = raw;
 
         // Action name is a special case, as we have a key collision on "name" between init. data and request
         // param. data (as they both appear within "body.value") so we must save it to its final location
@@ -77,6 +84,7 @@ function preProcessInitData(env, initdata, valuedata, activationdata) {
         DEBUG.dumpObject(valuedata.main, "valuedata.main");
         DEBUG.dumpObject(valuedata.code , "valuedata.code");
         DEBUG.dumpObject(valuedata.binary, "valuedata.binary");
+        DEBUG.dumpObject(valuedata.raw, "valuedata.raw");
 
     } catch(e){
         console.error(e);
@@ -112,39 +120,35 @@ function preProcessActivationData(env, activationdata) {
     DEBUG.functionEnd();
 }
 
-/**
- * helper function to set env variables for HTTP Context
- */
-function httpContextEnv (key, value) {
-    if (typeof value === 'string') {
-        process.env[key] = value
-        DEBUG.dumpObject(process.env[key], key, "HTTPContext");
-    }
-}
 
 /**
  * Pre-process HTTP request details, send them as parameters to the action input argument
  * __ow_method, __ow_headers, __ow_path, __ow_user, __ow_body, and __ow_query
  */
-function preProcessHTTPContext(req) {
+function preProcessHTTPContext(req, valueData) {
     DEBUG.functionStart()
 
     try {
-        httpContextEnv(OW_ENV_PREFIX + "METHOD", req.method)
-        httpContextEnv(OW_ENV_PREFIX + "HEADERS", JSON.stringify(req.headers))
-        httpContextEnv(OW_ENV_PREFIX + "PATH", "");
+        if (valueData.raw) {
+            if (typeof body === "string" && body !== undefined) {
+                valueData.__ow_body = body;
+            } else {
+                // TODO: delete main, binary, raw, and code from the body before sending it as action argument
+                var bodyStr = JSON.stringify(body);
+                var bodyBase64 = Buffer.from(bodyStr).toString("base64");
+                valueData.__ow_body = bodyBase64;
+            }
+            valueData.__ow_query = req.query;
+        }
 
         var namespace = "";
         if (process.env[OW_ENV_PREFIX + "NAMESPACE"] !== undefined) {
             namespace = process.env[OW_ENV_PREFIX + "NAMESPACE"];
         }
-        httpContextEnv(OW_ENV_PREFIX + "USER", namespace);
-
-        var bodyStr = JSON.stringify(req.body)
-        var bodyBase64 = Buffer.from(bodyStr).toString("base64")
-        httpContextEnv(OW_ENV_PREFIX + "BODY", bodyBase64)
-
-        httpContextEnv(OW_ENV_PREFIX + "QUERY", JSON.stringify(req.query));
+        valueData.__ow_user = namespace;
+        valueData.__ow_method = req.method;
+        valueData.__ow_headers = req.headers;
+        valueData.__ow_path = "";
     } catch (e) {
         console.error(e);
         DEBUG.functionEndError(e.message);
@@ -173,6 +177,8 @@ function preProcessRequest(req){
         // process initialization (i.e., "init") data
         preProcessInitData(env, initData, valueData, activationData);
 
+        preProcessHTTPContext(req, valueData);
+
         // Fix up pointers in case we had to allocate new maps
         req.body = body;
         req.body.value = valueData;
@@ -182,7 +188,8 @@ function preProcessRequest(req){
         // process per-activation (i.e, "run") data
         preProcessActivationData(env, activationData);
 
-        preProcessHTTPContext(req);
+
+
 
     } catch(e){
         console.error(e);
