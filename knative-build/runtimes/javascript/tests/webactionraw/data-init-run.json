@@ -1,0 +1,20 @@
+{
+  "init": {
+    "name" : "nodejs-web-action-raw",
+    "main" : "main",
+    "binary": false,
+    "code" : "function main(params) { return { response: params }; }",
+    "raw": true
+  },
+  "activation": {
+    "namespace": "default",
+    "action_name": "nodejs-web-action-raw",
+    "api_host": "",
+    "api_key": "",
+    "activation_id": "",
+    "deadline": "4102498800000"
+  },
+  "value": {
+    "name": "Joe"
+  }
+}
