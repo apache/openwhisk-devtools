@@ -34,7 +34,7 @@ function preProcessInitData(env, initdata, valuedata, activationdata) {
         var binary = (typeof env.__OW_ACTION_BINARY === 'undefined') ? false : env.__OW_ACTION_BINARY.toLowerCase() === "true";
         // TODO: deault to empty?
         var actionName = (typeof env.__OW_ACTION_NAME === 'undefined') ? "" : env.__OW_ACTION_NAME;
-        var raw = (typeof env.__OW_ACTION_RAW === 'undefined') ? false : env.__OW_ACTION_BINARY.toLowerCase() === "true";
+        var raw = (typeof env.__OW_ACTION_RAW === 'undefined') ? false : env.__OW_ACTION_RAW.toLowerCase() === "true";
 
         DEBUG.dumpObject(actionName, "Action name");
         DEBUG.dumpObject(main, "Action main");
@@ -59,7 +59,7 @@ function preProcessInitData(env, initdata, valuedata, activationdata) {
             }
             if (initdata.raw && typeof initdata.raw === 'boolean') {
                 // TODO: Throw error if RAW is not 'true' or 'false'
-                binary = initdata.raw;
+                raw = initdata.raw;
             }
         }
 
@@ -130,10 +130,15 @@ function preProcessHTTPContext(req, valueData) {
 
     try {
         if (valueData.raw) {
-            if (typeof body === "string" && body !== undefined) {
-                valueData.__ow_body = body;
+            if (typeof req.body.value === "string" && req.body.value !== undefined) {
+                valueData.__ow_body = req.body.value;
             } else {
-                // TODO: delete main, binary, raw, and code from the body before sending it as action argument
+                const body = Object.assign({}, req.body.value);
+                // delete main, binary, raw, and code from the body before sending it as an action argument
+                delete body.main;
+                delete body.code;
+                delete body.binary;
+                delete body.raw;
                 var bodyStr = JSON.stringify(body);
                 var bodyBase64 = Buffer.from(bodyStr).toString("base64");
                 valueData.__ow_body = bodyBase64;
@@ -287,30 +292,30 @@ function PlatformFactory(id, svc, cfg) {
     };
 
     this.registerHandlers = function(app, platform) {
-            var httpMethods = process.env.__OW_HTTP_METHODS;
-            // default to "[post]" HTTP method if not defined
-            if (typeof httpMethods === "undefined" || !Array.isArray(httpMethods)) {
-                console.error("__OW_HTTP_METHODS is undefined; defaulting to '[post]' ...");
-                httpMethods = [http_method.post];
+        var httpMethods = process.env.__OW_HTTP_METHODS;
+        // default to "[post]" HTTP method if not defined
+        if (typeof httpMethods === "undefined" || !Array.isArray(httpMethods)) {
+            console.error("__OW_HTTP_METHODS is undefined; defaulting to '[post]' ...");
+            httpMethods = [http_method.post];
+        }
+        httpMethods.forEach(function (method) {
+            switch (method.toUpperCase()) {
+                case http_method.get:
+                    app.get('/', platform.run);
+                    break;
+                case http_method.post:
+                    app.post('/', platform.run);
+                    break;
+                case http_method.put:
+                    app.put('/', platform.run);
+                    break;
+                case http_method.delete:
+                    app.delete('/', platform.run);
+                    break;
+                default:
+                    console.error("Environment variable '__OW_HTTP_METHODS' has an unrecognized value (" + method + ").");
             }
-            httpMethods.forEach(function (method) {
-                switch (method.toUpperCase()) {
-                    case http_method.get:
-                        app.get('/', platform.run);
-                        break;
-                    case http_method.post:
-                        app.post('/', platform.run);
-                        break;
-                    case http_method.put:
-                        app.put('/', platform.run);
-                        break;
-                    case http_method.delete:
-                        app.delete('/', platform.run);
-                        break;
-                    default:
-                        console.error("Environment variable '__OW_HTTP_METHODS' has an unrecognized value (" + method + ").");
-                }
-            });
+        });
     }
 };
 
