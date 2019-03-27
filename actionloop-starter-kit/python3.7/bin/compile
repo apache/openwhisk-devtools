@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""Python Action Builder
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+"""
+
+from __future__ import print_function
+import os, sys, codecs, shutil
+from os.path import abspath, exists, dirname
+
+# write a file creating intermediate directories
+def write_file(file, body, executable=False):
+    os.makedirs(dirname(file), mode=0o755, exist_ok=True)
+    with open(file, mode="w", encoding="utf-8") as f:
+        f.write(body)
+    if executable:
+        os.chmod(file, 0o755)
+
+# copy a file eventually replacing a substring
+def copy_replace(src, dst, match=None, replacement=""):
+    with codecs.open(src, 'r', 'utf-8') as s:
+        body = s.read()
+        if match:
+            body = body.replace(match, replacement)
+        write_file(dst, body)
+
+# assemble sources
+def sources(launcher, main, src_dir):  
+    # move exec in the right place if exists
+    src_file = "%s/exec" % src_dir
+    if exists(src_file):
+        copy_replace(src_file, "%s/main__.py" % src_dir)
+
+    # move __main__ in the right place if it exists
+    src_file = "%s/__main__.py" % src_dir
+    if exists(src_file):
+        copy_replace(src_file, "%s/main__.py" % src_dir)
+
+    # write the boilerplate in a temp dir
+    copy_replace(launcher, "%s/exec__.py" % src_dir,
+          "from main__ import main as main",
+          "from main__ import %s as main" % main )
+
+# compile sources
+def build(src_dir, tgt_dir):
+    # in general, compile your program into an executable format
+    # for scripting languages, move sources and create a launcher
+    # move away the action dir and replace with the new
+    shutil.rmtree(tgt_dir)
+    shutil.move(src_dir, tgt_dir)
+    write_file("%s/exec" % tgt_dir, """#!/bin/sh
+cd "$(dirname $0)"
+exec /usr/local/bin/python exec__.py
+""")
+
+if __name__ == '__main__':
+    if len(sys.argv) < 4:
+        sys.stdout.write("usage: <main-function> <source-dir> <target-dir>\n")
+        sys.stdout.flush()
+        sys.exit(1)
+    launcher = "%s/lib/launcher.py" % dirname(dirname(sys.argv[0]))
+    sources(launcher, sys.argv[1], abspath(sys.argv[2]))
+    build(abspath(sys.argv[2]), abspath(sys.argv[3]))
+    sys.stdout.flush()
+    sys.stderr.flush()
