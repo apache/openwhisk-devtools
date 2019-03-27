@@ -1,0 +1,47 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more contributor
+# license agreements; and to You under the Apache License, Version 2.0.
+
+sudo: required
+group: deprecated-2017Q3
+language: scala
+scala:
+- 2.12.7
+services:
+  - docker
+# required to support multi-stage build
+addons:
+   apt:
+     packages:
+       - docker-ce
+before_install:
+  - "./tools/travis/setup.sh"
+install: true
+script:
+  - "./tools/travis/build.sh && ./tools/travis/test.sh"
+deploy:
+  - provider: script
+    script: "./tools/travis/publish.sh openwhisk ${TRAVIS_TAG%@*} ${TRAVIS_TAG##*@}"
+    on:
+      tags: true
+      all_branches: true
+      repo: apache/incubator-openwhisk-runtime-python
+  - provider: script
+    script: "./tools/travis/publish.sh openwhisk 3 latest && ./tools/travis/publish.sh openwhisk 3-ai latest && ./tools/travis/publish.sh openwhisk 3-loop latest"
+    on:
+      branch: master
+      repo: apache/incubator-openwhisk-runtime-python
+env:
+  global:
+  - secure: Ac7MlWUpsLwmbcjCigDf+vftiXAEJbf78FVm2QCd4IeFqlRiNbQm3bWRXOOW3Zqh4R4o/wSFpFq0qKPrI9WJjOcxD0GxFboq2iGWTegddfDbENV/IBmjurl6NzYY6dUB7GUSmHYy6tdKnxMhjHzZCn2m4OVWltcMtnOV0G+uYvbnre7vXfb67duzJF+mYpJJ7rC0wGh+N50bYvm0BTtPcQMYJibq6sDTY8Lr1b74QGdM/sODre69CbuiwAA7Ed0hajEcMkv8YnwY0De/PL7hthUyCWSD+i1AhtD+3odA64yX/pAbBzfCcqPoI0Nt5ZmAAUKLJ9pAHCc74dlmYzj9wj1z5TS0nLOE2l++vNvgsA3/c+lqrBv6hc9FmSKx4yfNdFCakVLEfdRJw/45ibIRN5dCW5tDdIx8aciBV8c0CyYgSLRvtVuvw5IX7fbwhHOZ8ftTRzCHS0Nd9zs4x3za+1aucWFQEyrkPtXZIiqeuV7yI4S7yYhGeJy/3KmuN7ljDiTElZb/W9W22ryw/UwCyyZBGnvhomAwInS3E51Jv8GuOU9FVliGzGs2yLuVQ1FjIZ25Au5W4TLTor/jE+dxOlH4u25neqsKBxzG4iyJs3AfJnycD8op7JbTG64OqpVvaB8A4N3P416IxGALSFVv2BWSLY4qWBRVKHbZAHn2tTg=
+  - secure: fte97QoQReAM0obk/tjxYvF/zhRbcyIFxa1jnFuv1m1YKA/pEWue5uMIDZZa1pynN9rFFgOvR2W34Gm2aHl0wJs18Oqi2Es1cSfDDmuYguEIYZmlfbrjXY2gvitH5+6JA6fc4aMmrgOav+WVbzdzBqy511CWEDsejWflAnFpKJqTnYdLqe8L8FAJfteY/cj5Bvz7G5o8WbH+ag2CopjkEKkx4KXsJ7DadKI+BbI9hkMUvPVnTULaf7Q5z3oG92g1XwjKrfN6Z2y8tQukWg+n5pfVY0yLpWvd/Q/9HyilB0s06EzORzE00DTLnvYNGaVsx99m6H11e0Tn5Sx5S6rJOmJa5T2vTPGmsojpgHm1Lz12AYVxRmWvFbTLg8KDNN9H6uTc8DKPGb/mLkkD5ruWXJWjvpd+m+eRcpJOZ9cvPXWFYvCF0VAPCbK0DakInnmCvZyQ6ZLFgGrtkNt51kkTZGR68d0UW9rwrBS/JaaRdKIbSOHB346trSO2raYIQhaaAtv+tHCOVVAuoVC5Erzw+bojrWtTNQl9FZ2NM2jFaoeiRmi/rB9hqs8iK2BD20EnWfaMRf5XOkBJXYDQ804EnaOAHP/ZO94Ziojotf5SaXSeWG/zsxbT13u+zTdEf3auDofe8exzCpXuOHAQrB0b+Dy2OSKRPwzMHsfto6/OU9w=
+notifications:
+  slack:
+    secure: ipYx0BX7TwWmG+qeyAllxBxrPn21dJubfEbALn8yTOZfykTWpVtohWrqieAnc6kFQRqz1TAs1wzyjvTcutaIMi9C7FcJrYRIMUMpyID3ca5FeZopr/LBW53XHj/SgZWwFRAnWsjYnSydfZJnUBInI6por8jdVqVgsCMTDsvcXFEoHdVj9M93aB7y8pgqZhfYkQOPojktDu7nMxjsjKJN7dT+g/1kVWtS8DQQCXHTPP44YquxOCgAFn+CZjes9Jm+vz5lk5Azksi48yiHwFiLYZo5gcnwr2n2IspjBs6db10rkCe693vIpoW4T3KujMIKwVXrgUl4pDME1nN/loEBHm0DjKoeOD13DHqITMTPX4sR94TCGf0lMyaag/JOETdDgC9hAbh4aSx1cj4hGXiuGrNMbYblMBsjvujqFp2nraw/DE93pHGRY9lbBZIjEVhj/jBmOv1I3yRdXHj4VybZc4JGnfQVGz/RYDOEmKGoLoVWFp+hGAHDqVos9ZvEBByMAAmgVD2/D5cBER3oskp/JJjKmFLk614FcNh4D7/+bYAFhxbCgnoLHH5GeSo0q73O3JSi5pZggEIN9xis7SVQgPl+MUDTe5N3X3J3bQc7cMYGLzh0VNSyYaHuW2P02vWBNE/FAkL8UGrfGsXnDyGRRxo8fYHTXpIjhIkE7tY5eZQ=
+    on_pull_requests: false
+    on_success: change
+    on_failure: always
+  webhooks:
+    urls:
+      # travis2slack webhook to enable DMs on openwhisk-team.slack.com to PR authors with TravisCI results
+      secure: "jhiMGpQ6kJFWjjsO68RmgD2Lga7jgNE+EKwND0dMOvzf5llMLFDKcY5J3tgtrqYaslQdXeuYeru/9qJrTTjFEu+vz3iCwoJ/eme+D0TtTIFGlPr7oa9tZlWrkPM/0zFLq7KjJauIIX2+6qrGVrNJJ6ENfr4U8Ir8q51oLIk44bsCeB8EmkahPOlNG6kcNqgpxHWKYUdUIg3B0GxqCKida/76dXDTRHCV2dZuT2bXz2oSJYog/lybomsjQIUZj0+HqxecgWTzag3Y6rTpK+m+vywazHP91hE+oU4e7YrxCH6v9+ukoWaljFqO5ZEKXcpx6tzx8Q0FvoTP8vGOO9b/t1loVcA8OxSJDrtOAztfoz/u0HJN6vnVt+maqnrYAD1F4pxA63JA6/+a7firmtADP7A/WQMZg6RgEkGUr+amFn303dTvgjDDkZ4oH8MAr0EPsneGUA2MZgB3i1MEcnCrYzT7KpYmDmFLoFhS9OX8f1H3zi5DLZZbZ1jbW/Ay4BgvjdoC8vmhAsDfVvyY9P240+nQ9NrnjaAUMD4XI/6JAKekfoxvsnc9W8gKBGTNfzi55AVe7HbzB/wCd58c2CV3Ev3RRwKQpH67jLBROpg2ocRQr0BUeHmfOT7NV4BCqdw1eVkZWBw4oxVaCHelDdICwgPn696W5t/1UVl4tLTt1rk="
+
