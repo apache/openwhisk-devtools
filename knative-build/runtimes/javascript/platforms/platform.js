@@ -54,31 +54,42 @@ module.exports = class PlatformFactory {
         return PLATFORM_KNATIVE;
     }
 
-    constructor (id, app, svc, cfg) {
-        DEBUG.dumpObject(id, "Platform" );
-        DEBUG.dumpObject(svc, "Service" );
-        DEBUG.dumpObject(cfg, "Config" );
+    /**
+     * Object constructor
+     * @param svc Runtime services
+     * @param cfg Runtime configuration
+     */
+    constructor (svc, cfg) {
+        DEBUG.dumpObject(svc,"svc");
+        DEBUG.dumpObject(cfg,"cfg");
+        this.service = svc;
+        this.config = cfg;
+    }
 
-        var service = svc;
-        var config = cfg;  // TODO: use this to pass future config. information uniformly to any impl.
-
+    /**
+     * Instantiate a platform implementation
+     * @param id Platform ID
+     * @returns {PlatformImpl} Platform instance (interface), as best can be done with NodeJS
+     */
+    createPlatformImpl(id){
+        DEBUG.dumpObject(id,"id");
         switch (id.toLowerCase()) {
             case PLATFORM_KNATIVE:
                 var knPlatformImpl = require('./knative.js');
-                var platform = new knPlatformImpl("knative", service, config);
+
+                // TODO remove first parm.
+                var platform = new knPlatformImpl("knative", this.service, this.config);
                 this.impl = platform;
                 DEBUG.dumpObject(platform,"platform");
                 break;
             case PLATFORM_OPENWHISK:
-                app.post('/init', wrapEndpoint(service.initCode));
-                app.post('/run', wrapEndpoint(service.runCode));
+                app.post('/init', wrapEndpoint(this.service.initCode));
+                app.post('/run', wrapEndpoint(this.service.runCode));
                 break;
             default:
                 console.error("Platform ID is not a known value (" + id + ").");
         }
-    }
 
-    getPlatform(){
         return this.impl;
     }
 };

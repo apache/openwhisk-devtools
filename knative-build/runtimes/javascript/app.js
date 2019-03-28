@@ -65,12 +65,12 @@ if( typeof targetPlatform === "undefined") {
 //     app.post('/init', wrapEndpoint(service.initCode));
 //     app.post('/run', wrapEndpoint(service.runCode));
 // } else if (targetPlatform === platformFactory.PLATFORM_KNATIVE) {
-     var platform = new platformFactory(targetPlatform, app, service, config);
-     DEBUG.dumpObject(platform,"platform");
-     var impl = platform.getPlatform();
-     DEBUG.dumpObject(impl,"impl");
+     var factory = new platformFactory(service, config);
+     DEBUG.dumpObject(factory,"factory");
+     var platformImpl = factory.createPlatformImpl(targetPlatform);
+     DEBUG.dumpObject(platformImpl,"platformImpl");
      // var platform = new platformFactory("knative", service, config);
-     impl.registerHandlers(app, platform);
+     platformImpl.registerHandlers(app, platformImpl);
 // } else {
 //     console.error("Environment variable '__OW_RUNTIME_PLATFORM' has an unrecognized value ("+targetPlatform+").");
 // }
