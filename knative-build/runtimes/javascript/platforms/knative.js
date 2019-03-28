@@ -193,9 +193,6 @@ function preProcessRequest(req){
         // process per-activation (i.e, "run") data
         preProcessActivationData(env, activationData);
 
-
-
-
     } catch(e){
         console.error(e);
         DEBUG.functionEndError(e.message);
@@ -208,7 +205,6 @@ function preProcessRequest(req){
 
 function postProcessResponse(result, res) {
     DEBUG.functionStart();
-
     // After getting the result back from an action, update the HTTP headers,
     // status code, and body based on its result if it includes one or more of the
     // following as top level JSON properties: headers, statusCode, body
@@ -244,14 +240,13 @@ function postProcessResponse(result, res) {
     }
 
     res.header(headers).status(statusCode).json(body);
-
     DEBUG.functionEnd();
 }
 
 
-function PlatformKnativeImpl(id, svc, cfg) {
-
-    DEBUG.dumpObject(id, "Platform" );
+function PlatformKnativeImpl(platformFactory, svc, cfg) {
+    DEBUG.functionStart();
+    DEBUG.dumpObject(platformFactory, "platformFactory" );
     DEBUG.dumpObject(svc, "Service" );
     DEBUG.dumpObject(cfg, "Config" );
 
@@ -311,7 +306,7 @@ function PlatformKnativeImpl(id, svc, cfg) {
                     break;
                 case http_method.put:
                     app.put('/', platform.run);
-                    break;
+                    break;               PlatformOpenWhiskImpl
                 case http_method.delete:
                     app.delete('/', platform.run);
                     break;
@@ -320,6 +315,7 @@ function PlatformKnativeImpl(id, svc, cfg) {
             }
         });
     };
+    DEBUG.functionEnd();
 }
 
 module.exports = PlatformKnativeImpl;

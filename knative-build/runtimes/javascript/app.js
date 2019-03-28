@@ -49,6 +49,7 @@ app.use(bodyParser.json({ limit: config.requestBodyLimit }));
 
 // identify the target Serverless platform
 const platformFactory = require('./platforms/platform.js');
+var factory = new platformFactory(service, config);
 var targetPlatform = process.env.__OW_RUNTIME_PLATFORM;
 
 // default to "openwhisk" platform initialization if not defined
@@ -61,19 +62,8 @@ if( typeof targetPlatform === "undefined") {
  * Register different endpoint handlers depending on target PLATFORM and its expected behavior.
  * In addition, register request pre-processors and/or response post-processors as needed.
  */
-// if (targetPlatform === platformFactory.PLATFORM_OPENWHISK) {
-//     app.post('/init', wrapEndpoint(service.initCode));
-//     app.post('/run', wrapEndpoint(service.runCode));
-// } else if (targetPlatform === platformFactory.PLATFORM_KNATIVE) {
-     var factory = new platformFactory(service, config);
-     DEBUG.dumpObject(factory,"factory");
-     var platformImpl = factory.createPlatformImpl(targetPlatform);
-     DEBUG.dumpObject(platformImpl,"platformImpl");
-     // var platform = new platformFactory("knative", service, config);
-     platformImpl.registerHandlers(app, platformImpl);
-// } else {
-//     console.error("Environment variable '__OW_RUNTIME_PLATFORM' has an unrecognized value ("+targetPlatform+").");
-// }
+var platformImpl = factory.createPlatformImpl(targetPlatform);
+platformImpl.registerHandlers(app, platformImpl);
 
 // short-circuit any requests to invalid routes (endpoints) that we have no handlers for.
 app.use(function (req, res, next) {
@@ -88,47 +78,3 @@ app.use(function (err, req, res, next) {
 });
 
 service.start(app);
-
-/**
- * Wraps an endpoint written to return a Promise into an express endpoint,
- * producing the appropriate HTTP response and closing it for all controllable
- * failure modes.
- *
- * The expected signature for the promise value (both completed and failed)
- * is { code: int, response: object }.
- *
- * @param ep a request=>promise function
- * @returns an express endpoint handler
- */
-function wrapEndpoint(ep) {
-    DEBUG.functionStart("wrapping: " + ep.name);
-    DEBUG.functionEnd("returning wrapper: " + ep.name);
-    return function (req, res) {
-        try {
-            ep(req).then(function (result) {
-                res.status(result.code).json(result.response);
-                DEBUG.dumpObject(result,"result");
-                DEBUG.dumpObject(res,"response");
-                DEBUG.functionEndSuccess("wrapper for: " + ep.name);
-            }).catch(function (error) {
-                if (typeof error.code === "number" && typeof error.response !== "undefined") {
-                    res.status(error.code).json(error.response);
-                } else {
-                    console.error("[wrapEndpoint]", "invalid errored promise", JSON.stringify(error));
-                    res.status(500).json({ error: "Internal error." });
-                }
-                DEBUG.dumpObject(error,"error");
-                DEBUG.dumpObject(res,"response");
-                DEBUG.functionEndError(error, "wrapper for: " + ep.name);
-            });
-        } catch (e) {
-            // This should not happen, as the contract for the endpoints is to
-            // never (externally) throw, and wrap failures in the promise instead,
-            // but, as they say, better safe than sorry.
-            console.error("[wrapEndpoint]", "exception caught", e.message);
-            res.status(500).json({ error: "Internal error (exception)." });
-            DEBUG.dumpObject(error,"error");
-            DEBUG.functionEndError(error, ep.name);
-        }
-    }
-}
