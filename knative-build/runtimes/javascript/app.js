@@ -49,10 +49,11 @@ app.use(bodyParser.json({ limit: config.requestBodyLimit }));
 
 // identify the target Serverless platform
 const platformFactory = require('./platforms/platform.js');
-var factory = new platformFactory(service, config);
+var factory = new platformFactory(app, config, service);
 var targetPlatform = process.env.__OW_RUNTIME_PLATFORM;
 
 // default to "openwhisk" platform initialization if not defined
+// TODO export isvalid() from platform, if undefined this is OK to default, but if not valid value then error out
 if( typeof targetPlatform === "undefined") {
     console.error("__OW_RUNTIME_PLATFORM is undefined; defaulting to 'openwhisk' ...");
     targetPlatform = platformFactory.PLATFORM_OPENWHISK;
@@ -62,6 +63,8 @@ if( typeof targetPlatform === "undefined") {
  * Register different endpoint handlers depending on target PLATFORM and its expected behavior.
  * In addition, register request pre-processors and/or response post-processors as needed.
  */
+
+// TODO validate or handle error
 var platformImpl = factory.createPlatformImpl(targetPlatform);
 platformImpl.registerHandlers(app, platformImpl);
 

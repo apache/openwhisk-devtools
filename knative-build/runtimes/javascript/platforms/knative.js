@@ -257,7 +257,6 @@ function PlatformKnativeImpl(platformFactory, svc, cfg) {
     this.run = function(req, res) {
 
         try {
-
             // Process request and process env. variables to provide them in the manner
             // an OpenWhisk Action expects them, as well as enable additional Http features.
             preProcessRequest(req);
@@ -306,7 +305,7 @@ function PlatformKnativeImpl(platformFactory, svc, cfg) {
                     break;
                 case http_method.put:
                     app.put('/', platform.run);
-                    break;               PlatformOpenWhiskImpl
+                    break;
                 case http_method.delete:
                     app.delete('/', platform.run);
                     break;

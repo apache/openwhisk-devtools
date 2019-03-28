@@ -59,11 +59,25 @@ module.exports = class PlatformFactory {
      * @param svc Runtime services
      * @param cfg Runtime configuration
      */
-    constructor (svc, cfg) {
-        DEBUG.dumpObject(svc,"svc");
+    constructor (app, cfg, svc) {
+        DEBUG.dumpObject(app,"app");
         DEBUG.dumpObject(cfg,"cfg");
-        this.service = svc;
-        this.config = cfg;
+        DEBUG.dumpObject(svc,"svc");
+        this._app = app;
+        this._service = svc;
+        this._config = cfg;
+    }
+
+    get app(){
+        return this._app;
+    }
+
+    get service(){
+        return this._service;
+    }
+
+    get config(){
+        return this._config;
     }
 
     /**
@@ -75,22 +89,22 @@ module.exports = class PlatformFactory {
     createPlatformImpl(id, app){
         DEBUG.functionStart();
         DEBUG.dumpObject(id,"id");
+        // Load the appropriate implementation module and return reference to it
         switch (id.toLowerCase()) {
             case PLATFORM_KNATIVE:
-                // Load the Knative implementation and return it
                 var knPlatformImpl = require('./knative.js');
-                this.platformImpl = new knPlatformImpl(this, this.service, this.config);
+                this._platformImpl = new knPlatformImpl(this, this._service, this._config);
                 break;
             case PLATFORM_OPENWHISK:
                 var owPlatformImpl = require('./openwhisk.js');
-                this.platformImpl = new owPlatformImpl(this, this.service, this.config);
+                this._platformImpl = new owPlatformImpl(this, this._service, this._config);
                 break;
             default:
                 console.error("Platform ID is not a known value (" + id + ").");
         }
-        DEBUG.dumpObject(this.platformImpl,"platformImpl");
+        DEBUG.dumpObject(this._platformImpl,"platformImpl");
         DEBUG.functionEnd();
-        return this.platformImpl;
+        return this._platformImpl;
     }
 
     /**

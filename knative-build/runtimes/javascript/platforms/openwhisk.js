@@ -33,7 +33,6 @@ function preProcessRequest(req){
 function postProcessResponse(result, res) {
 }
 
-
 function PlatformOpenWhiskImpl(platformFactory, svc, cfg) {
     DEBUG.functionStart();
     DEBUG.dumpObject(platformFactory, "platformFactory");
