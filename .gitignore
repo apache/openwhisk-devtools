@@ -1,7 +1,39 @@
+# IDE
+.idea
+*.iml
+.project
+.settings
+.vscode
+*.code-workspace
+**/.sts4-cache
+
+# Go Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Kubernetes Secrets
+docker-secret.yaml
+
+# Kubernetes ServiceAccount (customized with username)
+build.yaml
+service.yaml
+
+# NodeJS
+node_modules/
+package-lock.json
+
+# Swift
+Packages/
+
+# OpenWhisk project-specific
 openwhisk-src
 .wskprops
-
-*.iml
-.idea
-.vscode
-**/.sts4-cache

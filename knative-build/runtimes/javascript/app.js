@@ -27,11 +27,6 @@ var config = {
         'requestBodyLimit': "48mb"
 };
 
-var runtime_platform = {
-    openwhisk: 'openwhisk',
-    knative: 'knative',
-};
-
 var bodyParser = require('body-parser');
 var express    = require('express');
 
@@ -53,28 +48,32 @@ var service = require('./src/service').getService(config);
 app.use(bodyParser.json({ limit: config.requestBodyLimit }));
 
 // identify the target Serverless platform
+const platformFactory = require('./platforms/platform.js');
 var targetPlatform = process.env.__OW_RUNTIME_PLATFORM;
 
 // default to "openwhisk" platform initialization if not defined
 if( typeof targetPlatform === "undefined") {
     console.error("__OW_RUNTIME_PLATFORM is undefined; defaulting to 'openwhisk' ...");
-    targetPlatform = runtime_platform.openwhisk;
+    targetPlatform = platformFactory.PLATFORM_OPENWHISK;
 }
 
 /**
  * Register different endpoint handlers depending on target PLATFORM and its expected behavior.
  * In addition, register request pre-processors and/or response post-processors as needed.
  */
-if (targetPlatform === runtime_platform.openwhisk ) {
-    app.post('/init', wrapEndpoint(service.initCode));
-    app.post('/run', wrapEndpoint(service.runCode));
-} else if (targetPlatform === runtime_platform.knative) {
-    var platformFactory = require('./platform/platform.js');
-    var platform = new platformFactory("knative", service, config);
-    platform.registerHandlers(app, platform)
-} else {
-    console.error("Environment variable '__OW_RUNTIME_PLATFORM' has an unrecognized value ("+targetPlatform+").");
-}
+// if (targetPlatform === platformFactory.PLATFORM_OPENWHISK) {
+//     app.post('/init', wrapEndpoint(service.initCode));
+//     app.post('/run', wrapEndpoint(service.runCode));
+// } else if (targetPlatform === platformFactory.PLATFORM_KNATIVE) {
+     var platform = new platformFactory(targetPlatform, app, service, config);
+     DEBUG.dumpObject(platform,"platform");
+     var impl = platform.getPlatform();
+     DEBUG.dumpObject(impl,"impl");
+     // var platform = new platformFactory("knative", service, config);
+     // platform.registerHandlers(app, platform);
+// } else {
+//     console.error("Environment variable '__OW_RUNTIME_PLATFORM' has an unrecognized value ("+targetPlatform+").");
+// }
 
 // short-circuit any requests to invalid routes (endpoints) that we have no handlers for.
 app.use(function (req, res, next) {

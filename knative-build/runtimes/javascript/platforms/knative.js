@@ -249,22 +249,22 @@ function postProcessResponse(result, res) {
 }
 
 
-function PlatformFactory(id, svc, cfg) {
+function PlatformKnativeImpl(id, svc, cfg) {
 
     DEBUG.dumpObject(id, "Platform" );
     DEBUG.dumpObject(svc, "Service" );
     DEBUG.dumpObject(cfg, "Config" );
 
+    // Provide access to common runtime services
     var service = svc;
-    //var config = cfg;  // TODO: use this to pass future config. information uniformly to any impl.
-    var isInitialized = false;
 
     this.run = function(req, res) {
 
         try {
 
+            // Process request and process env. variables to provide them in the manner
+            // an OpenWhisk Action expects them, as well as enable additional Http features.
             preProcessRequest(req);
-            console.info("isInitialized="+isInitialized);
 
             service.initCode(req).then(function () {
                 service.runCode(req).then(function (result) {
@@ -282,7 +282,7 @@ function PlatformFactory(id, svc, cfg) {
         } catch (e) {
             res.status(500).json({error: "internal error"})
         }
-    }
+    };
 
     var http_method = {
         get: 'GET',
@@ -316,7 +316,11 @@ function PlatformFactory(id, svc, cfg) {
                     console.error("Environment variable '__OW_HTTP_METHODS' has an unrecognized value (" + method + ").");
             }
         });
-    }
-};
+    };
 
-module.exports = PlatformFactory;
+    this.foo = function(app, platform) {
+        console.log("foo");
+    };
+}
+
+module.exports = PlatformKnativeImpl;
