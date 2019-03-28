@@ -70,7 +70,7 @@ if( typeof targetPlatform === "undefined") {
      var impl = platform.getPlatform();
      DEBUG.dumpObject(impl,"impl");
      // var platform = new platformFactory("knative", service, config);
-     // platform.registerHandlers(app, platform);
+     impl.registerHandlers(app, platform);
 // } else {
 //     console.error("Environment variable '__OW_RUNTIME_PLATFORM' has an unrecognized value ("+targetPlatform+").");
 // }

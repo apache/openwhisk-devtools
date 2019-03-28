@@ -291,12 +291,14 @@ function PlatformKnativeImpl(id, svc, cfg) {
         delete: 'DELETE',
     };
 
+    const DEFAULT_METHOD = [ 'POST' ];
+
     this.registerHandlers = function(app, platform) {
         var httpMethods = process.env.__OW_HTTP_METHODS;
         // default to "[post]" HTTP method if not defined
         if (typeof httpMethods === "undefined" || !Array.isArray(httpMethods)) {
             console.error("__OW_HTTP_METHODS is undefined; defaulting to '[post]' ...");
-            httpMethods = [http_method.post];
+            httpMethods = DEFAULT_METHOD;
         }
         httpMethods.forEach(function (method) {
             switch (method.toUpperCase()) {
