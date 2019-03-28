@@ -79,13 +79,11 @@ module.exports = class PlatformFactory {
             case PLATFORM_KNATIVE:
                 // Load the Knative implementation and return it
                 var knPlatformImpl = require('./knative.js');
-                var platform = new knPlatformImpl(this, this.service, this.config);
-                this.platformImpl = platform;
+                this.platformImpl = new knPlatformImpl(this, this.service, this.config);
                 break;
             case PLATFORM_OPENWHISK:
                 var owPlatformImpl = require('./openwhisk.js');
-                var platform = new owPlatformImpl(this, this.service, this.config);
-                this.platformImpl = platform;
+                this.platformImpl = new owPlatformImpl(this, this.service, this.config);
                 break;
             default:
                 console.error("Platform ID is not a known value (" + id + ").");
