@@ -258,6 +258,7 @@ function PlatformKnativeImpl(id, svc, cfg) {
     // Provide access to common runtime services
     var service = svc;
 
+    // TODO: Should we use app.WrapEndpoint()?
     this.run = function(req, res) {
 
         try {
@@ -318,10 +319,6 @@ function PlatformKnativeImpl(id, svc, cfg) {
                     console.error("Environment variable '__OW_HTTP_METHODS' has an unrecognized value (" + method + ").");
             }
         });
-    };
-
-    this.foo = function(app, platform) {
-        console.log("foo");
     };
 }
 
