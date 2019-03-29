@@ -40,8 +40,9 @@ module.exports = class PlatformFactory {
 
     /**
      * Object constructor
-     * @param svc Runtime services
+     * @param app NodeJS express application instance
      * @param cfg Runtime configuration
+     * @@param svc Runtime services (default handlers)
      */
     constructor (app, cfg, svc) {
         DEBUG.dumpObject(app,"app");
@@ -53,7 +54,6 @@ module.exports = class PlatformFactory {
     }
 
     /**
-     *
      * @returns {string[]} List of supported platforms by their string ID
      */
     static get SUPPORTED_PLATFORMS() {
@@ -80,10 +80,9 @@ module.exports = class PlatformFactory {
         return this._config;
     }
 
-
     /**
-     *
-     * @param id Platform Id to validate is known (supported)
+     * validate if a platform ID is a known, supported value
+     * @param id Platform Id
      */
     static isSupportedPlatform(id){
         if (SUPPORTED_PLATFORMS.indexOf(id) > -1) {

@@ -120,14 +120,12 @@ function preProcessActivationData(env, activationdata) {
     DEBUG.functionEnd();
 }
 
-
 /**
  * Pre-process HTTP request details, send them as parameters to the action input argument
  * __ow_method, __ow_headers, __ow_path, __ow_user, __ow_body, and __ow_query
  */
 function preProcessHTTPContext(req, valueData) {
     DEBUG.functionStart()
-
     try {
         if (valueData.raw) {
             if (typeof req.body.value === "string" && req.body.value !== undefined) {
@@ -140,8 +138,7 @@ function preProcessHTTPContext(req, valueData) {
                 delete body.binary;
                 delete body.raw;
                 var bodyStr = JSON.stringify(body);
-                var bodyBase64 = Buffer.from(bodyStr).toString("base64");
-                valueData.__ow_body = bodyBase64;
+                valueData.__ow_body = Buffer.from(bodyStr).toString("base64");;
             }
             valueData.__ow_query = req.query;
         }
@@ -169,7 +166,6 @@ function preProcessHTTPContext(req, valueData) {
  */
 function preProcessRequest(req){
     DEBUG.functionStart();
-
     try{
         // Get or create valid references to the various data we might encounter
         // in a request such as Init., Activation and function parameter data.
@@ -199,7 +195,6 @@ function preProcessRequest(req){
         // TODO: test this error is handled properly and results in an HTTP error response
         throw("Unable to initialize the runtime: " + e.message);
     }
-
     DEBUG.functionEnd();
 }
 
@@ -250,6 +245,15 @@ function PlatformKnativeImpl(platformFactory, svc, cfg) {
     DEBUG.dumpObject(svc, "Service" );
     DEBUG.dumpObject(cfg, "Config" );
 
+    var http_method = {
+        get: 'GET',
+        post: 'POST',
+        put: 'PUT',
+        delete: 'DELETE',
+    };
+
+    const DEFAULT_METHOD = [ 'POST' ];
+
     // Provide access to common runtime services
     var service = svc;
 
@@ -278,15 +282,6 @@ function PlatformKnativeImpl(platformFactory, svc, cfg) {
             res.status(500).json({error: "internal error during function initialization."})
         }
     };
-
-    var http_method = {
-        get: 'GET',
-        post: 'POST',
-        put: 'PUT',
-        delete: 'DELETE',
-    };
-
-    const DEFAULT_METHOD = [ 'POST' ];
 
     this.registerHandlers = function(app, platform) {
         var httpMethods = process.env.__OW_HTTP_METHODS;

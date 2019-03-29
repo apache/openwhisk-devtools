@@ -49,7 +49,7 @@ app.use(bodyParser.json({ limit: config.requestBodyLimit }));
 
 // identify the target Serverless platform
 const platformFactory = require('./platform/platform.js');
-var factory = new platformFactory(app, config, service);
+const factory = new platformFactory(app, config, service);
 var targetPlatform = process.env.__OW_RUNTIME_PLATFORM;
 
 // default to "openwhisk" platform initialization if not defined
