@@ -39,6 +39,20 @@ const SUPPORTED_PLATFORMS = [
 module.exports = class PlatformFactory {
 
     /**
+     * Object constructor
+     * @param svc Runtime services
+     * @param cfg Runtime configuration
+     */
+    constructor (app, cfg, svc) {
+        DEBUG.dumpObject(app,"app");
+        DEBUG.dumpObject(cfg,"cfg");
+        DEBUG.dumpObject(svc,"svc");
+        this._app = app;
+        this._service = svc;
+        this._config = cfg;
+    }
+
+    /**
      *
      * @returns {string[]} List of supported platforms by their string ID
      */
@@ -54,20 +68,6 @@ module.exports = class PlatformFactory {
         return PLATFORM_KNATIVE;
     }
 
-    /**
-     * Object constructor
-     * @param svc Runtime services
-     * @param cfg Runtime configuration
-     */
-    constructor (app, cfg, svc) {
-        DEBUG.dumpObject(app,"app");
-        DEBUG.dumpObject(cfg,"cfg");
-        DEBUG.dumpObject(svc,"svc");
-        this._app = app;
-        this._service = svc;
-        this._config = cfg;
-    }
-
     get app(){
         return this._app;
     }
@@ -80,13 +80,25 @@ module.exports = class PlatformFactory {
         return this._config;
     }
 
+
+    /**
+     *
+     * @param id Platform Id to validate is known (supported)
+     */
+    static isSupportedPlatform(id){
+        if (SUPPORTED_PLATFORMS.indexOf(id) > -1) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Instantiate a platform implementation
      * @param id Platform ID
      * @returns {PlatformImpl} Platform instance (interface), as best can be done with NodeJS
      */
     // TODO remove "app" parameter once we have a valid openwhisk platformImpl.
-    createPlatformImpl(id, app){
+    createPlatformImpl(id){
         DEBUG.functionStart();
         DEBUG.dumpObject(id,"id");
         // Load the appropriate implementation module and return reference to it

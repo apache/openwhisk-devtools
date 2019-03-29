@@ -54,30 +54,45 @@ var targetPlatform = process.env.__OW_RUNTIME_PLATFORM;
 
 // default to "openwhisk" platform initialization if not defined
 // TODO export isvalid() from platform, if undefined this is OK to default, but if not valid value then error out
-if( typeof targetPlatform === "undefined") {
-    console.error("__OW_RUNTIME_PLATFORM is undefined; defaulting to 'openwhisk' ...");
+if(typeof targetPlatform === "undefined") {
     targetPlatform = platformFactory.PLATFORM_OPENWHISK;
+    console.log("__OW_RUNTIME_PLATFORM is undefined; defaulting to 'openwhisk' ...");
+}
+
+if(!platformFactory.isSupportedPlatform(targetPlatform)){
+    console.error("__OW_RUNTIME_PLATFORM ("+targetPlatform+") is not supported by the runtime.");
 }
 
 /**
  * Register different endpoint handlers depending on target PLATFORM and its expected behavior.
- * In addition, register request pre-processors and/or response post-processors as needed.
+ * In addition, register request pre-processors and/or response post-processors as needed
+ * to move data where the platform and function author expects it to be.
  */
 
 // TODO validate or handle error
 var platformImpl = factory.createPlatformImpl(targetPlatform);
-platformImpl.registerHandlers(app, platformImpl);
 
-// short-circuit any requests to invalid routes (endpoints) that we have no handlers for.
-app.use(function (req, res, next) {
-    res.status(500).json({error: "Bad request."});
-});
+if(typeof platformImpl !== "undefined"){
 
-// register a default error handler. This effectively only gets called when invalid JSON is received (JSON Parser)
-// and we do not wish the default handler to error with a 400 and send back HTML in the body of the response.
-app.use(function (err, req, res, next) {
-    console.log(err.stackTrace);
-    res.status(500).json({error: "Bad request."});
-});
+    platformImpl.registerHandlers(app, platformImpl);
 
-service.start(app);
+    // short-circuit any requests to invalid routes (endpoints) that we have no handlers for.
+    app.use(function (req, res, next) {
+        res.status(500).json({error: "Bad request."});
+    });
+
+    /**
+     * Register a default error handler. This effectively only gets called when invalid JSON is received
+     * (JSON Parser) and we do not wish the default handler to error with a 400 and send back HTML in the
+     * body of the response.
+     */
+    app.use(function (err, req, res, next) {
+        console.log(err.stackTrace);
+        res.status(500).json({error: "Bad request."});
+    });
+
+    service.start(app);
+
+} else {
+    console.error("Failed to initialize __OW_RUNTIME_PLATFORM ("+targetPlatform+").");
+}

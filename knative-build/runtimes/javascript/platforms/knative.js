@@ -271,11 +271,11 @@ function PlatformKnativeImpl(platformFactory, svc, cfg) {
                     res.status(error.code).json(error.response);
                 } else {
                     console.error("[wrapEndpoint]", "invalid errored promise", JSON.stringify(error));
-                    res.status(500).json({ error: "Internal error." });
+                    res.status(500).json({ error: "Internal error during function execution." });
                 }
             });
         } catch (e) {
-            res.status(500).json({error: "internal error"})
+            res.status(500).json({error: "internal error during function initialization."})
         }
     };
 
