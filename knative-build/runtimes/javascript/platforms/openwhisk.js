@@ -18,21 +18,6 @@
 var dbg = require('../utils/debug');
 var DEBUG = new dbg();
 
-function preProcessInitData(env, initdata, valuedata, activationdata) {
-}
-
-function preProcessActivationData(env, activationdata) {
-}
-
-function preProcessHTTPContext(req, valueData) {
-}
-
-function preProcessRequest(req){
-}
-
-function postProcessResponse(result, res) {
-}
-
 function PlatformOpenWhiskImpl(platformFactory, svc, cfg) {
     DEBUG.functionStart();
     DEBUG.dumpObject(platformFactory, "platformFactory");
