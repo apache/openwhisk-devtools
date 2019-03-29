@@ -16,7 +16,7 @@
  */
 var dbg = require('./utils/debug');
 var DEBUG = new dbg();
-DEBUG.trace("Hello World from NodeJS runtime");
+DEBUG.trace("NodeJS runtime initializing...");
 DEBUG.dumpObject(process.env, "process.env");
 
 // __OW_ALLOW_CONCURRENT: see docs/concurrency.md
@@ -48,7 +48,7 @@ var service = require('./src/service').getService(config);
 app.use(bodyParser.json({ limit: config.requestBodyLimit }));
 
 // identify the target Serverless platform
-const platformFactory = require('./platforms/platform.js');
+const platformFactory = require('./platform/platform.js');
 var factory = new platformFactory(app, config, service);
 var targetPlatform = process.env.__OW_RUNTIME_PLATFORM;
 
@@ -69,7 +69,6 @@ if(!platformFactory.isSupportedPlatform(targetPlatform)){
  * to move data where the platform and function author expects it to be.
  */
 
-// TODO validate or handle error
 var platformImpl = factory.createPlatformImpl(targetPlatform);
 
 if(typeof platformImpl !== "undefined"){
