@@ -125,7 +125,7 @@ function preProcessActivationData(env, activationdata) {
  * __ow_method, __ow_headers, __ow_path, __ow_user, __ow_body, and __ow_query
  */
 function preProcessHTTPContext(req, valueData) {
-    DEBUG.functionStart()
+    DEBUG.functionStart();
     try {
         if (valueData.raw) {
             if (typeof req.body.value === "string" && req.body.value !== undefined) {
@@ -239,11 +239,9 @@ function postProcessResponse(result, res) {
 }
 
 
-function PlatformKnativeImpl(platformFactory, svc, cfg) {
+function PlatformKnativeImpl(platformFactory) {
     DEBUG.functionStart();
     DEBUG.dumpObject(platformFactory, "platformFactory" );
-    DEBUG.dumpObject(svc, "Service" );
-    DEBUG.dumpObject(cfg, "Config" );
 
     var http_method = {
         get: 'GET',
@@ -255,7 +253,7 @@ function PlatformKnativeImpl(platformFactory, svc, cfg) {
     const DEFAULT_METHOD = [ 'POST' ];
 
     // Provide access to common runtime services
-    var service = svc;
+    var service = platformFactory.service;
 
     // TODO: Should we use app.WrapEndpoint()?
     this.run = function(req, res) {

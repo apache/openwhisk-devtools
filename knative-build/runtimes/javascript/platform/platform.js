@@ -104,11 +104,11 @@ module.exports = class PlatformFactory {
         switch (id.toLowerCase()) {
             case PLATFORM_KNATIVE:
                 var knPlatformImpl = require('./knative.js');
-                this._platformImpl = new knPlatformImpl(this, this._service, this._config);
+                this._platformImpl = new knPlatformImpl(this);
                 break;
             case PLATFORM_OPENWHISK:
                 var owPlatformImpl = require('./openwhisk.js');
-                this._platformImpl = new owPlatformImpl(this, this._service, this._config);
+                this._platformImpl = new owPlatformImpl(this);
                 break;
             default:
                 console.error("Platform ID is not a known value (" + id + ").");

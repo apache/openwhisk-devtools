@@ -18,15 +18,14 @@
 var dbg = require('../utils/debug');
 var DEBUG = new dbg();
 
-function PlatformOpenWhiskImpl(platformFactory, svc, cfg) {
+function PlatformOpenWhiskImpl(platformFactory) {
     DEBUG.functionStart();
     DEBUG.dumpObject(platformFactory, "platformFactory");
     DEBUG.dumpObject(svc, "Service");
     DEBUG.dumpObject(cfg, "Config");
-
     // Provide access to common runtime services
     // TODO validate service is valid or err out
-    var service = svc;
+    var service = platformFactory.service;
 
     this.registerHandlers = function(app, platform) {
         app.post('/init', this.wrapEndpoint(service.initCode));
