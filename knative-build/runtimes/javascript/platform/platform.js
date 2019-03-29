@@ -103,11 +103,11 @@ module.exports = class PlatformFactory {
         // Load the appropriate implementation module and return reference to it
         switch (id.toLowerCase()) {
             case PLATFORM_KNATIVE:
-                var knPlatformImpl = require('./knative.js');
+                const knPlatformImpl = require('./knative.js');
                 this._platformImpl = new knPlatformImpl(this);
                 break;
             case PLATFORM_OPENWHISK:
-                var owPlatformImpl = require('./openwhisk.js');
+                const owPlatformImpl = require('./openwhisk.js');
                 this._platformImpl = new owPlatformImpl(this);
                 break;
             default:

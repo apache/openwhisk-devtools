@@ -61,6 +61,7 @@ if(typeof targetPlatform === "undefined") {
 
 if(!platformFactory.isSupportedPlatform(targetPlatform)){
     console.error("__OW_RUNTIME_PLATFORM ("+targetPlatform+") is not supported by the runtime.");
+    process.exit(9);
 }
 
 /**
@@ -94,4 +95,5 @@ if(typeof platformImpl !== "undefined"){
 
 } else {
     console.error("Failed to initialize __OW_RUNTIME_PLATFORM ("+targetPlatform+").");
+    process.exit(10);
 }
