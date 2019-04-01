@@ -16,7 +16,7 @@
  */
 var dbg = require('./utils/debug');
 var DEBUG = new dbg();
-DEBUG.trace("Hello World from NodeJS runtime");
+DEBUG.trace("NodeJS runtime initializing...");
 DEBUG.dumpObject(process.env, "process.env");
 
 // __OW_ALLOW_CONCURRENT: see docs/concurrency.md
@@ -25,11 +25,6 @@ var config = {
         'apiHost': process.env.__OW_API_HOST,
         'allowConcurrent': process.env.__OW_ALLOW_CONCURRENT,
         'requestBodyLimit': "48mb"
-};
-
-var runtime_platform = {
-    openwhisk: 'openwhisk',
-    knative: 'knative',
 };
 
 var bodyParser = require('body-parser');
@@ -53,83 +48,52 @@ var service = require('./src/service').getService(config);
 app.use(bodyParser.json({ limit: config.requestBodyLimit }));
 
 // identify the target Serverless platform
+const platformFactory = require('./platform/platform.js');
+const factory = new platformFactory(app, config, service);
 var targetPlatform = process.env.__OW_RUNTIME_PLATFORM;
 
 // default to "openwhisk" platform initialization if not defined
-if( typeof targetPlatform === "undefined") {
-    console.error("__OW_RUNTIME_PLATFORM is undefined; defaulting to 'openwhisk' ...");
-    targetPlatform = runtime_platform.openwhisk;
+// TODO export isvalid() from platform, if undefined this is OK to default, but if not valid value then error out
+if(typeof targetPlatform === "undefined") {
+    targetPlatform = platformFactory.PLATFORM_OPENWHISK;
+    console.log("__OW_RUNTIME_PLATFORM is undefined; defaulting to 'openwhisk' ...");
+}
+
+if(!platformFactory.isSupportedPlatform(targetPlatform)){
+    console.error("__OW_RUNTIME_PLATFORM ("+targetPlatform+") is not supported by the runtime.");
+    process.exit(9);
 }
 
 /**
  * Register different endpoint handlers depending on target PLATFORM and its expected behavior.
- * In addition, register request pre-processors and/or response post-processors as needed.
+ * In addition, register request pre-processors and/or response post-processors as needed
+ * to move data where the platform and function author expects it to be.
  */
-if (targetPlatform === runtime_platform.openwhisk ) {
-    app.post('/init', wrapEndpoint(service.initCode));
-    app.post('/run', wrapEndpoint(service.runCode));
-} else if (targetPlatform === runtime_platform.knative) {
-    var platformFactory = require('./platform/platform.js');
-    var platform = new platformFactory("knative", service, config);
-    platform.registerHandlers(app, platform)
+
+var platformImpl = factory.createPlatformImpl(targetPlatform);
+
+if(typeof platformImpl !== "undefined"){
+
+    platformImpl.registerHandlers(app, platformImpl);
+
+    // short-circuit any requests to invalid routes (endpoints) that we have no handlers for.
+    app.use(function (req, res, next) {
+        res.status(500).json({error: "Bad request."});
+    });
+
+    /**
+     * Register a default error handler. This effectively only gets called when invalid JSON is received
+     * (JSON Parser) and we do not wish the default handler to error with a 400 and send back HTML in the
+     * body of the response.
+     */
+    app.use(function (err, req, res, next) {
+        console.log(err.stackTrace);
+        res.status(500).json({error: "Bad request."});
+    });
+
+    service.start(app);
+
 } else {
-    console.error("Environment variable '__OW_RUNTIME_PLATFORM' has an unrecognized value ("+targetPlatform+").");
-}
-
-// short-circuit any requests to invalid routes (endpoints) that we have no handlers for.
-app.use(function (req, res, next) {
-    res.status(500).json({error: "Bad request."});
-});
-
-// register a default error handler. This effectively only gets called when invalid JSON is received (JSON Parser)
-// and we do not wish the default handler to error with a 400 and send back HTML in the body of the response.
-app.use(function (err, req, res, next) {
-    console.log(err.stackTrace);
-    res.status(500).json({error: "Bad request."});
-});
-
-service.start(app);
-
-/**
- * Wraps an endpoint written to return a Promise into an express endpoint,
- * producing the appropriate HTTP response and closing it for all controllable
- * failure modes.
- *
- * The expected signature for the promise value (both completed and failed)
- * is { code: int, response: object }.
- *
- * @param ep a request=>promise function
- * @returns an express endpoint handler
- */
-function wrapEndpoint(ep) {
-    DEBUG.functionStart("wrapping: " + ep.name);
-    DEBUG.functionEnd("returning wrapper: " + ep.name);
-    return function (req, res) {
-        try {
-            ep(req).then(function (result) {
-                res.status(result.code).json(result.response);
-                DEBUG.dumpObject(result,"result");
-                DEBUG.dumpObject(res,"response");
-                DEBUG.functionEndSuccess("wrapper for: " + ep.name);
-            }).catch(function (error) {
-                if (typeof error.code === "number" && typeof error.response !== "undefined") {
-                    res.status(error.code).json(error.response);
-                } else {
-                    console.error("[wrapEndpoint]", "invalid errored promise", JSON.stringify(error));
-                    res.status(500).json({ error: "Internal error." });
-                }
-                DEBUG.dumpObject(error,"error");
-                DEBUG.dumpObject(res,"response");
-                DEBUG.functionEndError(error, "wrapper for: " + ep.name);
-            });
-        } catch (e) {
-            // This should not happen, as the contract for the endpoints is to
-            // never (externally) throw, and wrap failures in the promise instead,
-            // but, as they say, better safe than sorry.
-            console.error("[wrapEndpoint]", "exception caught", e.message);
-            res.status(500).json({ error: "Internal error (exception)." });
-            DEBUG.dumpObject(error,"error");
-            DEBUG.functionEndError(error, ep.name);
-        }
-    }
+    console.error("Failed to initialize __OW_RUNTIME_PLATFORM ("+targetPlatform+").");
+    process.exit(10);
 }

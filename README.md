@@ -30,6 +30,7 @@ This repository is part of [Apache OpenWhisk](http://openwhisk.incubator.apache.
 * [java-action-archetype](java-action-archetype/README.md) This archetype helps to generate the Java Action template project.
 * [node-local](node-local/README.md) allows testing individual OpenWhisk functions locally, using only node.js. This is ideal if you are writing node.js functions to run in OpenWhisk, but need to emulate some of OpenWhisk's behavior in creating `params` and expecting promises.
 * [maven-java](maven-java/README.md) allows testing OpenWhisk Java Actions. This shows how to package the function dependencies e.g. external jar.
+* [knative-build](knative-build/README.md) contains Knative Build Templates along with modified versions of their respective OpenWhisk Action Runtimes that can be used to Build and Serve Knative compatible applications on Kubernetes.
 
 ## Travis builds
 
