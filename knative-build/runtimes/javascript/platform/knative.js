@@ -32,7 +32,7 @@ function preProcessInitData(env, initdata, valuedata, activationdata) {
         // TODO: Throw error if CODE is NOT defined!
         var code = (typeof env.__OW_ACTION_CODE === 'undefined') ? "" : env.__OW_ACTION_CODE;
         var binary = (typeof env.__OW_ACTION_BINARY === 'undefined') ? false : env.__OW_ACTION_BINARY.toLowerCase() === "true";
-        // TODO: deault to empty?
+        // TODO: default to empty?
         var actionName = (typeof env.__OW_ACTION_NAME === 'undefined') ? "" : env.__OW_ACTION_NAME;
         var raw = (typeof env.__OW_ACTION_RAW === 'undefined') ? false : env.__OW_ACTION_RAW.toLowerCase() === "true";
 
@@ -259,6 +259,9 @@ function PlatformKnativeImpl(platformFactory) {
     this.run = function(req, res) {
 
         try {
+
+            DEBUG.dumpObject(service.initialized(),"service.initialized()");
+
             // Process request and process env. variables to provide them in the manner
             // an OpenWhisk Action expects them, as well as enable additional Http features.
             preProcessRequest(req);
