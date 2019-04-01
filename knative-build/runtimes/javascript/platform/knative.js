@@ -200,7 +200,7 @@ function preProcessRequest(req){
     DEBUG.functionEnd();
 }
 
-function postProcessResponse(result, res) {
+function postProcessResponse(req, result, res) {
     DEBUG.functionStart();
 
     var content_types = {
@@ -278,6 +278,21 @@ function postProcessResponse(result, res) {
         statusCode = 204;
     }
 
+    if (!headers.hasOwnProperty('Access-Control-Allow-Origin')) {
+        headers['Access-Control-Allow-Origin'] = '*';
+    }
+    if (!headers.hasOwnProperty('Access-Control-Allow-Methods')) {
+        headers['Access-Control-Allow-Methods'] = 'OPTIONS, GET, DELETE, POST, PUT, HEAD, PATCH';
+    }
+    // the header Access-Control-Request-Headers is echoed back as the header Access-Control-Allow-Headers if it is present in the HTTP request.
+    // Otherwise, a default value is generated.
+    if (!headers.hasOwnProperty['Access-Control-Allow-Headers']) {
+        headers['Access-Control-Allow-Headers'] = 'Authorization, Origin, X - Requested - With, Content - Type, Accept, User - Agent';
+        if (typeof req.headers['Access-Control-Request-Headers'] !== "undefined") {
+            headers['Access-Control-Allow-Headers'] = req.headers['Access-Control-Request-Headers'];
+        }
+    }
+
     res.header(headers).status(statusCode).send(body);
     DEBUG.functionEnd();
 }
@@ -292,6 +307,7 @@ function PlatformKnativeImpl(platformFactory) {
         post: 'POST',
         put: 'PUT',
         delete: 'DELETE',
+        options: 'OPTIONS',
     };
 
     const DEFAULT_METHOD = [ 'POST' ];
@@ -312,7 +328,7 @@ function PlatformKnativeImpl(platformFactory) {
 
             service.initCode(req).then(function () {
                 service.runCode(req).then(function (result) {
-                    postProcessResponse(result, res)
+                    postProcessResponse(req, result, res)
                 });
             }).catch(function (error) {
                 console.error(error);
@@ -331,10 +347,22 @@ function PlatformKnativeImpl(platformFactory) {
     this.registerHandlers = function(app, platform) {
         var httpMethods = process.env.__OW_HTTP_METHODS;
         // default to "[post]" HTTP method if not defined
-        if (typeof httpMethods === "undefined" || !Array.isArray(httpMethods)) {
+        if (typeof httpMethods === "undefined") {
+            console.error("__OW_HTTP_METHODS is undefined; defaulting to '[post]' ...");
+            httpMethods = DEFAULT_METHOD;
+        } else {
+            if (httpMethods.startsWith('[') && httpMethods.endsWith(']')) {
+                httpMethods = httpMethods.substr(1, httpMethods.length);
+                httpMethods = httpMethods.substr(0, httpMethods.length -1);
+                httpMethods = httpMethods.split(',')
+            }
+        }
+        // default to "[post]" HTTP method if specified methods are not valid
+        if (!Array.isArray(httpMethods) || !Array.length) {
             console.error("__OW_HTTP_METHODS is undefined; defaulting to '[post]' ...");
             httpMethods = DEFAULT_METHOD;
         }
+
         httpMethods.forEach(function (method) {
             switch (method.toUpperCase()) {
                 case http_method.get:
@@ -348,6 +376,9 @@ function PlatformKnativeImpl(platformFactory) {
                     break;
                 case http_method.delete:
                     app.delete('/', platform.run);
+                    break;
+                case http_method.options:
+                    app.options('/', platform.run);
                     break;
                 default:
                     console.error("Environment variable '__OW_HTTP_METHODS' has an unrecognized value (" + method + ").");

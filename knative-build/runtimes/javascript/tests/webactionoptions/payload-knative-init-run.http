@@ -6,7 +6,7 @@ content-type: application/json
     "name" : "nodejs-web-action-options",
     "main" : "main",
     "binary": false,
-    "code" : "function main(params) { if (params.__ow_method == 'options') { return { headers: { 'Access-Control-Allow-Methods': 'OPTIONS, GET', 'Access-Control-Allow-Origin': 'example.com' }, statusCode: 200 }}}"
+    "code" : "function main(params) { if (params.__ow_method == 'OPTIONS') { return { headers: { 'Access-Control-Allow-Methods': 'OPTIONS, GET', 'Access-Control-Allow-Origin': 'example.com' }, statusCode: 200 }}}"
   },
   "activation": {
     "namespace": "default",
