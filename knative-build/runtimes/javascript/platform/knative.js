@@ -21,7 +21,6 @@ var DEBUG = new dbg();
 const OW_ENV_PREFIX = "__OW_";
 const CONTENT_TYPE = "Content-Type";
 
-
 /**
  * Pre-process the incoming
  */
