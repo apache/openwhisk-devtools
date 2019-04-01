@@ -34,6 +34,9 @@ spec:
   - name: OW_HTTP_METHODS
     description: list of HTTP methods, any combination of [GET, POST, PUT, and DELETE], default is [POST]
     default: "[POST]"
+  - name: OW_ACTION_RAW
+    description: flag to indicate raw HTTP handling, interpret and process an incoming HTTP body directly
+    default: "false"
   steps:
   - name: add-ow-env-to-dockerfile
     image: "gcr.io/kaniko-project/executor:debug"
@@ -50,6 +53,7 @@ spec:
         ENV __OW_ACTION_MAIN "${OW_ACTION_MAIN}"
         ENV __OW_ACTION_BINARY "${OW_ACTION_BINARY}"
         ENV __OW_HTTP_METHODS "${OW_HTTP_METHODS}"
+        ENV __OW_ACTION_RAW "${OW_ACTION_RAW}"
       EOF
   - name: build-openwhisk-nodejs-runtime
     image: "gcr.io/kaniko-project/executor:latest"
