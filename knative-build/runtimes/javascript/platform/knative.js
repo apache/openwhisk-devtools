@@ -19,6 +19,7 @@ var dbg = require('../utils/debug');
 var DEBUG = new dbg();
 
 const OW_ENV_PREFIX = "__OW_";
+const CONTENT_TYPE = "Content-Type";
 
 /**
  * Pre-process the incoming
@@ -198,14 +199,23 @@ function preProcessRequest(req){
     DEBUG.functionEnd();
 }
 
-function postProcessResponse(result, res) {
+function postProcessResponse(req, result, res) {
     DEBUG.functionStart();
+
+    var content_types = {
+        json: 'application/json',
+        html: 'text/html',
+        png: 'image/png',
+        svg: 'image/svg+xml',
+    };
+
     // After getting the result back from an action, update the HTTP headers,
     // status code, and body based on its result if it includes one or more of the
     // following as top level JSON properties: headers, statusCode, body
     let statusCode = result.code;
     let headers = {};
     let body = result.response;
+    let contentTypeInHeader = false;
 
     // statusCode: default is 200 OK if body is not empty otherwise 204 No Content
     if (result.response.statusCode !== undefined) {
@@ -220,6 +230,27 @@ function postProcessResponse(result, res) {
         delete body['headers'];
     }
 
+    // addressing content-type v/s Content-Type
+    // marking 'Content-Type' as standard inside header
+    if (headers.hasOwnProperty(CONTENT_TYPE.toLowerCase())) {
+        headers[CONTENT_TYPE] = headers[CONTENT_TYPE.toLowerCase()];
+        delete headers[CONTENT_TYPE.toLowerCase()];
+    }
+
+    //  If a content-type header is not declared in the action result’s headers,
+    //  the body is interpreted as application/json for non-string values,
+    //  and text/html otherwise.
+    if (!headers.hasOwnProperty(CONTENT_TYPE)) {
+        if (result.response.body !== undefined && typeof result.response.body == "string") {
+            headers[CONTENT_TYPE] = content_types.html;
+        } else {
+            headers[CONTENT_TYPE] = content_types.json;
+        }
+    } else {
+        contentTypeInHeader = true;
+    }
+
+
     // body: a string which is either a plain text, JSON object, or a base64 encoded string for binary data (default is "")
     // body is considered empty if it is null, "", or undefined
     if (result.response.body !== undefined) {
@@ -229,12 +260,39 @@ function postProcessResponse(result, res) {
         delete body['binary'];
     }
 
+    //When the content-type is defined, check if the response is binary data or
+    // plain text and decode the plain text using a base64 decoder whenever needed.
+    // Should the body fail to decoded correctly, return an error to the caller.
+    if (contentTypeInHeader && headers[CONTENT_TYPE].lastIndexOf("image", 0) === 0) {
+        if (typeof body === "string") {
+            body = Buffer.from(body, 'base64')
+            headers["Content-Transfer-Encoding"] = "binary";
+        }
+        // TODO: throw an error if body can not be decoded
+    }
+
+
     // statusCode: set it to 204 No Content if body is empty
     if (statusCode === 200 && body === "") {
         statusCode = 204;
     }
 
-    res.header(headers).status(statusCode).json(body);
+    if (!headers.hasOwnProperty('Access-Control-Allow-Origin')) {
+        headers['Access-Control-Allow-Origin'] = '*';
+    }
+    if (!headers.hasOwnProperty('Access-Control-Allow-Methods')) {
+        headers['Access-Control-Allow-Methods'] = 'OPTIONS, GET, DELETE, POST, PUT, HEAD, PATCH';
+    }
+    // the header Access-Control-Request-Headers is echoed back as the header Access-Control-Allow-Headers if it is present in the HTTP request.
+    // Otherwise, a default value is generated.
+    if (!headers.hasOwnProperty['Access-Control-Allow-Headers']) {
+        headers['Access-Control-Allow-Headers'] = 'Authorization, Origin, X - Requested - With, Content - Type, Accept, User - Agent';
+        if (typeof req.headers['Access-Control-Request-Headers'] !== "undefined") {
+            headers['Access-Control-Allow-Headers'] = req.headers['Access-Control-Request-Headers'];
+        }
+    }
+
+    res.header(headers).status(statusCode).send(body);
     DEBUG.functionEnd();
 }
 
@@ -248,6 +306,7 @@ function PlatformKnativeImpl(platformFactory) {
         post: 'POST',
         put: 'PUT',
         delete: 'DELETE',
+        options: 'OPTIONS',
     };
 
     const DEFAULT_METHOD = [ 'POST' ];
@@ -268,7 +327,7 @@ function PlatformKnativeImpl(platformFactory) {
 
             service.initCode(req).then(function () {
                 service.runCode(req).then(function (result) {
-                    postProcessResponse(result, res)
+                    postProcessResponse(req, result, res)
                 });
             }).catch(function (error) {
                 console.error(error);
@@ -287,10 +346,22 @@ function PlatformKnativeImpl(platformFactory) {
     this.registerHandlers = function(app, platform) {
         var httpMethods = process.env.__OW_HTTP_METHODS;
         // default to "[post]" HTTP method if not defined
-        if (typeof httpMethods === "undefined" || !Array.isArray(httpMethods)) {
+        if (typeof httpMethods === "undefined") {
+            console.error("__OW_HTTP_METHODS is undefined; defaulting to '[post]' ...");
+            httpMethods = DEFAULT_METHOD;
+        } else {
+            if (httpMethods.startsWith('[') && httpMethods.endsWith(']')) {
+                httpMethods = httpMethods.substr(1, httpMethods.length);
+                httpMethods = httpMethods.substr(0, httpMethods.length -1);
+                httpMethods = httpMethods.split(',')
+            }
+        }
+        // default to "[post]" HTTP method if specified methods are not valid
+        if (!Array.isArray(httpMethods) || !Array.length) {
             console.error("__OW_HTTP_METHODS is undefined; defaulting to '[post]' ...");
             httpMethods = DEFAULT_METHOD;
         }
+
         httpMethods.forEach(function (method) {
             switch (method.toUpperCase()) {
                 case http_method.get:
@@ -304,6 +375,9 @@ function PlatformKnativeImpl(platformFactory) {
                     break;
                 case http_method.delete:
                     app.delete('/', platform.run);
+                    break;
+                case http_method.options:
+                    app.options('/', platform.run);
                     break;
                 default:
                     console.error("Environment variable '__OW_HTTP_METHODS' has an unrecognized value (" + method + ").");

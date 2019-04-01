@@ -1,0 +1,19 @@
+{
+  "init": {
+    "name" : "nodejs-web-action-options",
+    "main" : "main",
+    "binary": false,
+    "code" : "function main(params) { if (params.__ow_method == 'OPTIONS') { return { headers: { 'Access-Control-Allow-Methods': 'OPTIONS, GET', 'Access-Control-Allow-Origin': 'example.com' }, statusCode: 200 }}}"
+  },
+  "activation": {
+    "namespace": "default",
+    "action_name": "nodejs-web-action-options",
+    "api_host": "",
+    "api_key": "",
+    "activation_id": "",
+    "deadline": "4102498800000"
+  },
+  "value": {
+    "name": "Joe"
+  }
+}
