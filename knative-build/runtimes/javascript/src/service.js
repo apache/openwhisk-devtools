@@ -68,11 +68,8 @@ function NodeActionService(cfg) {
      * created a NodeActionRunner.
      * @returns {boolean}
      */
-    this.initialized = function isIntialized(){
-        if (userCodeRunner === undefined){
-            return false;
-        }
-        return true;
+    this.initialized = function isInitialized(){
+        return (typeof userCodeRunner !== "undefined");
     };
 
     /**

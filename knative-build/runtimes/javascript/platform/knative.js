@@ -28,10 +28,7 @@ const OW_ENV_PREFIX = "__OW_";
 function isStemCell(env) {
     let actionCode = env.__OW_ACTION_CODE;
     // It is a stem cell if valid code is "built into" the runtime's process environment.
-    if (typeof actionCode === 'undefined' || actionCode.length === 0) {
-       return true;
-    }
-    return false;
+    return (typeof actionCode === 'undefined' || actionCode.length === 0);
 }
 
 /**
@@ -307,13 +304,15 @@ function PlatformKnativeImpl(platformFactory) {
     this.run = function(req, res) {
 
         try {
+            DEBUG.dumpObject(service.initialized(),"service.initialized()");
+
             // Process request and process env. variables to provide them in the manner
             // an OpenWhisk Action expects them, as well as enable additional Http features.
             preProcessRequest(req);
-            DEBUG.dumpObject(service.initialized(),"service.initialized()");
+
             service.initCode(req).then(function () {
                 service.runCode(req).then(function (result) {
-                    postProcessResponse(result, res)
+                    postProcessResponse(req, result, res)
                 });
             }).catch(function (error) {
                 console.error(error);
