@@ -283,7 +283,6 @@ function postProcessResponse(result, res) {
     DEBUG.functionEnd();
 }
 
-
 function PlatformKnativeImpl(platformFactory) {
     DEBUG.functionStart();
     DEBUG.dumpObject(platformFactory, "platformFactory" );
