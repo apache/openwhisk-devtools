@@ -404,32 +404,69 @@ function PlatformKnativeImpl(platformFactory) {
         try {
             DEBUG.dumpObject(service.initialized(),"service.initialized()");
 
-            // Process request and process env. variables to provide them in the manner
-            // an OpenWhisk Action expects them, as well as enable additional Http features.
-            preProcessRequest(req);
-
             // Do not process requests with init. data if this is not a "stem" cell
             if (hasInitData(req) && !isStemCell(process.env))
                 throw ("Cannot initialize a runtime with a dedicated function.");
 
-            service.initCode(req).then(function () {
+            if(hasInitData(req) && hasActivationData(req)){
+
+                // Process request and process env. variables to provide them in the manner
+                // an OpenWhisk Action expects them, as well as enable additional Http features.
+                preProcessRequest(req);
+
+                service.initCode(req).then(function () {
+                    service.runCode(req).then(function (result) {
+                        postProcessResponse(req, result, res)
+                    });
+                }).catch(function (error) {
+                    console.error(error);
+                    if (typeof error.code === "number" && typeof error.response !== "undefined") {
+                        res.status(error.code).json(error.response);
+                    } else {
+                        console.error("[wrapEndpoint]", "invalid errored promise", JSON.stringify(error));
+                        res.status(500).json({ error: "Internal error during function execution." });
+                    }
+                });
+            } else if(hasInitData(req)){
+
+                // Process request and process env. variables to provide them in the manner
+                // an OpenWhisk Action expects them, as well as enable additional Http features.
+                preProcessRequest(req);
+
+                service.initCode(req).then(function () {
+                }).catch(function (error) {
+                    console.error(error);
+                    if (typeof error.code === "number" && typeof error.response !== "undefined") {
+                        res.status(error.code).json(error.response);
+                    } else {
+                        console.error("[wrapEndpoint]", "invalid errored promise", JSON.stringify(error));
+                        res.status(500).json({ error: "Internal error during function execution." });
+                    }
+                });
+            } else if(hasActivationData(req)){
+                // Process request and process env. variables to provide them in the manner
+                // an OpenWhisk Action expects them, as well as enable additional Http features.
+                preProcessRequest(req);
+
                 service.runCode(req).then(function (result) {
                     postProcessResponse(req, result, res)
+                }).catch(function (error) {
+                    console.error(error);
+                    if (typeof error.code === "number" && typeof error.response !== "undefined") {
+                        res.status(error.code).json(error.response);
+                    } else {
+                        console.error("[wrapEndpoint]", "invalid errored promise", JSON.stringify(error));
+                        res.status(500).json({ error: "Internal error during function execution." });
+                    }
                 });
-            }).catch(function (error) {
-                console.error(error);
-                if (typeof error.code === "number" && typeof error.response !== "undefined") {
-                    res.status(error.code).json(error.response);
-                } else {
-                    console.error("[wrapEndpoint]", "invalid errored promise", JSON.stringify(error));
-                    res.status(500).json({ error: "Internal error during function execution." });
-                }
-            });
+            }
+
         } catch (e) {
             res.status(500).json({error: "internal error during function initialization."})
         }
     };
 
+    // TODO: the 'httpMethods' var should not alternatively store string and string[] types
     this.registerHandlers = function(app, platform) {
         var httpMethods = process.env.__OW_HTTP_METHODS;
         // default to "[post]" HTTP method if not defined
@@ -440,7 +477,7 @@ function PlatformKnativeImpl(platformFactory) {
             if (httpMethods.startsWith('[') && httpMethods.endsWith(']')) {
                 httpMethods = httpMethods.substr(1, httpMethods.length);
                 httpMethods = httpMethods.substr(0, httpMethods.length -1);
-                httpMethods = httpMethods.split(',')
+                httpMethods = httpMethods.split(',');
             }
         }
         // default to "[post]" HTTP method if specified methods are not valid
