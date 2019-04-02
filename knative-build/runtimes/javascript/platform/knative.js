@@ -21,21 +21,26 @@ var DEBUG = new dbg();
 const OW_ENV_PREFIX = "__OW_";
 
 /**
- * Determines if there is initialization data in the request
+ * Determine if runtime is a "stem" cell, i.e., can be initialized with request init. data
+ * @param env
+ * @returns {boolean}
  */
 function isStemCell(env) {
-    var envCode = env.__OW_ACTION_CODE;
-    if (typeof envCode !== 'undefined' && envCode.length > 0 ) {
+    let actionCode = env.__OW_ACTION_CODE;
+    // It is a stem cell if valid code is "built into" the runtime's process environment.
+    if (typeof actionCode === 'undefined' || actionCode.length === 0) {
        return true;
     }
     return false;
 }
 
 /**
- *
+ * Determine if the request (body) contains valid activation data.
+ * @param req
+ * @returns {boolean}
  */
-function isValidActivation(req) {
-
+function hasActivationData(req) {
+    // it is a valid activation if the body contains an activation and value keys with data.
     if (typeof req.body !== "undefined" &&
         typeof req.body.activation !== "undefined" &&
         typeof req.body.value !== "undefined") {
@@ -44,8 +49,13 @@ function isValidActivation(req) {
     return false;
 }
 
-function isValidInit(req) {
-
+/**
+ * Determine if the request (body) contains valid init data.
+ * @param req
+ * @returns {boolean}
+ */
+function hasInitData(req) {
+    // it is a valid init. if the body contains an init key with data.
     if (typeof req.body !== "undefined" &&
         typeof req.body.init !== "undefined") {
         return true;
