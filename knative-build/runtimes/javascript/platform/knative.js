@@ -21,6 +21,27 @@ var DEBUG = new dbg();
 const OW_ENV_PREFIX = "__OW_";
 
 /**
+ * Determines if there is initialization data in the request
+ */
+function isStemCell(req) {
+
+}
+
+/**
+ *
+ */
+function hasValueDataInRequest(req) {
+
+}
+
+/**
+ *
+ */
+function hasActivationDataInRequest(req) {
+
+}
+
+/**
  * Pre-process the incoming
  */
 function preProcessInitData(env, initdata, valuedata, activationdata) {
@@ -53,13 +74,19 @@ function preProcessInitData(env, initdata, valuedata, activationdata) {
             if (initdata.code && typeof initdata.code === 'string') {
                 code = initdata.code;
             }
-            if (initdata.binary && typeof initdata.binary === 'boolean') {
-                // TODO: Throw error if BINARY is not 'true' or 'false'
-                binary = initdata.binary;
+            if (initdata.binary) {
+                if (typeof initdata.binary === 'boolean') {
+                    binary = initdata.binary;
+                } else {
+                    throw ("Invalid Init. data; expected boolean for key 'binary'.");
+                }
             }
-            if (initdata.raw && typeof initdata.raw === 'boolean') {
-                // TODO: Throw error if RAW is not 'true' or 'false'
-                raw = initdata.raw;
+            if (initdata.raw ) {
+                if (typeof initdata.raw === 'boolean') {
+                    raw = initdata.raw;
+                } else {
+                    throw ("Invalid Init. data; expected boolean for key 'raw'.");
+                }
             }
         }
 
@@ -80,7 +107,6 @@ function preProcessInitData(env, initdata, valuedata, activationdata) {
                 activationdata.action_name = actionName;
             }
         }
-
         DEBUG.dumpObject(valuedata.main, "valuedata.main");
         DEBUG.dumpObject(valuedata.code , "valuedata.code");
         DEBUG.dumpObject(valuedata.binary, "valuedata.binary");
@@ -166,7 +192,7 @@ function preProcessHTTPContext(req, valueData) {
  */
 function preProcessRequest(req){
     DEBUG.functionStart();
-    try{
+    try {
         // Get or create valid references to the various data we might encounter
         // in a request such as Init., Activation and function parameter data.
         let body = req.body || {};
@@ -259,13 +285,10 @@ function PlatformKnativeImpl(platformFactory) {
     this.run = function(req, res) {
 
         try {
-
-            DEBUG.dumpObject(service.initialized(),"service.initialized()");
-
             // Process request and process env. variables to provide them in the manner
             // an OpenWhisk Action expects them, as well as enable additional Http features.
             preProcessRequest(req);
-
+            DEBUG.dumpObject(service.initialized(),"service.initialized()");
             service.initCode(req).then(function () {
                 service.runCode(req).then(function (result) {
                     postProcessResponse(result, res)

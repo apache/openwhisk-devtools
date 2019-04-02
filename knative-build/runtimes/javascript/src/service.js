@@ -69,7 +69,7 @@ function NodeActionService(cfg) {
      * @returns {boolean}
      */
     this.initialized = function isIntialized(){
-        if( userCodeRunner === undefined ){
+        if (userCodeRunner === undefined){
             return false;
         }
         return true;
