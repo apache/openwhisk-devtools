@@ -26,6 +26,8 @@ WSK_CONFIG_FILE=$(CURDIR)/.wskprops
 OPEN_WHISK_DB_PREFIX ?= local_
 
 DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
+DOCKER_COMPOSE_FILE=docker-compose.yml
+
 ifeq ("$(UNAME_STR)","Linux")
 	DOCKER_BINARY ?= $(shell (which docker))
 else
@@ -40,6 +42,9 @@ endif
 #   2. then it starts all components using docker-compose
 #   3. it runs a sample hello-world function
 #   To stop and cleanup the environment use: make destroy
+
+lean:	DOCKER_COMPOSE_FILE=docker-compose-lean.yml
+lean:	download-src download-cli docker-pull-lean run hello-world quick-start-info
 
 quick-start: download-src download-cli docker-pull run quick-start-pause hello-world quick-start-info
 
@@ -104,13 +109,16 @@ docker-build:
 	cd $(OPENWHISK_PROJECT_HOME) && \
 		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX)
 
-.PHONY: docker-pull
-docker-pull:
-	echo "pulling the docker images short list... "
+.PHONY: docker-pull-lean
+docker-pull-lean:
 	docker pull $(DOCKER_IMAGE_PREFIX)/controller
-	docker pull $(DOCKER_IMAGE_PREFIX)/invoker
 	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action
 	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton
+
+.PHONY: docker-pull
+docker-pull:	docker-pull-lean
+	echo "pulling the docker images short list... "
+	docker pull $(DOCKER_IMAGE_PREFIX)/invoker
 
 .PHONY: docker-pull-full
 docker-pull-full:
@@ -213,6 +221,8 @@ setup:
 	mkdir -p ~/tmp/openwhisk/minio
 	cp -r ./apigateway/* ~/tmp/openwhisk/api-gateway-config/api-gateway/
 	cp -r ./apigateway/rclone ~/tmp/openwhisk
+       
+ 
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up minio 2>&1 > ~/tmp/openwhisk/setup.log &
 	echo "pinging minio..."
 	until (curl --silent http://$(DOCKER_HOST_IP):9001/ > /dev/null); do printf '.'; sleep 5; done
@@ -259,7 +269,7 @@ restart-invoker:
 
 .PHONY: start-docker-compose
 start-docker-compose:
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up --abort-on-container-exit 2>&1 > ~/tmp/openwhisk/docker-compose.log &
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk -f $(DOCKER_COMPOSE_FILE) up --abort-on-container-exit 2>&1 > ~/tmp/openwhisk/docker-compose.log &
 
 .PHONY: wait-for-docker-compose-up
 wait-for-docker-compose-up:
@@ -268,7 +278,7 @@ wait-for-docker-compose-up:
 	@trycount=0; \
 	trycounttimeout=30; \
 	up=`$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk ps | grep Up -c`; \
-	servicescount=`$(shell cat ~/tmp/openwhisk/local.env) docker-compose config --services | wc -l | xargs`; \
+	servicescount=`$(shell cat ~/tmp/openwhisk/local.env) docker-compose -f $(DOCKER_COMPOSE_FILE) config --services | wc -l | xargs`; \
 	docker_ps() { \
 		docker ps --format 'table {{.Image}}\t{{.Status}}' --filter "label=com.docker.compose.project=openwhisk" -a; \
 	}; \
@@ -352,7 +362,7 @@ init-catalog:
 .PHONY: destroy
 destroy: stop rm
 	echo "cleaning other OpenWhisk containers started by the invoker ... "
-	docker ps | grep whisk | awk '{print $$1}' | xargs docker stop | xargs docker rm
+	-docker ps | grep whisk | awk '{print $$1}' | xargs docker stop | xargs docker rm
 	echo "cleaning dangling docker volumes ... "
 	docker volume ls -qf dangling=true | xargs docker volume rm
 	if [ "$(UNAME_STR)" = "Linux" ]; then \
