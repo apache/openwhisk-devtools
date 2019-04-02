@@ -23,22 +23,34 @@ const OW_ENV_PREFIX = "__OW_";
 /**
  * Determines if there is initialization data in the request
  */
-function isStemCell(req) {
-
+function isStemCell(env) {
+    var envCode = env.__OW_ACTION_CODE;
+    if (typeof envCode !== 'undefined' && envCode.length > 0 ) {
+       return true;
+    }
+    return false;
 }
 
 /**
  *
  */
-function hasValueDataInRequest(req) {
+function isValidActivation(req) {
 
+    if (typeof req.body !== "undefined" &&
+        typeof req.body.activation !== "undefined" &&
+        typeof req.body.value !== "undefined") {
+        return true;
+    }
+    return false;
 }
 
-/**
- *
- */
-function hasActivationDataInRequest(req) {
+function isValidInit(req) {
 
+    if (typeof req.body !== "undefined" &&
+        typeof req.body.init !== "undefined") {
+        return true;
+    }
+    return false;
 }
 
 /**
