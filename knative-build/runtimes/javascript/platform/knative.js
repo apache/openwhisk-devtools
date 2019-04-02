@@ -22,6 +22,86 @@ const OW_ENV_PREFIX = "__OW_";
 const CONTENT_TYPE = "Content-Type";
 
 /**
+ * Determine if runtime is a "stem" cell, i.e., can be initialized with request init. data
+ * @param env
+ * @returns {boolean}
+ */
+function isStemCell(env) {
+    let actionCode = env.__OW_ACTION_CODE;
+    // It is a stem cell if valid code is "built into" the runtime's process environment.
+    return (typeof actionCode === 'undefined' || actionCode.length === 0);
+}
+
+/**
+ * Determine if the request (body) contains valid activation data.
+ * @param req
+ * @returns {boolean}
+ */
+function hasActivationData(req) {
+    // it is a valid activation if the body contains an activation and value keys with data.
+    if (typeof req.body !== "undefined" &&
+        typeof req.body.activation !== "undefined" &&
+        typeof req.body.value !== "undefined") {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Determine if the request (body) contains valid init data.
+ * @param req
+ * @returns {boolean}
+ */
+function hasInitData(req) {
+    // it is a valid init. if the body contains an init key with data.
+    if (typeof req.body !== "undefined" &&
+        typeof req.body.init !== "undefined") {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Determine if runtime is a "stem" cell, i.e., can be initialized with request init. data
+ * @param env
+ * @returns {boolean}
+ */
+function isStemCell(env) {
+    let actionCode = env.__OW_ACTION_CODE;
+    // It is a stem cell if valid code is "built into" the runtime's process environment.
+    return (typeof actionCode === 'undefined' || actionCode.length === 0);
+}
+
+/**
+ * Determine if the request (body) contains valid activation data.
+ * @param req
+ * @returns {boolean}
+ */
+function hasActivationData(req) {
+    // it is a valid activation if the body contains an activation and value keys with data.
+    if (typeof req.body !== "undefined" &&
+        typeof req.body.activation !== "undefined" &&
+        typeof req.body.value !== "undefined") {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Determine if the request (body) contains valid init data.
+ * @param req
+ * @returns {boolean}
+ */
+function hasInitData(req) {
+    // it is a valid init. if the body contains an init key with data.
+    if (typeof req.body !== "undefined" &&
+        typeof req.body.init !== "undefined") {
+        return true;
+    }
+    return false;
+}
+
+/**
  * Pre-process the incoming
  */
 function preProcessInitData(env, initdata, valuedata, activationdata) {
@@ -54,13 +134,19 @@ function preProcessInitData(env, initdata, valuedata, activationdata) {
             if (initdata.code && typeof initdata.code === 'string') {
                 code = initdata.code;
             }
-            if (initdata.binary && typeof initdata.binary === 'boolean') {
-                // TODO: Throw error if BINARY is not 'true' or 'false'
-                binary = initdata.binary;
+            if (initdata.binary) {
+                if (typeof initdata.binary === 'boolean') {
+                    binary = initdata.binary;
+                } else {
+                    throw ("Invalid Init. data; expected boolean for key 'binary'.");
+                }
             }
-            if (initdata.raw && typeof initdata.raw === 'boolean') {
-                // TODO: Throw error if RAW is not 'true' or 'false'
-                raw = initdata.raw;
+            if (initdata.raw ) {
+                if (typeof initdata.raw === 'boolean') {
+                    raw = initdata.raw;
+                } else {
+                    throw ("Invalid Init. data; expected boolean for key 'raw'.");
+                }
             }
         }
 
@@ -81,7 +167,6 @@ function preProcessInitData(env, initdata, valuedata, activationdata) {
                 activationdata.action_name = actionName;
             }
         }
-
         DEBUG.dumpObject(valuedata.main, "valuedata.main");
         DEBUG.dumpObject(valuedata.code , "valuedata.code");
         DEBUG.dumpObject(valuedata.binary, "valuedata.binary");
@@ -167,7 +252,7 @@ function preProcessHTTPContext(req, valueData) {
  */
 function preProcessRequest(req){
     DEBUG.functionStart();
-    try{
+    try {
         // Get or create valid references to the various data we might encounter
         // in a request such as Init., Activation and function parameter data.
         let body = req.body || {};
@@ -296,7 +381,6 @@ function postProcessResponse(req, result, res) {
     DEBUG.functionEnd();
 }
 
-
 function PlatformKnativeImpl(platformFactory) {
     DEBUG.functionStart();
     DEBUG.dumpObject(platformFactory, "platformFactory" );
@@ -318,12 +402,15 @@ function PlatformKnativeImpl(platformFactory) {
     this.run = function(req, res) {
 
         try {
-
             DEBUG.dumpObject(service.initialized(),"service.initialized()");
 
             // Process request and process env. variables to provide them in the manner
             // an OpenWhisk Action expects them, as well as enable additional Http features.
             preProcessRequest(req);
+
+            // Do not process requests with init. data if this is not a "stem" cell
+            if (hasInitData(req) && !isStemCell(process.env))
+                throw ("Cannot initialize a runtime with a dedicated function.");
 
             service.initCode(req).then(function () {
                 service.runCode(req).then(function (result) {

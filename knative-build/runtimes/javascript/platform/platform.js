@@ -84,7 +84,7 @@ module.exports = class PlatformFactory {
      * validate if a platform ID is a known, supported value
      * @param id Platform Id
      */
-    static isSupportedPlatform(id){
+    static isSupportedPlatform(id) {
         if (SUPPORTED_PLATFORMS.indexOf(id) > -1) {
             return true;
         }
@@ -96,8 +96,7 @@ module.exports = class PlatformFactory {
      * @param id Platform ID
      * @returns {PlatformImpl} Platform instance (interface), as best can be done with NodeJS
      */
-    // TODO remove "app" parameter once we have a valid openwhisk platformImpl.
-    createPlatformImpl(id){
+    createPlatformImpl(id) {
         DEBUG.functionStart();
         DEBUG.dumpObject(id,"id");
         // Load the appropriate implementation module and return reference to it
