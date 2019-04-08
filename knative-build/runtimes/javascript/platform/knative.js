@@ -433,7 +433,8 @@ function PlatformKnativeImpl(platformFactory) {
                 // an OpenWhisk Action expects them, as well as enable additional Http features.
                 preProcessRequest(req);
 
-                service.initCode(req).then(function () {
+                service.initCode(req).then(function (result) {
+                    res.status(result.code).send(result.response);
                 }).catch(function (error) {
                     console.error(error);
                     if (typeof error.code === "number" && typeof error.response !== "undefined") {
