@@ -61,44 +61,21 @@ function hasInitData(req) {
     return false;
 }
 
-/**
- * Determine if runtime is a "stem" cell, i.e., can be initialized with request init. data
- * @param env
- * @returns {boolean}
- */
-function isStemCell(env) {
-    let actionCode = env.__OW_ACTION_CODE;
-    // It is a stem cell if valid code is "built into" the runtime's process environment.
-    return (typeof actionCode === 'undefined' || actionCode.length === 0);
-}
 
 /**
- * Determine if the request (body) contains valid activation data.
- * @param req
- * @returns {boolean}
+ * Remove all INIT data from the value data that will be passed to the user function.
+ * @param body
  */
-function hasActivationData(req) {
-    // it is a valid activation if the body contains an activation and value keys with data.
-    if (typeof req.body !== "undefined" &&
-        typeof req.body.activation !== "undefined" &&
-        typeof req.body.value !== "undefined") {
-        return true;
-    }
-    return false;
-}
+function removeInitData(body) {
 
-/**
- * Determine if the request (body) contains valid init data.
- * @param req
- * @returns {boolean}
- */
-function hasInitData(req) {
-    // it is a valid init. if the body contains an init key with data.
-    if (typeof req.body !== "undefined" &&
-        typeof req.body.init !== "undefined") {
-        return true;
+    DEBUG.dumpObject(body,"body");
+    if (typeof body !== "undefined" &&
+        typeof body.value !== "undefined") {
+        delete body.value.code;
+        delete body.value.main;
+        delete body.value.binary;
+        delete body.value.raw;
     }
-    return false;
 }
 
 /**
@@ -439,8 +416,8 @@ function PlatformKnativeImpl(platformFactory) {
                 preProcessRequest(req);
 
                 service.initCode(req).then(function () {
-                    // TODO: adter init() we should delete any INIT data (e.g., code, raw, etc.)
-                    // from the 'value' data before calling run().
+                    // delete any INIT data (e.g., code, raw, etc.) from the 'value' data before calling run().
+                    removeInitData(req.body);
                     service.runCode(req).then(function (result) {
                         postProcessResponse(req, result, res)
                     });
