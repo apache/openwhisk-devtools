@@ -207,23 +207,46 @@ function preProcessActivationData(env, activationdata) {
 }
 
 /**
- * Pre-process HTTP request details, send them as parameters to the action input argument
- * __ow_method, __ow_headers, __ow_path, __ow_user, __ow_body, and __ow_query
+ * Pre-process HTTP request information and make it available as parameter data to the action function
+ * by moving it to where the route handlers expect it to be (i.e., in the JSON value data map).
+ *
+ * See: https://github.com/apache/incubator-openwhisk/blob/master/docs/webactions.md#http-context
+ *
+ * HTTP Context
+ * ============
+ * All web actions, when invoked, receives additional HTTP request details as parameters to the action
+ * input argument. These include:
+ *
+ * __ow_method (type: string): the HTTP method of the request.
+ * __ow_headers (type: map string to string): the request headers.
+ * __ow_path (type: string): the unmatched path of the request (matching stops after consuming the action extension).
+ * __ow_user (type: string): the namespace identifying the OpenWhisk authenticated subject.
+ * __ow_body (type: string): the request body entity, as a base64 encoded string when content is
+ *      binary or JSON object/array, or plain string otherwise.
+ * __ow_query (type: string): the query parameters from the request as an unparsed string.
+ *
+ * TODO:
+ * A request may not override any of the named __ow_ parameters above; doing so will result in a
+ * failed request with status equal to 400 Bad Request.
  */
 function preProcessHTTPContext(req, valueData) {
     DEBUG.functionStart();
     try {
         if (valueData.raw) {
+            // __ow_body is a base64 encoded string when content is binary or JSON object/array,
+            // or plain string otherwise.
             if (typeof req.body.value === "string" && req.body.value !== undefined) {
                 valueData.__ow_body = req.body.value;
             } else {
-                const body = Object.assign({}, req.body.value);
+                // make value data available as __ow_body
+                const tmpBody = Object.assign({}, req.body.value);
                 // delete main, binary, raw, and code from the body before sending it as an action argument
-                delete body.main;
-                delete body.code;
-                delete body.binary;
-                delete body.raw;
-                var bodyStr = JSON.stringify(body);
+                delete tmpBody.main;
+                delete tmpBody.code;
+                delete tmpBody.binary;
+                delete tmpBody.raw;
+                var bodyStr = JSON.stringify(tmpBody);
+                // note: we produce an empty map if there are no query parms/
                 valueData.__ow_body = Buffer.from(bodyStr).toString("base64");;
             }
             valueData.__ow_query = req.query;
@@ -261,16 +284,17 @@ function preProcessRequest(req){
         let activationData = body.activation || {};
         let env = process.env || {};
 
-        // process initialization (i.e., "init") data
-        preProcessInitData(env, initData, valueData, activationData);
-
-        preProcessHTTPContext(req, valueData);
-
         // Fix up pointers in case we had to allocate new maps
         req.body = body;
         req.body.value = valueData;
         req.body.init = initData;
         req.body.activation = activationData;
+
+        // process initialization (i.e., "init") data
+        preProcessInitData(env, initData, valueData, activationData);
+
+        // process HTTP request header and body to make it available to function as parameter data
+        preProcessHTTPContext(req, valueData);
 
         // process per-activation (i.e, "run") data
         preProcessActivationData(env, activationData);
@@ -415,6 +439,8 @@ function PlatformKnativeImpl(platformFactory) {
                 preProcessRequest(req);
 
                 service.initCode(req).then(function () {
+                    // TODO: adter init() we should delete any INIT data (e.g., code, raw, etc.)
+                    // from the 'value' data before calling run().
                     service.runCode(req).then(function (result) {
                         postProcessResponse(req, result, res)
                     });
