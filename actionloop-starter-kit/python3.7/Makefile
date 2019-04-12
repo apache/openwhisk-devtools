@@ -1,6 +1,6 @@
 IMG=actionloop-demo-python-v3.7:latest
 INVOKE=python ../tools/invoke.py
-PREFIX=docker.io/actionloop
+PREFIX=docker.io/openwhisk
 
 build:
 	docker build -t $(IMG) .
@@ -14,10 +14,10 @@ clean:
 	docker rmi -f $(IMG)
 
 start: build
-	docker run -p 8080:8080 -ti -v $(PWD):/proxy $(IMG) 
+	docker run -p 8080:8080 -ti -v $(PWD):/proxy $(IMG)
 
 debug: build
-	docker run -p 8080:8080 -ti --entrypoint=/bin/sh -v $(PWD):/proxy $(IMG) 
+	docker run -p 8080:8080 -ti --entrypoint=/bin/sh -v $(PWD):/proxy $(IMG)
 
 .PHONY: build push clean start debug
 
@@ -33,7 +33,7 @@ test-src-zip:
 	$(INVOKE) run '{}'
 	$(INVOKE) run '{"name":"Mike"}'
 
-test-bin-dir:
+test-bin-zip:
 	$(MAKE) -C ../example bin.zip
 	$(INVOKE) init ../example/bin.zip
 	$(INVOKE) run '{}'

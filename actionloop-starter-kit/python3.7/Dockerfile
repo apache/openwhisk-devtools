@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM actionloop/actionloop-v2:latest as builder
+FROM openwhisk/actionloop-v2:latest as builder
 FROM python:3.7-alpine
 RUN mkdir -p /proxy/bin /proxy/lib /proxy/action
 WORKDIR /proxy
