@@ -1,6 +1,5 @@
 package runtime.actionContainers
 
-
 import actionContainers.ActionContainer.withContainer
 import actionContainers.{ActionContainer, ActionProxyContainerTestUtils}
 import common.WskActorSystem
@@ -18,7 +17,7 @@ class SingleTest extends ActionProxyContainerTestUtils with WskActorSystem {
 
   behavior of imageName
 
-  val code = 
+  val code =
     """|import sys
        |def main(args):
        |   print("hello stdout", file=sys.stdout)
@@ -26,9 +25,8 @@ class SingleTest extends ActionProxyContainerTestUtils with WskActorSystem {
        |   return args
        |""".stripMargin
 
-
   val data = JsonParser("""{"name":"Mike"}""")
- 
+
   it should "return an echo of the input" in {
     val (out, err) = withActionContainer() { c =>
       val (initCode, _) = c.init(initPayload(code))
