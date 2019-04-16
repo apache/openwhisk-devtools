@@ -1,0 +1,9 @@
+{
+    "init": {
+        "name" : "nodejs-web-action-raw",
+        "main" : "main",
+        "binary": false,
+        "code" : "function main(params) { return { response: params }; }",
+        "raw": true
+    }
+}
