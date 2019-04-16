@@ -1,0 +1,14 @@
+POST http://localhost:8080/ HTTP/1.1
+content-type: application/json
+
+{
+  "init": {
+    "name" : "nodejs-web-action-raw",
+    "main" : "main",
+    "binary": false,
+    "code" : "function main(params) { return { response: params }; }",
+    "raw": true
+  }
+}
+
+###

@@ -1,0 +1,18 @@
+POST http://localhost:8080/ HTTP/1.1
+content-type: application/json
+
+{
+  "activation": {
+    "namespace": "default",
+    "action_name": "nodejs-web-action-raw",
+    "api_host": "",
+    "api_key": "",
+    "activation_id": "",
+    "deadline": "4102498800000"
+  },
+  "value": {
+    "name": "Joe"
+  }
+}
+
+###
