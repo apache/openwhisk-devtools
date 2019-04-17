@@ -62,6 +62,15 @@ function NodeActionService(config) {
     }
 
     /**
+     * Indicates if we have been initialized which is determined by if we have
+     * created a NodeActionRunner.
+     * @returns {boolean}
+     */
+    this.initialized = function isInitialized(){
+        return (typeof userCodeRunner !== "undefined");
+    };
+
+    /**
      * Starts the server.
      *
      * @param app express app
@@ -196,7 +205,7 @@ function NodeActionService(config) {
         var msg = req && req.body || {};
         DEBUG.dumpObject(msg,"msg");
         DEBUG.trace("Adding process environment variables:");
-        // Move per-activation keys to process env. vars with __OW_ (reserved) prefix)
+        // Move per-activation keys to process env. vars with __OW_ (reserved) prefix
         Object.keys(msg).forEach(
             function (k) {
                 if(typeof msg[k] === 'string' && k !== 'value'){
