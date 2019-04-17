@@ -20,7 +20,7 @@ var DEBUG = new dbg();
 
 function PlatformOpenWhiskImpl(platformFactory) {
     DEBUG.functionStart();
-    DEBUG.dumpObject(platformFactory, "platformFactory");
+    DEBUG.dumpObject(platformFactory, 'platformFactory');
     // Provide access to common runtime services
     var service = platformFactory.service;
 
