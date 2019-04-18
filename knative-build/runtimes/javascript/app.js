@@ -54,12 +54,12 @@ const targetPlatform = process.env.__OW_RUNTIME_PLATFORM;
 
 // default to "openwhisk" platform initialization if not defined
 // TODO export isvalid() from platform, if undefined this is OK to default, but if not valid value then error out
-if(typeof targetPlatform === "undefined") {
+if (typeof targetPlatform === "undefined") {
     targetPlatform = platformFactory.PLATFORM_OPENWHISK;
     // console.log("__OW_RUNTIME_PLATFORM is undefined; defaulting to 'openwhisk' ...");
 }
 
-if(!platformFactory.isSupportedPlatform(targetPlatform)){
+if (!platformFactory.isSupportedPlatform(targetPlatform)) {
     console.error("__OW_RUNTIME_PLATFORM ("+targetPlatform+") is not supported by the runtime.");
     process.exit(9);
 }
@@ -72,7 +72,7 @@ if(!platformFactory.isSupportedPlatform(targetPlatform)){
 
 const platformImpl = factory.createPlatformImpl(targetPlatform);
 
-if(typeof platformImpl !== "undefined"){
+if (typeof platformImpl !== "undefined") {
 
     platformImpl.registerHandlers(app, platformImpl);
 

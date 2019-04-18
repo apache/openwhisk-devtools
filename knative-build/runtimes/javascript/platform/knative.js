@@ -138,9 +138,9 @@ function preProcessInitData(env, initdata, valuedata, activationdata) {
         // param. data (as they both appear within "body.value") so we must save it to its final location
         // as the default Action name as part of the activation data
         // NOTE: if action name is not present in the action data, we will set it regardless even if an empty string
-        if( typeof(activationdata) !== "undefined" ) {
-            if ( typeof(activationdata.action_name) === "undefined" ||
-                (typeof(activationdata.action_name) === "string" && activationdata.action_name.length == 0 )){
+        if (typeof(activationdata) !== "undefined" ) {
+            if (typeof(activationdata.action_name) === "undefined" ||
+                (typeof(activationdata.action_name) === "string" && activationdata.action_name.length == 0)){
                 activationdata.action_name = actionName;
             }
         }
