@@ -67,20 +67,22 @@ spec:
     args:
     - -c
     - |
-      if [ ${OW_PROJECT_URL} = '' ]; then
+      if [ -z ${OW_PROJECT_URL} ]; then
         echo "ACTION CODE"
+        OW_ACTION_CODE="${OW_ACTION_CODE}"
       else
         TEMPDIR="knative-"$((1 + RANDOM % 100))
         TEMPFILE=$TEMPDIR".js"
         mkdir $TEMPDIR
         cd $TEMPDIR
-        echo ${OW_PROJECT_URL}
-        wget -O $TEMPFILE ${OW_PROJECT_URL}
+        echo "${OW_PROJECT_URL}"
+        wget -O $TEMPFILE "${OW_PROJECT_URL}"
         OW_ACTION_CODE=`cat $TEMPFILE`
         echo "OW_ACTION_CODE"
         echo $OW_ACTION_CODE
-        echo ${OW_ACTION_CODE}
+        echo "${OW_ACTION_CODE}"
         cd ..
+        echo "ACTION URL"
       fi
       cat <<EOF >> ${DOCKERFILE}
         ENV __OW_RUNTIME_DEBUG "${OW_RUNTIME_DEBUG}"
