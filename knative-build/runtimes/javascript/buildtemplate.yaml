@@ -41,25 +41,6 @@ spec:
     description: Location to local/remote file storage or public/private GitHub repo from where JavaScript source code needs to be evaluated
     default: ""
   steps:
-#  - name: bring-local-or-remote-source
-#    image: "gcr.io/kaniko-project/executor:debug"
-#    command:
-#    - /busybox/sh
-#    args:
-#    - -c
-#    - |
-#      if [ ! -z ${OW_PROJECT_URL} ]
-#      then
-#        TEMPDIR="knative-"$((1 + RANDOM % 100))
-#        TEMPFILE=$TEMPDIR".js"
-#        mkdir $TEMPDIR
-#        cd $TEMPDIR
-#        echo ${OW_PROJECT_URL}
-#        wget -O $TEMPFILE ${OW_PROJECT_URL}
-#        OW_ACTION_CODE=`cat $TEMPFILE`
-#        echo "OW_ACTION_CODE"
-#        echo $OW_ACTION_CODE
-#      fi
   - name: add-ow-env-to-dockerfile
     image: "gcr.io/kaniko-project/executor:debug"
     command:
@@ -68,21 +49,15 @@ spec:
     - -c
     - |
       if [ -z ${OW_PROJECT_URL} ]; then
-        echo "ACTION CODE"
         OW_ACTION_CODE="${OW_ACTION_CODE}"
       else
         TEMPDIR="knative-"$((1 + RANDOM % 100))
-        TEMPFILE=$TEMPDIR".js"
+        TEMPFILE=`basename "${OW_PROJECT_URL}"`
         mkdir $TEMPDIR
         cd $TEMPDIR
-        echo "${OW_PROJECT_URL}"
         wget -O $TEMPFILE "${OW_PROJECT_URL}"
         OW_ACTION_CODE=`cat $TEMPFILE`
-        echo "OW_ACTION_CODE"
-        echo $OW_ACTION_CODE
-        echo "${OW_ACTION_CODE}"
         cd ..
-        echo "ACTION URL"
       fi
       cat <<EOF >> ${DOCKERFILE}
         ENV __OW_RUNTIME_DEBUG "${OW_RUNTIME_DEBUG}"
