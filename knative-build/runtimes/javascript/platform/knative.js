@@ -415,6 +415,7 @@ function PlatformKnativeImpl(platformFactory) {
                 throw ("Cannot initialize a runtime with a dedicated function.");
 
             if(hasInitData(req) && hasActivationData(req)){
+                console.log("I am inside hasInitData && hasAcitvationData")
 
                 // Process request and process env. variables to provide them in the manner
                 // an OpenWhisk Action expects them, as well as enable additional Http features.
@@ -438,6 +439,7 @@ function PlatformKnativeImpl(platformFactory) {
                 });
             } else if(hasInitData(req)){
 
+                console.log("I am inside hasInitData")
                 // Process request and process env. variables to provide them in the manner
                 // an OpenWhisk Action expects them, as well as enable additional Http features.
                 preProcessRequest(req);
@@ -454,6 +456,7 @@ function PlatformKnativeImpl(platformFactory) {
                     }
                 });
             } else if(hasActivationData(req)){
+                console.log("I am inside hasActivationData")
                 // Process request and process env. variables to provide them in the manner
                 // an OpenWhisk Action expects them, as well as enable additional Http features.
                 preProcessRequest(req);
@@ -470,7 +473,7 @@ function PlatformKnativeImpl(platformFactory) {
                     }
                 });
             }
-
+            console.log("I am at the end of the execution")
         } catch (e) {
             res.status(500).json({error: "internal error during request processing."})
         }
