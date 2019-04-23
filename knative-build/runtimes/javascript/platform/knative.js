@@ -454,7 +454,6 @@ function PlatformKnativeImpl(platformFactory) {
                     }
                 });
             } else if(hasActivationData(req)){
-
                 // Process request and process env. variables to provide them in the manner
                 // an OpenWhisk Action expects them, as well as enable additional Http features.
                 preProcessRequest(req);
