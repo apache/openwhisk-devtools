@@ -169,7 +169,7 @@ metadata:
 We will use the simple "helloworld" test case to demonstrate how to use Knative to Build your function into container image and then deploy it as a Service.
 
 The testcase resides within this repo. at:
-- [/runtimes/javascript/tests/helloworld/](/runtimes/javascript/tests/helloworld/)
+- [tests/helloworld/](tests/helloworld/)
 
 For a complete listing of testcases, please view the [README](tests/README.md) in the tests subdirectory.
 
