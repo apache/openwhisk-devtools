@@ -186,8 +186,11 @@ To do this,
 If you wish to run repeated tests you MAY set an environment variable and use ```sed``` to replace the ```${DOCKER_USERNAME}``` within any of the test's Kubernetes Build YAML files as follows:
 
 ```
-export DOCKER_USERNAME="myusername"
-sed 's/${DOCKER_USERNAME}/'"$DOCKER_USERNAME"'/' build.yaml.tmpl > build.yaml
+# If you have not already exported your Dockerhub username, use the following command:
+export DOCKERHUB_USERNAME_PLAIN_TEXT="myusername"
+
+# Generate the build file from the template using your Dockerhub username set in the environment
+sed 's/${DOCKER_USERNAME}/'"$DOCKERHUB_USERNAME_PLAIN_TEXT"'/' build.yaml.tmpl > build.yaml
 ```
 
 <details>
@@ -225,7 +228,12 @@ spec:
 kubectl apply -f build.yaml
 ```
 
-This creates a pod with a NodeJS runtime and all the action metadata (action code, main function name, etc) integrated into the container image. If for any reason there is a failure creating the pod, we can troubleshoot the deployment with:
+This creates a pod with a NodeJS runtime and all the action metadata (action code, main function name, etc) integrated into the container image.
+
+
+#### Troubleshootinh the build
+
+If for any reason there is a failure creating the pod, we can troubleshoot the deployment with:
 
 #### `kubectl get pods`
 
@@ -280,8 +288,8 @@ To do this,
 As described for 'build.yaml.tmpl', you MAY set an environment variable and use ```sed``` to replace the ```${DOCKER_USERNAME}``` within any of the test's Kubernetes Build YAML files as follows:
 
 ```
-export DOCKER_USERNAME="myusername"
-sed 's/${DOCKER_USERNAME}/'"$DOCKER_USERNAME"'/' service.yaml.tmpl > service.yaml
+export DOCKERHUB_USERNAME_PLAIN_TEXT="myusername"
+sed 's/${DOCKER_USERNAME}/'"$DOCKERHUB_USERNAME_PLAIN_TEXT"'/' service.yaml.tmpl > service.yaml
 ```
 
 <details>
