@@ -221,7 +221,7 @@ openwhisk-runtime-builder   2         3m46s
 ## Building Knative runtimes and executing functions
 
 At this point, you have completed all the pre-reqs to build and run OpenWhisk runtimes on Knative.  In order to actually build and run them, you will need to continue following the instructions on the READMEs for the respective language runtimes listed below:
-- [NodeJS Runtime](./runtimes/javascript/README.md)
+- [NodeJS Runtime](./runtimes/javascript/#OpenWhisk-NodeJS-Runtime-for-Knative)
 
 ---
 
