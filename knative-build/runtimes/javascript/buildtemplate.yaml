@@ -37,6 +37,9 @@ spec:
   - name: OW_ACTION_RAW
     description: flag to indicate raw HTTP handling, interpret and process an incoming HTTP body directly
     default: "false"
+  - name: OW_PROJECT_URL
+    description: Location to local/remote file storage or public/private GitHub repo from where JavaScript source code needs to be evaluated
+    default: ""
   steps:
   - name: add-ow-env-to-dockerfile
     image: "gcr.io/kaniko-project/executor:debug"
@@ -45,11 +48,22 @@ spec:
     args:
     - -c
     - |
+      if [ -z ${OW_PROJECT_URL} ]; then
+        OW_ACTION_CODE="${OW_ACTION_CODE}"
+      else
+        TEMPDIR="knative-"$((1 + RANDOM % 100))
+        TEMPFILE=`basename "${OW_PROJECT_URL}"`
+        mkdir $TEMPDIR
+        cd $TEMPDIR
+        wget -O $TEMPFILE "${OW_PROJECT_URL}"
+        OW_ACTION_CODE=`cat $TEMPFILE`
+        cd ..
+      fi
       cat <<EOF >> ${DOCKERFILE}
         ENV __OW_RUNTIME_DEBUG "${OW_RUNTIME_DEBUG}"
         ENV __OW_RUNTIME_PLATFORM "${OW_RUNTIME_PLATFORM}"
         ENV __OW_ACTION_NAME "${OW_ACTION_NAME}"
-        ENV __OW_ACTION_CODE "${OW_ACTION_CODE}"
+        ENV __OW_ACTION_CODE "$OW_ACTION_CODE"
         ENV __OW_ACTION_MAIN "${OW_ACTION_MAIN}"
         ENV __OW_ACTION_BINARY "${OW_ACTION_BINARY}"
         ENV __OW_HTTP_METHODS "${OW_HTTP_METHODS}"
