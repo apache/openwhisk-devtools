@@ -27,8 +27,7 @@ class ActionLoopPythonBasicTests extends BasicActionRunnerTests with WskActorSys
 
   val image = "actionloop-demo-python-v3.7"
 
-  override def withActionContainer(env: Map[String, String] = Map.empty)(
-    code: ActionContainer => Unit) = {
+  override def withActionContainer(env: Map[String, String] = Map.empty)(code: ActionContainer => Unit) = {
     withContainer(image, env)(code)
   }
 
@@ -39,31 +38,27 @@ class ActionLoopPythonBasicTests extends BasicActionRunnerTests with WskActorSys
 
   override val testNoSourceOrExec = TestConfig("")
 
-
   override val testNotReturningJson =
     TestConfig("""
                  |def main(args):
                  |    return "not a json object"
                """.stripMargin)
 
-  override val testEcho = TestConfig(
-    """|import sys
+  override val testEcho = TestConfig("""|import sys
        |def main(args):
        |   print("hello stdout", file=sys.stdout)
        |   print("hello stderr", file=sys.stderr)
        |   return args
     """.stripMargin)
 
-  override val testUnicode = TestConfig(
-    """|def main(args):
+  override val testUnicode = TestConfig("""|def main(args):
        |  delimiter = args['delimiter']
        |  msg = u"%s ☃ %s" % (delimiter, delimiter)
        |  print(msg)
        |  return { "winter": msg }
     """.stripMargin)
 
-  override val testEnv = TestConfig(
-    """|import os
+  override val testEnv = TestConfig("""|import os
        |def main(args):
        |  env = os.environ
        |  return {
@@ -76,19 +71,17 @@ class ActionLoopPythonBasicTests extends BasicActionRunnerTests with WskActorSys
        |  }
     """.stripMargin)
 
-
-  override val testInitCannotBeCalledMoreThanOnce = TestConfig(
-    s"""|def main(args):
+  override val testInitCannotBeCalledMoreThanOnce = TestConfig(s"""|def main(args):
         |  return args
     """.stripMargin)
 
   override val testEntryPointOtherThanMain = TestConfig(
     s"""|def niam(args):
         |   return args
-    """.stripMargin, main = "niam")
+    """.stripMargin,
+    main = "niam")
 
-  override val testLargeInput = TestConfig(
-    s"""|def main(args):
+  override val testLargeInput = TestConfig(s"""|def main(args):
         |  return args
     """.stripMargin)
 }

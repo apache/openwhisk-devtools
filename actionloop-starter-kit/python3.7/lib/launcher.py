@@ -24,7 +24,6 @@ import sys, os, json, traceback
 # now import the action as process input/output
 from main__ import main as main
 
-env = os.environ
 out = fdopen(3, "wb")
 while True:
   line = stdin.readline()
@@ -35,7 +34,7 @@ while True:
     if key == "value":
       payload = args["value"]
     else:
-      env["__OW_%s" % key.upper()]= args[key]
+      os.environ["__OW_%s" % key.upper()]= args[key]
   res = {}
   try:
     res = main(payload)
