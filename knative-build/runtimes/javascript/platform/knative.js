@@ -112,25 +112,6 @@ function createInitDataFromEnvironment(env) {
 function preProcessInitData(env, initdata, valuedata, activationdata) {
     DEBUG.functionStart();
     try {
-        // Set defaults to use INIT data not provided on the request
-        // Look first to the process (i.e., Container's) environment variables.
-        // var main = (typeof env.__OW_ACTION_MAIN === 'undefined') ? "main" : env.__OW_ACTION_MAIN;
-        // // TODO: Throw error if CODE is NOT defined!
-        // var code = (typeof env.__OW_ACTION_CODE === 'undefined') ? "" : env.__OW_ACTION_CODE;
-        // var binary = (typeof env.__OW_ACTION_BINARY === 'undefined') ? false : env.__OW_ACTION_BINARY.toLowerCase() === "true";
-        // // TODO: default to empty?
-        // var actionName = (typeof env.__OW_ACTION_NAME === 'undefined') ? "" : env.__OW_ACTION_NAME;
-        // var raw = (typeof env.__OW_ACTION_RAW === 'undefined') ? false : env.__OW_ACTION_RAW.toLowerCase() === "true";
-        //
-        // DEBUG.dumpObject(initdata, "initdata");
-
-        // Move the init data to the request body under the "value" key.
-        // This will allow us to reuse the "openwhisk" /init route handler function
-        // valuedata.main = main;
-        // valuedata.code = code;
-        // valuedata.binary = binary;
-        // valuedata.raw = raw;
-
         // Look for init data within the request (i.e., "stem cell" runtime, where code is injected by request)
         if (typeof(initdata) !== "undefined") {
 
@@ -162,7 +143,7 @@ function preProcessInitData(env, initdata, valuedata, activationdata) {
                 if (typeof (activationdata) !== "undefined") {
                     if (typeof (activationdata.action_name) === "undefined" ||
                         (typeof (activationdata.action_name) === "string" &&
-                            activationdata.action_name.length == 0)) {
+                            activationdata.action_name.length === 0)) {
                         activationdata.action_name = initdata.name;
                     }
                 }
@@ -372,7 +353,7 @@ function postProcessResponse(req, result, res) {
         delete body['binary'];
     }
 
-    //When the content-type is defined, check if the response is binary data or
+    // When the content-type is defined, check if the response is binary data or
     // plain text and decode the plain text using a base64 decoder whenever needed.
     // Should the body fail to decoded correctly, return an error to the caller.
     if (contentTypeInHeader && headers[CONTENT_TYPE].lastIndexOf("image", 0) === 0) {
@@ -435,19 +416,15 @@ function PlatformKnativeImpl(platformFactory) {
             if (hasInitData(req) && !isStemCell(process.env))
                 throw ("Cannot initialize a runtime with a dedicated function.");
 
-            // If this is a dedicated runtime that has not been initialized yet,
-            // then copy INIT data from env, to request
+            // If this is a dedicated, uninitialized runtime, then copy INIT data from env. into the request
             if( !isStemCell(process.env) && !service.initialized()){
                 let body = req.body || {};
                 body.init = createInitDataFromEnvironment(process.env);
             }
 
-            // NOTE: now hasInitData() will be true the first time for a dedicated runtime/service
-            //    or for an actual stem cell that supplied init data on the actual http request
+            // Different pre-processing logic based upon request data needed due Promise behavior
             if(hasInitData(req) && hasActivationData(req)){
-
-                // Process request and process env. variables to provide them in the manner
-                // an OpenWhisk Action expects them, as well as enable additional Http features.
+                // Request has both Init and Run (activation) data
                 preProcessRequest(req);
                 // Invoke the OW "init" entrypoint
                 service.initCode(req).then(function () {
@@ -467,9 +444,7 @@ function PlatformKnativeImpl(platformFactory) {
                     }
                 });
             } else if(hasInitData(req)){
-
-                // Process request and process env. variables to provide them in the manner
-                // an OpenWhisk Action expects them, as well as enable additional Http features.
+                // Request has ONLY Init data
                 preProcessRequest(req);
                 // Invoke the OW "init" entrypoint
                 service.initCode(req).then(function (result) {
@@ -484,8 +459,7 @@ function PlatformKnativeImpl(platformFactory) {
                     }
                 });
             } else if(hasActivationData(req)){
-                // Process request and process env. variables to provide them in the manner
-                // an OpenWhisk Action expects them, as well as enable additional Http features.
+                // Request has ONLY Run (activation) data
                 preProcessRequest(req);
                 // Invoke the OW "run" entrypoint
                 service.runCode(req).then(function (result) {
