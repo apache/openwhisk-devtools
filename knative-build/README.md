@@ -152,7 +152,6 @@ status:
   phase: Active
 ```
 
-
 **Note**: If you do not see the **istio-injection** label, verify you issued the 'kubectl' command to set this label to the default namespace. See [Troubleshooting](#troubleshooting) section for more information.
 
 # Building and Serving OpenWhisk Runtime Build Templates
@@ -163,7 +162,7 @@ All OpenWhisk Runtime Build Templates require a valid Kubernetes **Service Accou
 
 ```bash
 $ git clone https://github.com/apache/incubator-openwhisk-devtools.git
-$ cd knative-build
+$ cd incubator-openwhisk-devtools/knative-build
 ```
 
 ## Register Secrets for Docker Hub
@@ -181,7 +180,7 @@ $ export DOCKERHUB_PASSWORD_BASE64_ENCODED=`echo -n "${DOCKERHUB_PASSWORD_PLAIN_
 # make sure that DOCKERHUB_PASSWORD_BASE64_ENCODED is set to something similar to t80szzToPshrpDr3sdMn==
 ```
 
-On your local system, copy the file [docker-secret.yaml.tmpl](docker-secret.yaml.tmpl) to `docker-secrets.yaml` and replace the **username** and **password** values with the base64 encoded versions of your Docker Hub username and password using following `sed` command:
+Use the following `sed` command which will generate a `docker-secrets.yaml` file from the file [docker-secret.yaml.tmpl](docker-secret.yaml.tmpl) and replace the **username** and **password** values with the base64 encoded versions of your Docker Hub username and password from the environment variables you exported above:
 
 ```
 sed -e 's/${DOCKERHUB_USERNAME_BASE64_ENCODED}/'"$DOCKERHUB_USERNAME_BASE64_ENCODED"'/' -e 's/${DOCKERHUB_PASSWORD_BASE64_ENCODED}/'"$DOCKERHUB_PASSWORD_BASE64_ENCODED"'/' docker-secret.yaml.tmpl > docker-secret.yaml
@@ -218,6 +217,13 @@ $ kubectl get serviceaccount/openwhisk-runtime-builder
 NAME                        SECRETS   AGE
 openwhisk-runtime-builder   2         3m46s
 ```
+
+## Building Knative runtimes and executing functions
+
+At this point, you have completed all the pre-reqs to build and run OpenWhisk runtimes on Knative.  In order to actually build and run them, you will need to continue following the instructions on the READMEs for the respective language runtimes listed below:
+- [NodeJS Runtime](./runtimes/javascript/#OpenWhisk-NodeJS-Runtime-for-Knative)
+
+---
 
 ## Troubleshooting
 
@@ -268,7 +274,7 @@ statefulset "prometheus-system" created
 
 #### PROBLEM: Knative build fails initializing at `Init:1/4`
 
-Check the GitHub revision is set to right branch:
+Check the GitHub revision is set to right branch within your ```build.yaml``` file:
 
 ```
   source:

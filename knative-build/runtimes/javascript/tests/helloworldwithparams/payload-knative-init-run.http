@@ -6,7 +6,7 @@ content-type: application/json
     "name" : "nodejs-helloworld-with-params",
     "main" : "main",
     "binary": false,
-    "code" : "function main(params) {return {payload: 'Hello ' + params.name + ' from ' + params.place +  '!'};}"
+    "code" : "function main(params) {return {payload: 'Hello ' + params.name + ' from ' + params.place + '!'};}"
   },
   "activation": {
     "namespace": "default",
