@@ -109,7 +109,7 @@ function createInitDataFromEnvironment(env) {
 /**
  * Pre-process the init data from the request
  */
-function preProcessInitData(env, initdata, valuedata, activationdata) {
+function preProcessInitData(initdata, valuedata, activationdata) {
     DEBUG.functionStart();
     try {
         // Look for init data within the request (i.e., "stem cell" runtime, where code is injected by request)
