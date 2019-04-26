@@ -266,7 +266,7 @@ function preProcessRequest(req){
 
         // process initialization (i.e., "init") data
         if (hasInitData(req)) {
-            preProcessInitData(env, initData, valueData, activationData);
+            preProcessInitData(initData, valueData, activationData);
         }
 
         if(hasActivationData(req)) {
