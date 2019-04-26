@@ -423,7 +423,7 @@ function PlatformKnativeImpl(platformFactory) {
             }
 
             // Different pre-processing logic based upon request data needed due Promise behavior
-            if(hasInitData(req) && hasActivationData(req)){
+            if((hasInitData(req) && hasActivationData(req)) || (!hasInitData(req) && !hasActivationData(req))){
                 // Request has both Init and Run (activation) data
                 preProcessRequest(req);
                 // Invoke the OW "init" entrypoint
