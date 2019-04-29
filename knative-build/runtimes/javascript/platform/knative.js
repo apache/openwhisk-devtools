@@ -266,7 +266,7 @@ function preProcessRequest(req){
 
         // process initialization (i.e., "init") data
         if (hasInitData(req)) {
-            preProcessInitData(env, initData, valueData, activationData);
+            preProcessInitData(initData, valueData, activationData);
         }
 
         if(hasActivationData(req)) {
@@ -423,7 +423,7 @@ function PlatformKnativeImpl(platformFactory) {
             }
 
             // Different pre-processing logic based upon request data needed due Promise behavior
-            if(hasInitData(req) && hasActivationData(req)){
+            if(hasInitData(req) && hasActivationData(req)) {
                 // Request has both Init and Run (activation) data
                 preProcessRequest(req);
                 // Invoke the OW "init" entrypoint
@@ -460,6 +460,20 @@ function PlatformKnativeImpl(platformFactory) {
                 });
             } else if(hasActivationData(req)){
                 // Request has ONLY Run (activation) data
+                preProcessRequest(req);
+                // Invoke the OW "run" entrypoint
+                service.runCode(req).then(function (result) {
+                    postProcessResponse(req, result, res)
+                }).catch(function (error) {
+                    console.error(error);
+                    if (typeof error.code === "number" && typeof error.response !== "undefined") {
+                        res.status(error.code).json(error.response);
+                    } else {
+                        console.error("[wrapEndpoint]", "invalid errored promise", JSON.stringify(error));
+                        res.status(500).json({ error: "Internal error during function execution." });
+                    }
+                });
+            } else {
                 preProcessRequest(req);
                 // Invoke the OW "run" entrypoint
                 service.runCode(req).then(function (result) {
