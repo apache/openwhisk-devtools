@@ -1,0 +1,8 @@
+{
+    "value": {
+        "name" : "java-helloworld",
+        "main" : "Hello",
+        "binary": false,
+        "code" : "function main() {return {payload: 'Hello World!'};}"
+    }
+}
