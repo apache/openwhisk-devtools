@@ -35,6 +35,7 @@ package-lock.json
 
 # Java
 *.class
+*.base64
 out/
 
 # Swift
