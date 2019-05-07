@@ -2,6 +2,7 @@
 .gradle
 .idea
 .project
+.pydevproject
 .settings
 .vscode
 *.iml
