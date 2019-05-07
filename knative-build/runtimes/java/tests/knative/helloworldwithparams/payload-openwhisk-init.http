@@ -3,9 +3,9 @@ content-type: application/json
 
 {
   "value": {
-    "name" : "nodejs-helloworld-with-params",
-    "main" : "main",
-    "binary": false,
+    "name" : "java-helloworld-with-params",
+    "main" : "Hello",
+    "binary": true,
     "code" : ""
   }
 }

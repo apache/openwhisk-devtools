@@ -3,7 +3,7 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: BuildTemplate
 metadata:
-  name: openwhisk-nodejs-runtime
+  name: openwhisk-java-runtime
 spec:
   parameters:
   - name: TARGET_IMAGE_NAME

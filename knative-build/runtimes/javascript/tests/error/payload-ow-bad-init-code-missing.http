@@ -1,0 +1,12 @@
+POST http://localhost:8080/init HTTP/1.1
+content-type: application/json
+
+{
+  "value": {
+    "name" : "bad-init-no-code-key-missing",
+    "main" : "main",
+    "binary": false
+  }
+}
+
+###

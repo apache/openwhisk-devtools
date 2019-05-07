@@ -1,9 +1,11 @@
 # IDE
+.gradle
 .idea
-*.iml
 .project
+.pydevproject
 .settings
 .vscode
+*.iml
 *.code-workspace
 **/.sts4-cache
 
@@ -30,6 +32,10 @@ service.yaml
 # NodeJS
 node_modules/
 package-lock.json
+
+# Java
+*.class
+out/
 
 # Swift
 Packages/

@@ -1,0 +1,16 @@
+POST http://localhost:8080/run HTTP/1.1
+content-type: application/json
+
+{
+  "value": {
+    "name" : "Jess",
+    "place" : "OK"
+  },
+  "namespace": "default",
+  "action_name": "java-helloworld-with-params-from-env",
+  "api_host": "",
+  "api_key": "",
+  "activation_id": "",
+  "deadline": "4102498800000"
+}
+###
