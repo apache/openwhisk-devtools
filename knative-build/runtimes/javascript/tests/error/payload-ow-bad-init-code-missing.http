@@ -3,7 +3,7 @@ content-type: application/json
 
 {
   "value": {
-    "name" : "nodejs-helloworld",
+    "name" : "bad-init-no-code-key-missing",
     "main" : "main",
     "binary": false
   }

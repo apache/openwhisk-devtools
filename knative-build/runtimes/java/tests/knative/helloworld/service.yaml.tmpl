@@ -1,7 +1,7 @@
 apiVersion: serving.knative.dev/v1alpha1
 kind: Service
 metadata:
-  name: nodejs-helloworld
+  name: java-helloworld
   namespace: default
 spec:
   runLatest:
@@ -9,4 +9,4 @@ spec:
       revisionTemplate:
         spec:
           container:
-            image: docker.io/${DOCKER_USERNAME}/nodejs-10-helloworld
+            image: docker.io/${DOCKER_USERNAME}/java-8-helloworld

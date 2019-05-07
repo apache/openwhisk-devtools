@@ -1,7 +1,7 @@
 apiVersion: serving.knative.dev/v1alpha1
 kind: Service
 metadata:
-  name: nodejs-helloworld-with-params-from-env
+  name: java-helloworld-with-params-from-env
   namespace: default
 spec:
   runLatest:
@@ -9,7 +9,7 @@ spec:
       revisionTemplate:
         spec:
           container:
-            image: docker.io/${DOCKER_USERNAME}/nodejs-10-helloworld-with-params-from-env
+            image: docker.io/${DOCKER_USERNAME}/java-8-helloworld-with-params-from-env
             env:
             - name: NAME
               value: Bob

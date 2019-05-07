@@ -3,9 +3,10 @@ content-type: application/json
 
 {
   "value": {
-    "name" : "nodejs-helloworld",
+    "name" : "bad-init-code-empty",
     "main" : "main",
-    "binary": false
+    "binary": false,
+    "code" : ""
   }
 }
 

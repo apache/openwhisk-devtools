@@ -1,8 +1,8 @@
 {
   "value": {
-    "name" : "nodejs-helloworld-with-params",
-    "main" : "main",
-    "binary": false,
-    "code" : "function main(params) {return {payload: 'Hello ' + params.name + ' from ' + params.place +  '!'};}"
+    "name" : "java-helloworld-with-params",
+    "main" : "Hello",
+    "binary": true,
+    "code" : ""
   }
 }

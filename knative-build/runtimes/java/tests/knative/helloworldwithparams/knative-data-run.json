@@ -1,7 +1,7 @@
 {
   "activation": {
     "namespace": "default",
-    "action_name": "nodejs-helloworld-with-params",
+    "action_name": "java-helloworld-with-params",
     "api_host": "",
     "api_key": "",
     "activation_id": "",
