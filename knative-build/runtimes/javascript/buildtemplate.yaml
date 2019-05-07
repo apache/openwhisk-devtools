@@ -51,13 +51,17 @@ spec:
       if [ -z ${OW_PROJECT_URL} ]; then
         OW_ACTION_CODE="${OW_ACTION_CODE}"
       else
-        TEMPDIR="knative-"$((1 + RANDOM % 100))
-        TEMPFILE=`basename "${OW_PROJECT_URL}"`
-        mkdir $TEMPDIR
-        cd $TEMPDIR
-        wget -O $TEMPFILE "${OW_PROJECT_URL}"
-        OW_ACTION_CODE=`cat $TEMPFILE`
-        cd ..
+        if [ -f ${OW_PROJECT_URL} ]; then
+            OW_ACTION_CODE=`cat ${OW_PROJECT_URL}`
+        else
+            TEMPDIR="knative-"$((1 + RANDOM % 100))
+            TEMPFILE=`basename "${OW_PROJECT_URL}"`
+            mkdir $TEMPDIR
+            cd $TEMPDIR
+            wget -O $TEMPFILE "${OW_PROJECT_URL}"
+            OW_ACTION_CODE=`cat $TEMPFILE`
+            cd ..
+        fi
       fi
       cat <<EOF >> ${DOCKERFILE}
         ENV __OW_RUNTIME_DEBUG "${OW_RUNTIME_DEBUG}"
