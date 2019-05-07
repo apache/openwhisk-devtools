@@ -52,7 +52,11 @@ spec:
         OW_ACTION_CODE="${OW_ACTION_CODE}"
       else
         if [ -f ${OW_PROJECT_URL} ]; then
+          if [ ${OW_ACTION_BINARY} ]; then
+            OW_ACTION_CODE=`base64 ${OW_PROJECT_URL}`
+          else
             OW_ACTION_CODE=`cat ${OW_PROJECT_URL}`
+          fi
         else
             TEMPDIR="knative-"$((1 + RANDOM % 100))
             TEMPFILE=`basename "${OW_PROJECT_URL}"`
