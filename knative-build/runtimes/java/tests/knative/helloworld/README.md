@@ -17,7 +17,7 @@
 #
 -->
 
-# Hello World Test for OpenWhisk NodeJS Runtime using Knative
+# Hello World Test for OpenWhisk Java Runtime using Knative
 
 ## Running the test using the "Curl" command
 
@@ -28,7 +28,7 @@ Depending on the value you set in [buildtemplate.yaml](../../buildtemplate.yaml)
 #### Invoke / endpoint on the Service
 
 ```
-curl -H "Host: nodejs-helloworld.default.example.com" -X POST http://localhost/
+curl -H "Host: java-helloworld.default.example.com" -X POST http://localhost/
 ```
 
 #### Initialize the runtime
@@ -36,7 +36,7 @@ curl -H "Host: nodejs-helloworld.default.example.com" -X POST http://localhost/
 You have an option to initialize the runtime with the function and other configuration data if its not initialized (i.e. built using [build-without-code.yaml.tmpl](build-without-code.yaml.tmpl))
 
 ```
-curl -H "Host: nodejs-helloworld.default.example.com" -d "@knative-data-init.json" -H "Content-Type: application/json" http://localhost/
+curl -H "Host: java-helloworld.default.example.com" -d "@knative-data-init.json" -H "Content-Type: application/json" http://localhost/
 
 {"OK":true}
 ```
@@ -46,7 +46,7 @@ curl -H "Host: nodejs-helloworld.default.example.com" -d "@knative-data-init.jso
 Execute the function.
 
 ```
-curl -H "Host: nodejs-helloworld.default.example.com" -d "@knative-data-run.json" -H "Content-Type: application/json" -X POST http://localhost/
+curl -H "Host: java-helloworld.default.example.com" -d "@knative-data-run.json" -H "Content-Type: application/json" -X POST http://localhost/
 
 {"payload":"Hello World!"};
 ```
@@ -58,7 +58,7 @@ curl -H "Host: nodejs-helloworld.default.example.com" -d "@knative-data-run.json
 Initialize the runtime with the function and other configuration data using the ```/init``` endpoint.
 
 ```
-curl -H "Host: nodejs-helloworld.default.example.com" -d "@openwhisk-data-init.json" -H "Content-Type: application/json" http://localhost/init
+curl -H "Host: java-helloworld.default.example.com" -d "@openwhisk-data-init.json" -H "Content-Type: application/json" http://localhost/init
 
 {"OK":true}
 ```
@@ -68,7 +68,7 @@ curl -H "Host: nodejs-helloworld.default.example.com" -d "@openwhisk-data-init.j
 Execute the function using the ```/run``` endpoint.
 
 ```
-curl -H "Host: nodejs-helloworld.default.example.com" -d "@openwhisk-data-run.json" -H "Content-Type: application/json" -X POST http://localhost/run
+curl -H "Host: java-helloworld.default.example.com" -d "@openwhisk-data-run.json" -H "Content-Type: application/json" -X POST http://localhost/run
 
 {"payload":"Hello World!"}
 ```
