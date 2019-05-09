@@ -3,7 +3,7 @@
 version: '3'
 services:
   db:
-    image: apache/couchdb:2.1
+    image: apache/couchdb:2.3
     ports:
       - "5984:5984"
     environment:
@@ -71,9 +71,9 @@ services:
       CONFIG_akka_actor_provider: cluster
 
       LOADBALANCER_HOST: ${DOCKER_COMPOSE_HOST}
-      LOADBALANCER_HOST_PORT: 443
+      LOADBALANCER_HOST_PORT: ${OPENWHISK_GW_PORT}
     volumes:
-      - ~/tmp/openwhisk/controller/logs:/logs
+      - ~/tmp/openwhisk/controller/logs:/home/owuser/
     ports:
       - "8888:8888"
       - "2551:2551"
@@ -112,7 +112,7 @@ services:
       CONFIG_whisk_couchdb_password: some_passw0rd
 
       EDGE_HOST: ${DOCKER_COMPOSE_HOST}
-      EDGE_HOST_APIPORT: 443
+      EDGE_HOST_APIPORT: ${OPENWHISK_GW_PORT}
 
       CONFIG_whisk_containerFactory_containerArgs_network: openwhisk_default
 
@@ -167,8 +167,7 @@ services:
       - ~/tmp/openwhisk/api-gateway-config/api-gateway/generated-conf.d:/etc/api-gateway/generated-conf.d
       - ~/tmp/openwhisk/rclone:/root/.config/rclone:rw
     ports:
-      - "80:80"
-      - "443:443"
+      - "${OPENWHISK_GW_PORT}:443"
       - "9000:9000"
       - "9090:8080"
 

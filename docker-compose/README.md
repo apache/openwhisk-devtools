@@ -37,7 +37,7 @@ The following are required to build and deploy OpenWhisk with Docker Compose:
 
 These ports must be available:
 
-- `80`, `443`, `9000`, `9001`, and `9090` for the API Gateway
+- `443`, `9000`, `9001`, and `9090` for the API Gateway
 - `6379` for Redis
 - `2181` for Zookeeper
 - `5984` for CouchDB
@@ -71,12 +71,35 @@ This is the set of environment variables that can be set:
 * `OPENWHISK_CATALOG_HOME` - a checkout of [openwhisk-catalog](https://github.com/apache/incubator-openwhisk-catalog)
 * `WSK_CLI` - the directory where the [`wsk` command line tool](https://github.com/apache/incubator-openwhisk-cli) can be found
 * `DOCKER_IMAGE_PREFIX` - the prefix of the docker images used for actions. If you are building and testing checkouts of runtimes locally, then consider setting this to `whisk`.
+* `OPENWHISK_GW_PORT` - default value: `443`. The port exposing OpenWhisk.
 
 Note that these are all optional and only need to be set if you have a local checkout that you want to use.
 
-## Updating OpenWhisk Invoker or Controller
+## Local development with IntelliJ
 
-To update the OpenWhisk Invoker or Controller without restarting everything, run:
+1. Start OpenWhisk with docker-compose
+    ```bash
+    $ make quick-start
+    ```
+2. Checkout [Apache OpenWhisk](https://github.com/apache/incubator-openwhisk) in a separate folder and import it in IntelliJ as a Gradle project.
+
+3. Apache OpenWhisk provides a Gradle helper that automtically inspects the running `controller` and `invoker` and creates IntelliJ Run Configurations. Execute the bash script bellow to create the configs.
+    ```bash
+    $ ./gradlew :tools:dev:intellij
+    ```
+   For more information about this script read [instructions](https://github.com/apache/incubator-openwhisk/blob/master/tools/dev/README.md#intellij-run-config-generator)
+
+4. Stop `controller` and/or `invoker` that was started by docker-compose.
+    From the `docker-compose` folder execute:
+   ```bash
+   $ make scale COMPONENT=controller TO=0
+   $ make scale COMPONENT=invoker TO=0
+   ```
+5. Start `controller` and/or `invoker` from IntelliJ
+
+### Updating OpenWhisk Invoker or Controller
+
+When rebuilding new docker images for the `controller` and `invoker` they can be updated in place without restarting everything by running:
 
 ```bash
 make restart-invoker
@@ -92,7 +115,7 @@ make restart-controller
 
 ## Troubleshooting
 
-* ```error: Authenticated user does not have namespace 'guest'; set command failed: Get https://localhost:443/api/v1/namespaces: dial tcp [::1]:443: getsockopt: connection refused```
+* ```error: Authenticated user does not have namespace 'guest'; set command failed: Get https://localhost:8443/api/v1/namespaces: dial tcp [::1]:8443: getsockopt: connection refused```
 
   Make sure nothing runs on the above listed ports. Port 80 might be commonly in use by a local httpd for example. On a Mac, use `sudo lsof -i -P` to find out what process runs on a port. You can turn off Internet Sharing under System Settings > Sharing, or try `sudo /usr/sbin/apachectl stop` to stop httpd.
 

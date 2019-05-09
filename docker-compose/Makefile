@@ -24,6 +24,7 @@ OPENWHISK_CATALOG_HOME ?= $(CURDIR)/openwhisk-catalog
 WSK_CLI ?= $(OPENWHISK_PROJECT_HOME)/bin/wsk
 WSK_CONFIG_FILE=$(CURDIR)/.wskprops
 OPEN_WHISK_DB_PREFIX ?= local_
+OPENWHISK_GW_PORT ?= 443
 
 DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
 DOCKER_COMPOSE_FILE=docker-compose.yml
@@ -213,6 +214,7 @@ setup:
 	printf "DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP)\n" >> ~/tmp/openwhisk/local.env
 	printf "DOCKER_REGISTRY=$(DOCKER_REGISTRY)\n" >> ~/tmp/openwhisk/local.env
 	printf "DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX)\n" >> ~/tmp/openwhisk/local.env
+	printf "OPENWHISK_GW_PORT=$(OPENWHISK_GW_PORT)\n" >> ~/tmp/openwhisk/local.env
 
 	echo "  ... preparing api-gateway configuration"
 	rm -rf ~/tmp/openwhisk/api-gateway-config
@@ -266,6 +268,10 @@ restart-invoker:
 	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up invoker 2>&1 >> ~/tmp/openwhisk/docker-compose.log &
 	echo "waiting for the invoker to be marked Healthy ... "
 	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "up"); do printf '.'; sleep 5; done
+
+.PHONY: scale
+scale:
+	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk scale $(COMPONENT)=$(TO)
 
 .PHONY: start-docker-compose
 start-docker-compose:
@@ -327,8 +333,9 @@ init-couchdb:
 	rm -rf ~/tmp/openwhisk/src
 	rsync -a $(OPENWHISK_PROJECT_HOME)/* ~/tmp/openwhisk/src --exclude .git --exclude build --exclude tests
 	echo 'Setting up db using ansible container....'; \
-    compose_network=$$(docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f '{{range $$index, $$element := .NetworkSettings.Networks}}{{$$index}}{{end}}' | head -n 1); \
-    db_ip_address=$$(docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f "{{.NetworkSettings.Networks.$${compose_network}.IPAddress}}"); \
+    compose_network=$$($(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f '{{range $$index, $$element := .NetworkSettings.Networks}}{{$$index}}{{end}}' | head -n 1); \
+    db_ip_address=$$($(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f "{{.NetworkSettings.Networks.$${compose_network}.IPAddress}}"); \
+		echo "db ip : $${db_ip_address}"; \
 	docker run --rm -v ~/tmp/openwhisk/src:/openwhisk -w /openwhisk/ansible \
 		--network="$${compose_network}" -t \
 		--add-host="db:$${db_ip_address}" \
@@ -341,7 +348,7 @@ init-whisk-cli:
 	echo "waiting for the Whisk controller to come up ... "
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
 	echo "initializing CLI properties into $(WSK_CONFIG_FILE)"
-	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i
+	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP):$(OPENWHISK_GW_PORT) -i
 
 .PHONY: init-api-management
 init-api-management:
@@ -350,13 +357,13 @@ init-api-management:
 	GW_PWD="" \
 	GW_HOST_V2="http://$(DOCKER_HOST_IP):9000/v2" \
 	OPENWHISK_HOME=$(OPENWHISK_PROJECT_HOME) \
-	$(OPENWHISK_PROJECT_HOME)/ansible/roles/routemgmt/files/installRouteMgmt.sh $(shell cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.whisk.system) $(DOCKER_HOST_IP) /whisk.system $(WSK_CLI)
+	$(OPENWHISK_PROJECT_HOME)/ansible/roles/routemgmt/files/installRouteMgmt.sh $(shell cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.whisk.system) $(DOCKER_HOST_IP):$(OPENWHISK_GW_PORT) /whisk.system $(WSK_CLI)
 
 .PHONY: init-catalog
 init-catalog:
 	OPENWHISK_HOME=$(OPENWHISK_PROJECT_HOME) $(OPENWHISK_CATALOG_HOME)/packages/installCatalog.sh \
 	  `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.whisk.system` \
-	  $(DOCKER_HOST_IP):443 \
+	  $(DOCKER_HOST_IP):$(OPENWHISK_GW_PORT) \
 	  $(WSK_CLI)
 
 .PHONY: destroy
