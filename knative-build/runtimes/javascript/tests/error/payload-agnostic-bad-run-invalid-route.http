@@ -2,8 +2,10 @@ POST http://localhost:8080/bad HTTP/1.1
 content-type: application/json
 
 {
+  "value": {
     "name" : "Bad",
     "place" : "POST"
+  }
 }
 
 ###
