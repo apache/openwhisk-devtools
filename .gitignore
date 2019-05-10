@@ -44,3 +44,4 @@ Packages/
 # OpenWhisk project-specific
 openwhisk-src
 .wskprops
+.env

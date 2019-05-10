@@ -87,7 +87,7 @@ Note that these are all optional and only need to be set if you have a local che
     ```bash
     $ ./gradlew :tools:dev:intellij
     ```
-   For more information about this script read [instructions](https://github.com/apache/incubator-openwhisk/blob/master/tools/dev/README.md#intellij-run-config-generator)
+   Follow the [instructions](https://github.com/apache/incubator-openwhisk/blob/master/tools/dev/README.md#intellij-run-config-generator)
 
 4. Stop `controller` and/or `invoker` that was started by docker-compose.
     From the `docker-compose` folder execute:
