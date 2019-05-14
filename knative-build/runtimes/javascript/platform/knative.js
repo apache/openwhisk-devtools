@@ -93,6 +93,7 @@ function createInitDataFromEnvironment(env) {
         // TODO: default to empty?
         initdata.actionName = (typeof env.__OW_ACTION_NAME === 'undefined') ? "" : env.__OW_ACTION_NAME;
         initdata.raw = (typeof env.__OW_ACTION_RAW === 'undefined') ? false : env.__OW_ACTION_RAW.toLowerCase() === "true";
+        initdata.url = (typeof env.__OW_PROJECT_URL === 'undefined') ? "" : env.__OW_PROJECT_URL;
 
         DEBUG.dumpObject(initdata, "initdata");
         return initdata;
@@ -134,6 +135,9 @@ function preProcessInitData(initdata, valuedata, activationdata) {
                 } else {
                     throw ("Invalid Init. data; expected boolean for key 'raw'.");
                 }
+            }
+            if (initdata.url && typeof initdata.url === 'string') {
+                valuedata.url = initdata.url;
             }
 
             // Action name is a special case, as we have a key collision on "name" between init. data and request
@@ -248,6 +252,39 @@ function preProcessActivationData(env, activationdata) {
     DEBUG.functionEnd();
 }
 
+function marshallResources(initData) {
+    DEBUG.functionStart();
+    try {
+        console.log("*****")
+        console.log(initData)
+        var fs = require('fs');
+        var stats = fs.lstatSync(initData.url);
+        if (stats.isDirectory()) {
+            const
+                {spawnSync} = require('child_process'),
+                npm = spawnSync('npm', ['install'], {cwd: initData.url});
+            console.log(`stderr: ${npm.stderr.toString()}`);
+            console.log(`stdout: ${npm.stdout.toString()}`);
+
+            compressFile = spawnSync('zip', ['-r', 'action.zip', initData.url]);
+            console.log(`stderr: ${compressFile.stderr.toString()}`);
+            console.log(`stdout: ${compressFile.stdout.toString()}`);
+
+            code = spawnSync('base64', ['action.zip']);
+            console.log(`stderr: ${code.stderr.toString()}`);
+            console.log(`stdout: ${code.stdout.toString()}`);
+            initData.code = code;
+            initData.binary = true;
+
+        }
+    } catch (e) {
+        console.error(e);
+        DEBUG.functionEndError(e.message);
+        throw("Unable to marshall NPM resources: " + e.message);
+    }
+    DEBUG.functionEnd()
+}
+
 /**
  * Pre-process the incoming http request data, moving it to where the
  * route handlers expect it to be for an openwhisk runtime.
@@ -268,6 +305,8 @@ function preProcessRequest(req){
         if (hasInitData(req)) {
             preProcessInitData(initData, valueData, activationData);
         }
+
+        marshallResources(initData);
 
         if(hasActivationData(req)) {
             // process HTTP request header and body to make it available to function as parameter data
