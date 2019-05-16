@@ -341,7 +341,7 @@ init-whisk-cli:
 	echo "waiting for the Whisk controller to come up ... "
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
 	echo "initializing CLI properties into $(WSK_CONFIG_FILE)"
-	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) property set --namespace guest --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i
+	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) property set --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i
 
 .PHONY: init-api-management
 init-api-management:
