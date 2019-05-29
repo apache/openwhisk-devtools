@@ -252,30 +252,35 @@ function preProcessActivationData(env, activationdata) {
     DEBUG.functionEnd();
 }
 
-function marshallResources(initData) {
+function marshallResources(initData, valueData) {
     DEBUG.functionStart();
     try {
+        if (typeof initData.url === "string" && initData.url !== undefined) {
         console.log("*****")
-        console.log(initData)
+        // console.log(initData)
         var fs = require('fs');
         var stats = fs.lstatSync(initData.url);
         if (stats.isDirectory()) {
-            const
-                {spawnSync} = require('child_process'),
+            const {spawnSync} = require('child_process'),
                 npm = spawnSync('npm', ['install'], {cwd: initData.url});
-            console.log(`stderr: ${npm.stderr.toString()}`);
-            console.log(`stdout: ${npm.stdout.toString()}`);
+            // console.log(`stderr: ${npm.stderr.toString()}`);
+            // console.log(`stdout: ${npm.stdout.toString()}`);
 
-            compressFile = spawnSync('zip', ['-r', 'action.zip', initData.url]);
-            console.log(`stderr: ${compressFile.stderr.toString()}`);
-            console.log(`stdout: ${compressFile.stdout.toString()}`);
+            const compressFile = spawnSync('zip', ['-r', 'action.zip', initData.url]);
+            // console.log(`stderr: ${compressFile.stderr.toString()}`);
+            // console.log(`stdout: ${compressFile.stdout.toString()}`);
 
-            code = spawnSync('base64', ['action.zip']);
-            console.log(`stderr: ${code.stderr.toString()}`);
-            console.log(`stdout: ${code.stdout.toString()}`);
-            initData.code = code;
+            const code = spawnSync('base64', ['action.zip']);
+            console.log("*****")
+            console.log(code.stdout.toString().trim())
+            console.log("*****")
+// console.log(`stderr: ${code.stderr.toString()}`);
+            // console.log(`stdout: ${code.stdout.toString()}`);
+            initData.code = code.stdout.toString().trim();
+            valueData.code = initData.code;
             initData.binary = true;
-
+            valueData.binary = true;
+            }
         }
     } catch (e) {
         console.error(e);
@@ -306,7 +311,7 @@ function preProcessRequest(req){
             preProcessInitData(initData, valueData, activationData);
         }
 
-        marshallResources(initData);
+        marshallResources(initData, valueData);
 
         if(hasActivationData(req)) {
             // process HTTP request header and body to make it available to function as parameter data
