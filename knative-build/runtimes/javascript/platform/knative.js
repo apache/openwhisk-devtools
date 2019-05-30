@@ -263,14 +263,15 @@ function marshallResources(initData, valueData) {
         if (stats.isDirectory()) {
             const {spawnSync} = require('child_process'),
                 npm = spawnSync('npm', ['install'], {cwd: initData.url});
-            // console.log(`stderr: ${npm.stderr.toString()}`);
-            // console.log(`stdout: ${npm.stdout.toString()}`);
+            console.log(`stderr: ${npm.stderr.toString()}`);
+            console.log(`stdout: ${npm.stdout.toString()}`);
 
-            const compressFile = spawnSync('zip', ['-r', 'action.zip', initData.url]);
-            // console.log(`stderr: ${compressFile.stderr.toString()}`);
-            // console.log(`stdout: ${compressFile.stdout.toString()}`);
+            var zipFile = "action.zip";
+            const compressFile = spawnSync('zip', ['-r', zipFile, '.'], {cwd: initData.url});
+            console.log(`stderr: ${compressFile.stderr.toString()}`);
+            console.log(`stdout: ${compressFile.stdout.toString()}`);
 
-            const code = spawnSync('base64', ['action.zip']);
+            const code = spawnSync('base64', [initData.url + '/' + zipFile]);
             console.log("*****")
             console.log(code.stdout.toString().trim())
             console.log("*****")
