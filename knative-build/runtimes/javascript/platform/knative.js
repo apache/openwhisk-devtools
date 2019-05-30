@@ -263,8 +263,11 @@ function marshallResources(initData, valueData) {
         if (stats.isDirectory()) {
             const {spawnSync} = require('child_process'),
                 npm = spawnSync('npm', ['install'], {cwd: initData.url});
-            console.log(`stderr: ${npm.stderr.toString()}`);
-            console.log(`stdout: ${npm.stdout.toString()}`);
+            if (npm.status !== 0) {
+                throw(npm.error);
+            }
+            DEBUG.dumpObject(`stdout: ${npm.stdout.toString().trim()}`, "npm install", "marshallResources");
+            DEBUG.dumpObject(`stderr: ${npm.stderr.toString().trim()}`, "npm install", "marshallResources");
 
             var zipFile = "action.zip";
             const compressFile = spawnSync('zip', ['-r', zipFile, '.'], {cwd: initData.url});
