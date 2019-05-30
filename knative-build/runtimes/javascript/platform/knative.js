@@ -256,34 +256,36 @@ function marshallResources(initData, valueData) {
     DEBUG.functionStart();
     try {
         if (typeof initData.url === "string" && initData.url !== undefined) {
-        console.log("*****")
-        // console.log(initData)
-        var fs = require('fs');
-        var stats = fs.lstatSync(initData.url);
-        if (stats.isDirectory()) {
-            const {spawnSync} = require('child_process'),
-                npm = spawnSync('npm', ['install'], {cwd: initData.url});
-            if (npm.status !== 0) {
-                throw(npm.error);
-            }
-            DEBUG.dumpObject(`stdout: ${npm.stdout.toString().trim()}`, "npm install", "marshallResources");
-            DEBUG.dumpObject(`stderr: ${npm.stderr.toString().trim()}`, "npm install", "marshallResources");
+            const fs = require('fs');
+            const stats = fs.lstatSync(initData.url);
+            if (stats.isDirectory()) {
+                const {spawnSync} = require('child_process'),
+                    npm = spawnSync('npm', ['install'], {cwd: initData.url});
+                if (npm.status !== 0) {
+                    throw (npm.error);
+                }
+                DEBUG.dumpObject(`stdout: ${npm.stdout.toString().trim()}`, "npm install", "marshallResources");
+                DEBUG.dumpObject(`stderr: ${npm.stderr.toString().trim()}`, "npm install", "marshallResources");
 
-            var zipFile = "action.zip";
-            const compressFile = spawnSync('zip', ['-r', zipFile, '.'], {cwd: initData.url});
-            console.log(`stderr: ${compressFile.stderr.toString()}`);
-            console.log(`stdout: ${compressFile.stdout.toString()}`);
+                var zipFile = "action.zip";
+                const compressFile = spawnSync('zip', ['-r', zipFile, '.'], {cwd: initData.url});
+                if (compressFile.status !== 0) {
+                    throw (compressFile.error);
+                }
+                DEBUG.dumpObject(`stdout: ${compressFile.stdout.toString().trim()}`, "zip -r action.zip *", "marshallResources");
+                DEBUG.dumpObject(`stderr: ${compressFile.stderr.toString().trim()}`, "zip -r action.zip *", "marshallResources");
 
-            const code = spawnSync('base64', [initData.url + '/' + zipFile]);
-            console.log("*****")
-            console.log(code.stdout.toString().trim())
-            console.log("*****")
-// console.log(`stderr: ${code.stderr.toString()}`);
-            // console.log(`stdout: ${code.stdout.toString()}`);
-            initData.code = code.stdout.toString().trim();
-            valueData.code = initData.code;
-            initData.binary = true;
-            valueData.binary = true;
+                const code = spawnSync('base64', [initData.url + '/' + zipFile]);
+                if (code.status !== 0) {
+                    throw (code.error);
+                }
+                DEBUG.dumpObject(`stdout: ${code.stdout.toString().trim()}`, "base64 action.zip", "marshallResources");
+                DEBUG.dumpObject(`stderr: ${code.stderr.toString().trim()}`, "base64 action.zip", "marshallResources");
+
+                initData.code = code.stdout.toString().trim();
+                valueData.code = initData.code;
+                initData.binary = true;
+                valueData.binary = true;
             }
         }
     } catch (e) {
