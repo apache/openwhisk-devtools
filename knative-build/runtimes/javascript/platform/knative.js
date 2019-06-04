@@ -313,7 +313,7 @@ function marshalResources(initData, valueData) {
         }
     } catch (e) {
         console.error(e);
-        DEBUG.functionEndError();
+        DEBUG.functionEndError("");
         throw("Unable to marshall NPM resources: ");
     }
     DEBUG.functionEnd()
