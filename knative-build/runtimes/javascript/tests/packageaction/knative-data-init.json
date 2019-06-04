@@ -2,7 +2,7 @@
   "init": {
     "name" : "nodejs-package-npm",
     "main" : "main",
-    "binary": false,
-    "url" : "tests/packageaction/"
+    "binary": true,
+    "url" : "app/packages/left-pad/"
   }
 }

@@ -276,7 +276,7 @@ function marshalResources(initData, valueData) {
                 // the child process is fully closed/finished executing.
                 // Note: Be very careful changing any of the child_process and spwanSync functionality
                 const {spawnSync} = require('child_process'),
-                    npm = spawnSync('npm', ['install', '--production'], {cwd: initData.url});
+                    npm = spawnSync('npm', ['install'], {cwd: initData.url});
                 if (npm.status !== 0) {
                     throw (npm.error);
                 }
@@ -313,8 +313,8 @@ function marshalResources(initData, valueData) {
         }
     } catch (e) {
         console.error(e);
-        DEBUG.functionEndError(e.message);
-        throw("Unable to marshall NPM resources: " + e.message);
+        DEBUG.functionEndError(e.prototype.message);
+        throw("Unable to marshall NPM resources: " + e.prototype.message);
     }
     DEBUG.functionEnd()
 }
