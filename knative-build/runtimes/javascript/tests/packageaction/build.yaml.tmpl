@@ -10,7 +10,7 @@ spec:
         url: "https://github.com/apache/incubator-openwhisk-devtools.git"
         revision: "master"
     - name: application
-      targetPath: packages/left-pad/
+      targetPath: app
       git:
         url: "https://github.com/apache/incubator-openwhisk-test.git"
         revision: "master"
@@ -26,4 +26,4 @@ spec:
       - name: OW_ACTION_NAME
         value: "nodejs-package-npm"
       - name: OW_PROJECT_URL
-        value: "left-pad/"
+        value: "./app/packages/left-pad/"
