@@ -278,10 +278,6 @@ function marshalResources(initData, valueData) {
                 DEBUG.dumpObject("Starting to install NPM modules from " + initData.url, "process packaging - npm", "marshalResources")
                 const {spawnSync} = require('child_process'),
                     npm = spawnSync('npm', ['install'], {cwd: initData.url});
-                DEBUG.dumpObject(npm.status)
-                DEBUG.dumpObject(npm.error)
-                DEBUG.dumpObject(npm.stdout.toString())
-                DEBUG.dumpObject(npm.stderr.toString())
                 if (npm.status !== 0) {
                     throw (npm.error);
                 }
