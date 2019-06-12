@@ -268,50 +268,52 @@ function marshalResources(initData, valueData) {
         // check if url is set and assigned some string value
         if (typeof initData.url === "string" && initData.url !== undefined) {
             const fs = require('fs');
-            const stats = fs.lstatSync(initData.url);
-            // check if specified url is an existing directory
-            if (stats.isDirectory()) {
-                // import spawnSync routine from child_process NPM module
-                // spawnSync spawns a new process using the given command and does not return until
-                // the child process is fully closed/finished executing.
-                // Note: Be very careful changing any of the child_process and spwanSync functionality
-                DEBUG.dumpObject("Starting to install NPM modules from " + initData.url, "process packaging - npm", "marshalResources")
-                const {spawnSync} = require('child_process'),
-                    npm = spawnSync('npm', ['install'], {cwd: initData.url});
-                DEBUG.dumpObject(`stdout: ${npm.stdout.toString().trim()}`, "npm install", "marshalResources");
-                DEBUG.dumpObject(`stderr: ${npm.stderr.toString().trim()}`, "npm install", "marshalResources");
-                if (npm.status !== 0) {
-                    throw (npm.error);
+            if (fs.existsSync(initData.url)) {
+                const stats = fs.lstatSync(initData.url);
+                // check if specified url is an existing directory
+                if (stats.isDirectory()) {
+                    // import spawnSync routine from child_process NPM module
+                    // spawnSync spawns a new process using the given command and does not return until
+                    // the child process is fully closed/finished executing.
+                    // Note: Be very careful changing any of the child_process and spwanSync functionality
+                    DEBUG.dumpObject("Starting to install NPM modules from " + initData.url, "process packaging - npm", "marshalResources")
+                    const {spawnSync} = require('child_process'),
+                        npm = spawnSync('npm', ['install'], {cwd: initData.url});
+                    DEBUG.dumpObject(`stdout: ${npm.stdout.toString().trim()}`, "npm install", "marshalResources");
+                    DEBUG.dumpObject(`stderr: ${npm.stderr.toString().trim()}`, "npm install", "marshalResources");
+                    if (npm.status !== 0) {
+                        throw (npm.error);
+                    }
+
+                    var zipFile = "action.zip";
+                    // note here we are using same instance of spwanSync as we used for running npm install
+                    // to make sure the execution of zip command follows right after npm install closes (sequential)
+                    DEBUG.dumpObject("Starting to compress action resources at " + initData.url, "process packaging - zip", "marshalResources")
+                    const compressFile = spawnSync('zip', ['-r', zipFile, '.'], {cwd: initData.url});
+                    DEBUG.dumpObject(`stdout: ${compressFile.stdout.toString().trim()}`, "zip -r action.zip *", "marshalResources");
+                    DEBUG.dumpObject(`stderr: ${compressFile.stderr.toString().trim()}`, "zip -r action.zip *", "marshalResources");
+                    if (compressFile.status !== 0) {
+                        throw (compressFile.error);
+                    }
+
+                    // and same here, making sure base64 command follows right after zip command finishes by
+                    // using the same spawnSync instance of child_process.
+                    DEBUG.dumpObject("Starting to decode compressed action resource", "process packaging - base64", "marshalResources")
+                    const code = spawnSync('base64', [initData.url + '/' + zipFile]);
+                    DEBUG.dumpObject(`stdout: ${code.stdout.toString().trim()}`, "base64 action.zip", "marshalResources");
+                    DEBUG.dumpObject(`stderr: ${code.stderr.toString().trim()}`, "base64 action.zip", "marshalResources");
+                    if (code.status !== 0) {
+                        throw (code.error);
+                    }
+
+                    // assign base64 encoded zip file content to action code before initializing the action
+                    initData.code = code.stdout.toString().trim();
+                    valueData.code = initData.code;
+
+                    // mark this action as binary so that run routine can decode it appropriately
+                    initData.binary = true;
+                    valueData.binary = true;
                 }
-
-                var zipFile = "action.zip";
-                // note here we are using same instance of spwanSync as we used for running npm install
-                // to make sure the execution of zip command follows right after npm install closes (sequential)
-                DEBUG.dumpObject("Starting to compress action resources at " + initData.url, "process packaging - zip", "marshalResources")
-                const compressFile = spawnSync('zip', ['-r', zipFile, '.'], {cwd: initData.url});
-                DEBUG.dumpObject(`stdout: ${compressFile.stdout.toString().trim()}`, "zip -r action.zip *", "marshalResources");
-                DEBUG.dumpObject(`stderr: ${compressFile.stderr.toString().trim()}`, "zip -r action.zip *", "marshalResources");
-                if (compressFile.status !== 0) {
-                    throw (compressFile.error);
-                }
-
-                // and same here, making sure base64 command follows right after zip command finishes by
-                // using the same spawnSync instance of child_process.
-                DEBUG.dumpObject("Starting to decode compressed action resource", "process packaging - base64", "marshalResources")
-                const code = spawnSync('base64', [initData.url + '/' + zipFile]);
-                DEBUG.dumpObject(`stdout: ${code.stdout.toString().trim()}`, "base64 action.zip", "marshalResources");
-                DEBUG.dumpObject(`stderr: ${code.stderr.toString().trim()}`, "base64 action.zip", "marshalResources");
-                if (code.status !== 0) {
-                    throw (code.error);
-                }
-
-                // assign base64 encoded zip file content to action code before initializing the action
-                initData.code = code.stdout.toString().trim();
-                valueData.code = initData.code;
-
-                // mark this action as binary so that run routine can decode it appropriately
-                initData.binary = true;
-                valueData.binary = true;
             }
         }
     } catch (e) {
