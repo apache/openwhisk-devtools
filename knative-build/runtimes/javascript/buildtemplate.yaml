@@ -51,13 +51,21 @@ spec:
       if [ -z ${OW_PROJECT_URL} ]; then
         OW_ACTION_CODE="${OW_ACTION_CODE}"
       else
-        TEMPDIR="knative-"$((1 + RANDOM % 100))
-        TEMPFILE=`basename "${OW_PROJECT_URL}"`
-        mkdir $TEMPDIR
-        cd $TEMPDIR
-        wget -O $TEMPFILE "${OW_PROJECT_URL}"
-        OW_ACTION_CODE=`cat $TEMPFILE`
-        cd ..
+        if [ -f ${OW_PROJECT_URL} ]; then
+          if [ ${OW_ACTION_BINARY} ]; then
+            OW_ACTION_CODE=`base64 ${OW_PROJECT_URL}`
+          else
+            OW_ACTION_CODE=`cat ${OW_PROJECT_URL}`
+          fi
+        else
+            TEMPDIR="knative-"$((1 + RANDOM % 100))
+            TEMPFILE=`basename "${OW_PROJECT_URL}"`
+            mkdir $TEMPDIR
+            cd $TEMPDIR
+            wget -O $TEMPFILE "${OW_PROJECT_URL}"
+            OW_ACTION_CODE=`cat $TEMPFILE`
+            cd ..
+        fi
       fi
       cat <<EOF >> ${DOCKERFILE}
         ENV __OW_RUNTIME_DEBUG "${OW_RUNTIME_DEBUG}"
@@ -68,6 +76,7 @@ spec:
         ENV __OW_ACTION_BINARY "${OW_ACTION_BINARY}"
         ENV __OW_HTTP_METHODS "${OW_HTTP_METHODS}"
         ENV __OW_ACTION_RAW "${OW_ACTION_RAW}"
+        ENV __OW_PROJECT_URL "${OW_PROJECT_URL}"
       EOF
   - name: build-openwhisk-nodejs-runtime
     image: "gcr.io/kaniko-project/executor:latest"

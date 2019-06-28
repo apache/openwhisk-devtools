@@ -1,0 +1,20 @@
+{
+  "init": {
+    "name" : "nodejs-package-npm",
+    "main" : "main",
+    "binary": true,
+    "url" : "app/packages/left-pad/"
+  },
+  "activation": {
+    "namespace": "default",
+    "action_name": "nodejs-package-npm",
+    "api_host": "",
+    "api_key": "",
+    "activation_id": "",
+    "deadline": "4102498800000"
+  },
+  "value": {
+    "lines" : ["Hello","How are you?"]
+  }
+}
+

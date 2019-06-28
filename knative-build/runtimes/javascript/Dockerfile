@@ -18,6 +18,7 @@
 FROM node:10.15.0-stretch
 RUN apt-get update && apt-get install -y \
     imagemagick \
+    zip \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /nodejsAction
