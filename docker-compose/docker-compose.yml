@@ -40,7 +40,7 @@ services:
   # WHISK CONTROLLER
   controller:
     image: ${DOCKER_IMAGE_PREFIX:-openwhisk}/controller
-    command: /bin/sh -c "exec /init.sh 0 >> /home/owuser/controller-local_logs.log 2>&1"
+    command: /bin/sh -c "exec /init.sh 0 >> /logs/controller-local_logs.log 2>&1"
     links:
       - db:db.docker
       - kafka:kafka.docker
