@@ -18,6 +18,7 @@ endif
 DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo ${LOCAL_IP})
 DOCKER_REGISTRY ?= ""
 DOCKER_IMAGE_PREFIX ?= openwhisk
+DOCKER_IMAGE_TAG ?= nightly
 OPENWHISK_VERSION ?= master
 OPENWHISK_PROJECT_HOME ?= $(CURDIR)/openwhisk-src
 OPENWHISK_CATALOG_HOME ?= $(CURDIR)/openwhisk-catalog
@@ -57,7 +58,7 @@ download-src:
 		echo "Skipping downloading the code as OPENWHISK_PROJECT_HOME is set to " $(OPENWHISK_PROJECT_HOME); \
 	else \
 		rm -rf $(CURDIR)/openwhisk-src; \
-		curl -o ./openwhisk-src.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/$(OPENWHISK_VERSION).tar.gz; \
+		curl -s -o ./openwhisk-src.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/$(OPENWHISK_VERSION).tar.gz; \
 		echo "Unpacking tarball."; \
 	    mkdir -p $(OPENWHISK_PROJECT_HOME); \
 	    tar -xf ./openwhisk-src.tar.gz --strip 1 -C $(OPENWHISK_PROJECT_HOME); \
@@ -68,7 +69,7 @@ download-src:
 download-catalog:
 	if [ "$(OPENWHISK_CATALOG_HOME)" = "$(CURDIR)/openwhisk-catalog" ]; then \
 	    rm -rf $(CURDIR)/openwhisk-catalog*; \
-	    curl -O ./openwhisk-catalog.tar.gz -L https://api.github.com/repos/apache/incubator-openwhisk-catalog/tarball/master > ./openwhisk-catalog.tar.gz; \
+	    curl -s -O ./openwhisk-catalog.tar.gz -L https://api.github.com/repos/apache/incubator-openwhisk-catalog/tarball/master > ./openwhisk-catalog.tar.gz; \
 	    mkdir openwhisk-catalog; \
 	    tar -xf ./openwhisk-catalog.tar.gz --strip 1 -C openwhisk-catalog; \
 	else \
@@ -78,7 +79,7 @@ download-catalog:
 .PHONY: quick-start-pause
 quick-start-pause:
 	echo "waiting for the Whisk invoker to come up ... "
-	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8085/ping); do printf '.'; sleep 5; done
+	until $$(curl -s --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8085/ping); do printf '.'; sleep 5; done
 	echo " ... OK"
 	sleep 30
 
@@ -108,49 +109,49 @@ docker_pull_full:
 docker-build:
 	echo "building the OpenWhisk core docker images ... "
 	cd $(OPENWHISK_PROJECT_HOME) && \
-		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX)
+		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX) -PdockerImageTag=${DOCKER_IMAGE_TAG}
 
 .PHONY: docker-pull-lean
 docker-pull-lean:
-	docker pull $(DOCKER_IMAGE_PREFIX)/controller
-	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action
-	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton
+	docker pull $(DOCKER_IMAGE_PREFIX)/controller:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton:${DOCKER_IMAGE_TAG}
 
 .PHONY: docker-pull
 docker-pull:	docker-pull-lean
 	echo "pulling the docker images short list... "
-	docker pull $(DOCKER_IMAGE_PREFIX)/invoker
+	docker pull $(DOCKER_IMAGE_PREFIX)/invoker:${DOCKER_IMAGE_TAG}
 
 .PHONY: docker-pull-full
 docker-pull-full:
 	echo "pulling the docker images full list ... "
-	docker pull $(DOCKER_IMAGE_PREFIX)/controller
-	docker pull $(DOCKER_IMAGE_PREFIX)/invoker
-	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v8
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v10
-	docker pull $(DOCKER_IMAGE_PREFIX)/python2action
-	docker pull $(DOCKER_IMAGE_PREFIX)/python3action
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v4.2
-	docker pull $(DOCKER_IMAGE_PREFIX)/java8action
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.3
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-ruby-v2.5
-	docker pull $(DOCKER_IMAGE_PREFIX)/actionloop-golang-v1.11
-	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-dotnet-v2.2
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-ballerina-v0.990.2
+	docker pull $(DOCKER_IMAGE_PREFIX)/controller:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/invoker:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v8:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v10:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/python2action:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/python3action:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v4.2:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/java8action:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.3:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-ruby-v2.5:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/actionloop-golang-v1.11:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-dotnet-v2.2:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-ballerina-v0.990.2:${DOCKER_IMAGE_TAG}
 
 download-cli:
 	echo "downloading the CLI tool ... "
 	if [ ! -e "$(WSK_CLI)" ]; then \
         if [ "$(UNAME_STR)" = "Darwin" ]; then \
           echo "downloading cli for mac" ; \
-          curl -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
+          curl -s -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
             cd $(OPENWHISK_PROJECT_HOME)/bin ; \
         unzip -o wsk.zip; \
         elif [ "$(UNAME_STR)" = "Linux" ]; then \
           echo "downloading cli for linux" ; \
-          curl -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
+          curl -s -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
             cd $(OPENWHISK_PROJECT_HOME)/bin ; \
             tar -xf wsk.tgz ; \
         fi; \
@@ -214,6 +215,7 @@ setup:
 	printf "DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP)\n" >> $(TMP_HOME)/tmp/openwhisk/local.env
 	printf "DOCKER_REGISTRY=$(DOCKER_REGISTRY)\n" >> $(TMP_HOME)/tmp/openwhisk/local.env
 	printf "DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX)\n" >> $(TMP_HOME)/tmp/openwhisk/local.env
+	printf "DOCKER_IMAGE_TAG=$(DOCKER_IMAGE_TAG)\n" >> $(TMP_HOME)/tmp/openwhisk/local.env
 
 	echo "  ... preparing api-gateway configuration"
 	rm -rf $(TMP_HOME)/tmp/openwhisk/api-gateway-config
@@ -222,9 +224,9 @@ setup:
 	mkdir -p $(TMP_HOME)/tmp/openwhisk/minio
 	cp -r ./apigateway/* $(TMP_HOME)/tmp/openwhisk/api-gateway-config/api-gateway/
 	cp -r ./apigateway/rclone $(TMP_HOME)/tmp/openwhisk
-       
  
 	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up minio 2>&1 > $(TMP_HOME)/tmp/openwhisk/setup.log &
+
 	echo "pinging minio..."
 	until (curl --silent http://$(DOCKER_HOST_IP):9001/ > /dev/null); do printf '.'; sleep 5; done
 	echo " ... OK"
@@ -232,7 +234,7 @@ setup:
 	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk run --rm --no-deps apigateway rclone copy --exclude .git /etc/api-gateway/ minio:api-gateway/
 	# $(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop minio
 	# $(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f minio
-	
+
 	# Check if the user has provided SSL certificates, if not generate them
 	if [ -f "$(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/openwhisk-server-key.pem" ] && \
 		[ -f "$(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/openwhisk-server-cert.pem" ]; then \
@@ -340,7 +342,8 @@ init-couchdb:
 .PHONY: init-whisk-cli
 init-whisk-cli:
 	echo "waiting for the Whisk controller to come up ... "
-	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
+	# removed --head from this curl because of an upstream change https://github.com/apache/incubator-openwhisk/pull/4494
+	until $$(curl --output /dev/null --silent --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
 	echo "initializing CLI properties into $(WSK_CONFIG_FILE)"
 	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) property set --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i
 
@@ -455,7 +458,7 @@ $(addprefix download-package-,$(PACKAGES)):
 	echo "Downloading package" $(PACKAGE_NAME) "into" $(PACKAGE_HOME)
 	rm -rf ./openwhisk-package-$(PACKAGE_NAME)*
 	if [ "$(PACKAGE_HOME)" = "./openwhisk-package-$(PACKAGE_NAME)" ]; then \
-	    curl -O ./openwhisk-package-$(PACKAGE_NAME).tar.gz -L https://api.github.com/repos/apache/incubator-openwhisk-package-$(PACKAGE_NAME)/tarball/master > ./openwhisk-package-$(PACKAGE_NAME).tar.gz; \
+	    curl -s -O ./openwhisk-package-$(PACKAGE_NAME).tar.gz -L https://api.github.com/repos/apache/incubator-openwhisk-package-$(PACKAGE_NAME)/tarball/master > ./openwhisk-package-$(PACKAGE_NAME).tar.gz; \
 	    mkdir openwhisk-package-$(PACKAGE_NAME); \
 	    tar -xf ./openwhisk-package-$(PACKAGE_NAME).tar.gz --strip 1 -C openwhisk-package-$(PACKAGE_NAME); \
 	else \

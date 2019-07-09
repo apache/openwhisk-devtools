@@ -14,8 +14,8 @@ services:
 
   # WHISK CONTROLLER
   controller:
-    image: ${DOCKER_IMAGE_PREFIX:-openwhisk}/controller
-    command: /bin/sh -c "exec /init.sh 0 >> /home/owuser/controller-local_logs.log 2>&1"
+    image: ${DOCKER_IMAGE_PREFIX:-openwhisk}/controller:${DOCKER_IMAGE_TAG:-latest}
+    command: /bin/sh -c "exec /init.sh 0 >> /logs/controller-local_logs.log 2>&1"
     privileged: true
     pid: "host"
     userns_mode: "host"
@@ -81,7 +81,7 @@ services:
     ports:
       - "6379:6379"
   apigateway:
-    image: openwhisk/apigateway:latest
+    image: openwhisk/apigateway:nightly
     links:
       - controller:whisk.controller
       - redis:redis.docker
