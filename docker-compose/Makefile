@@ -450,6 +450,8 @@ setup-providers:
 	printf "ENDPOINT_AUTH=`cat $(realpath $(OPENWHISK_PROJECT_HOME))/ansible/files/auth.whisk.system`\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
 	printf "HOST_MACHINE=$(DOCKER_HOST_IP)\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
 	printf "DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP)\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
+	printf "DOCKER_IMAGE_PREFIX"="openwhisk\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
+	printf "DOCKER_IMAGE_TAG"="nightly\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
 
 .PHONY: $(addprefix download-package-,$(PACKAGES))
 $(addprefix download-package-,$(PACKAGES)):
