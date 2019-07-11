@@ -451,7 +451,7 @@ setup-providers:
 	printf "HOST_MACHINE=$(DOCKER_HOST_IP)\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
 	printf "DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP)\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
 	printf "DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX)\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
-	printf "DOCKER_IMAGE_TAG"="nightly\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
+	printf "DOCKER_IMAGE_TAG=$(DOCKER_IMAGE_TAG)\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
 
 .PHONY: $(addprefix download-package-,$(PACKAGES))
 $(addprefix download-package-,$(PACKAGES)):
