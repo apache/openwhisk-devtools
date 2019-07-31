@@ -200,3 +200,11 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+========================================================================
+Apache License 2.0
+========================================================================
+
+This product bundles the files gradlew and gradlew.bat from Gradle v5.5
+which are distributed under the Apache License, Version 2.0.
+For details see the files gradlew and gradlew.bat.
