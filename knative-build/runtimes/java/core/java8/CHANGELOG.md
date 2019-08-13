@@ -19,6 +19,9 @@
 
 # Java 8 OpenWhisk Runtime Container
 
+## 1.1.3
+Changes:
+- Update jdk x86_64-ubuntu-jdk8u181-b13_openj9-0.9.0 and push latest hash [jdk8u181-b13_openj9-0.9.0](https://hub.docker.com/r/adoptopenjdk/openjdk8-openj9/tags/) [#77](https://github.com/apache/incubator-openwhisk-runtime-java/pull/77/files)
 
 ## 1.1.2
 Changes:
