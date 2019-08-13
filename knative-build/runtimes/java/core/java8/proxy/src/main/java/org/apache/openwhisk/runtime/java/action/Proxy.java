@@ -40,15 +40,15 @@ import com.sun.net.httpserver.HttpServer;
 
 public class Proxy {
     private HttpServer server;
-
     private JarLoader loader = null;
 
     public Proxy(int port) throws IOException {
+        long startTime = Debug.start();
         this.server = HttpServer.create(new InetSocketAddress(port), -1);
-
         this.server.createContext("/init", new InitHandler());
         this.server.createContext("/run", new RunHandler());
         this.server.setExecutor(null); // creates a default executor
+        Debug.end(startTime);
     }
 
     public void start() {
@@ -78,6 +78,7 @@ public class Proxy {
 
     private class InitHandler implements HttpHandler {
         public void handle(HttpExchange t) throws IOException {
+            long startTime = Debug.start();
             if (loader != null) {
                 String errorMessage = "Cannot initialize the action more than once.";
                 System.err.println(errorMessage);
@@ -122,11 +123,15 @@ public class Proxy {
                 Proxy.writeError(t, "An error has occurred (see logs for details): " + e);
                 return;
             }
+            finally {
+                Debug.end(startTime);
+            }
         }
     }
 
     private class RunHandler implements HttpHandler {
         public void handle(HttpExchange t) throws IOException {
+            long startTime = Debug.start();
             if (loader == null) {
                 Proxy.writeError(t, "Cannot invoke an uninitialized action.");
                 return;
@@ -177,12 +182,15 @@ public class Proxy {
                 writeLogMarkers();
                 System.setSecurityManager(sm);
                 Thread.currentThread().setContextClassLoader(cl);
+                Debug.end(startTime);
             }
         }
     }
 
     public static void main(String args[]) throws Exception {
+        Debug.start();
         Proxy proxy = new Proxy(8080);
         proxy.start();
+        Debug.end();
     }
 }
