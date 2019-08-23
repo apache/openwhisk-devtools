@@ -204,7 +204,7 @@ spec:
   serviceAccountName: openwhisk-runtime-builder
   source:
     git:
-      url: "https://github.com/apache/incubator-openwhisk-devtools.git"
+      url: "https://github.com/apache/openwhisk-devtools.git"
       revision: "master"
   template:
     name: openwhisk-nodejs-runtime

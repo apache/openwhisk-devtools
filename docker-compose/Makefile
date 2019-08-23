@@ -58,7 +58,7 @@ download-src:
 		echo "Skipping downloading the code as OPENWHISK_PROJECT_HOME is set to " $(OPENWHISK_PROJECT_HOME); \
 	else \
 		rm -rf $(CURDIR)/openwhisk-src; \
-		curl -s -o ./openwhisk-src.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/$(OPENWHISK_VERSION).tar.gz; \
+		curl -s -o ./openwhisk-src.tar.gz -L https://github.com/apache/openwhisk/archive/$(OPENWHISK_VERSION).tar.gz; \
 		echo "Unpacking tarball."; \
 	    mkdir -p $(OPENWHISK_PROJECT_HOME); \
 	    tar -xf ./openwhisk-src.tar.gz --strip 1 -C $(OPENWHISK_PROJECT_HOME); \
@@ -69,7 +69,7 @@ download-src:
 download-catalog:
 	if [ "$(OPENWHISK_CATALOG_HOME)" = "$(CURDIR)/openwhisk-catalog" ]; then \
 	    rm -rf $(CURDIR)/openwhisk-catalog*; \
-	    curl -s -O ./openwhisk-catalog.tar.gz -L https://api.github.com/repos/apache/incubator-openwhisk-catalog/tarball/master > ./openwhisk-catalog.tar.gz; \
+	    curl -s -O ./openwhisk-catalog.tar.gz -L https://api.github.com/repos/apache/openwhisk-catalog/tarball/master > ./openwhisk-catalog.tar.gz; \
 	    mkdir openwhisk-catalog; \
 	    tar -xf ./openwhisk-catalog.tar.gz --strip 1 -C openwhisk-catalog; \
 	else \
@@ -146,12 +146,12 @@ download-cli:
 	if [ ! -e "$(WSK_CLI)" ]; then \
         if [ "$(UNAME_STR)" = "Darwin" ]; then \
           echo "downloading cli for mac" ; \
-          curl -s -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
+          curl -s -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
             cd $(OPENWHISK_PROJECT_HOME)/bin ; \
         unzip -o wsk.zip; \
         elif [ "$(UNAME_STR)" = "Linux" ]; then \
           echo "downloading cli for linux" ; \
-          curl -s -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
+          curl -s -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
             cd $(OPENWHISK_PROJECT_HOME)/bin ; \
             tar -xf wsk.tgz ; \
         fi; \
@@ -342,7 +342,7 @@ init-couchdb:
 .PHONY: init-whisk-cli
 init-whisk-cli:
 	echo "waiting for the Whisk controller to come up ... "
-	# removed --head from this curl because of an upstream change https://github.com/apache/incubator-openwhisk/pull/4494
+	# removed --head from this curl because of an upstream change https://github.com/apache/openwhisk/pull/4494
 	until $$(curl --output /dev/null --silent --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
 	echo "initializing CLI properties into $(WSK_CONFIG_FILE)"
 	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) property set --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i
@@ -460,7 +460,7 @@ $(addprefix download-package-,$(PACKAGES)):
 	echo "Downloading package" $(PACKAGE_NAME) "into" $(PACKAGE_HOME)
 	rm -rf ./openwhisk-package-$(PACKAGE_NAME)*
 	if [ "$(PACKAGE_HOME)" = "./openwhisk-package-$(PACKAGE_NAME)" ]; then \
-	    curl -s -O ./openwhisk-package-$(PACKAGE_NAME).tar.gz -L https://api.github.com/repos/apache/incubator-openwhisk-package-$(PACKAGE_NAME)/tarball/master > ./openwhisk-package-$(PACKAGE_NAME).tar.gz; \
+	    curl -s -O ./openwhisk-package-$(PACKAGE_NAME).tar.gz -L https://api.github.com/repos/apache/openwhisk-package-$(PACKAGE_NAME)/tarball/master > ./openwhisk-package-$(PACKAGE_NAME).tar.gz; \
 	    mkdir openwhisk-package-$(PACKAGE_NAME); \
 	    tar -xf ./openwhisk-package-$(PACKAGE_NAME).tar.gz --strip 1 -C openwhisk-package-$(PACKAGE_NAME); \
 	else \

@@ -161,8 +161,8 @@ All OpenWhisk Runtime Build Templates require a valid Kubernetes **Service Accou
 ## Clone this repository
 
 ```bash
-$ git clone https://github.com/apache/incubator-openwhisk-devtools.git
-$ cd incubator-openwhisk-devtools/knative-build
+$ git clone https://github.com/apache/openwhisk-devtools.git
+$ cd openwhisk-devtools/knative-build
 ```
 
 ## Register Secrets for Docker Hub

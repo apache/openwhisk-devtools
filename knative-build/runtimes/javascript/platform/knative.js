@@ -167,7 +167,7 @@ function preProcessInitData(initdata, valuedata, activationdata) {
  * Pre-process HTTP request information and make it available as parameter data to the action function
  * by moving it to where the route handlers expect it to be (i.e., in the JSON value data map).
  *
- * See: https://github.com/apache/incubator-openwhisk/blob/master/docs/webactions.md#http-context
+ * See: https://github.com/apache/openwhisk/blob/master/docs/webactions.md#http-context
  *
  * HTTP Context
  * ============

@@ -23,7 +23,7 @@ set -ex
 SCRIPTDIR=$(cd $(dirname "$0") && pwd)
 ROOTDIR="$SCRIPTDIR/../.."
 WHISKDIR="$ROOTDIR/../openwhisk"
-UTILDIR="$ROOTDIR/../incubator-openwhisk-utilities"
+UTILDIR="$ROOTDIR/../openwhisk-utilities"
 
 export OPENWHISK_HOME=$WHISKDIR
 
