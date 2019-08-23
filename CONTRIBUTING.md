@@ -53,7 +53,7 @@ Provide as much context as possible so we can try to recreate the issue.
 ### Discussion
 
 Please use the project's developer email list to engage our community:
-[dev@openwhisk.incubator.apache.org](dev@openwhisk.incubator.apache.org)
+[dev@openwhisk.apache.org](dev@openwhisk.apache.org)
 
 In addition, we provide a "dev" Slack team channel for conversations at:
 https://openwhisk-team.slack.com/messages/dev/

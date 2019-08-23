@@ -19,7 +19,7 @@
 
 # How to setup OpenWhisk with Docker Compose
 
-[![Build Status](https://travis-ci.org/apache/incubator-openwhisk-devtools.svg?branch=master)](https://travis-ci.org/apache/incubator-openwhisk-devtools)
+[![Build Status](https://travis-ci.org/apache/openwhisk-devtools.svg?branch=master)](https://travis-ci.org/apache/openwhisk-devtools)
 
 An easy way to try OpenWhisk locally is to use Docker Compose.
 
@@ -66,10 +66,10 @@ This is useful for working with a local clone, making changes to the code, and r
 
 This is the set of environment variables that can be set:
 
-* `OPENWHISK_PROJECT_HOME` - a checkout of [openwhisk](https://github.com/apache/incubator-openwhisk)
-* `OPENWHISK_VERSION` - defaults to `master` but can be set to [releases](https://github.com/apache/incubator-openwhisk/releases) such as `0.9.0-incubating`
-* `OPENWHISK_CATALOG_HOME` - a checkout of [openwhisk-catalog](https://github.com/apache/incubator-openwhisk-catalog)
-* `WSK_CLI` - the directory where the [`wsk` command line tool](https://github.com/apache/incubator-openwhisk-cli) can be found
+* `OPENWHISK_PROJECT_HOME` - a checkout of [openwhisk](https://github.com/apache/openwhisk)
+* `OPENWHISK_VERSION` - defaults to `master` but can be set to [releases](https://github.com/apache/openwhisk/releases) such as `0.9.0-incubating`
+* `OPENWHISK_CATALOG_HOME` - a checkout of [openwhisk-catalog](https://github.com/apache/openwhisk-catalog)
+* `WSK_CLI` - the directory where the [`wsk` command line tool](https://github.com/apache/openwhisk-cli) can be found
 * `DOCKER_IMAGE_PREFIX` - the prefix of the docker images used for actions. If you are building and testing checkouts of runtimes locally, then consider setting this to `whisk`.
 
 Note that these are all optional and only need to be set if you have a local checkout that you want to use.
@@ -100,7 +100,7 @@ make restart-controller
 
   Look at the logs in `~/tmp/openwhisk` especially `~/tmp/openwhisk/controller/logs/controller-local_logs.log` that might give more information. This can be an indication that the docker environment doesn't work properly (and on Mac you might need to switch to use [Docker for Mac](https://www.docker.com/docker-mac).
 
-* Check the [issue tracker](https://github.com/apache/incubator-openwhisk-devtools/issues) for more.
+* Check the [issue tracker](https://github.com/apache/openwhisk-devtools/issues) for more.
 
 # Pull and build local OpenWhisk core images
 
@@ -170,7 +170,7 @@ it on localhost
 
 ## Install Catalog Packages
 
-OpenWhisk has [numerous extra packages](https://github.com/apache/incubator-openwhisk-catalog) that are often installed into the `/whisk.system` namespace.
+OpenWhisk has [numerous extra packages](https://github.com/apache/openwhisk-catalog) that are often installed into the `/whisk.system` namespace.
 
 ***These are not included by default with the devtools  `make quick-start` command.***
 
@@ -191,11 +191,11 @@ If you want to pull new containers you can use `make pull` to update all the con
 
 ## Install Feed Providers
 
-OpenWhisk supports [feed providers](https://github.com/apache/incubator-openwhisk/blob/master/docs/feeds.md) for invoking triggers from external event sources.
+OpenWhisk supports [feed providers](https://github.com/apache/openwhisk/blob/master/docs/feeds.md) for invoking triggers from external event sources.
 
 ***Feed provider packages are not included by default with the devtools  `make quick-start` command.***
 
-Providers for the [`alarms`](https://github.com/apache/incubator-openwhisk-package-alarms), [`kafka`](https://github.com/apache/incubator-openwhisk-package-kafka) and [`cloudant`](https://github.com/apache/incubator-openwhisk-package-cloudant) feeds can be installed individually using the `make` command.
+Providers for the [`alarms`](https://github.com/apache/openwhisk-package-alarms), [`kafka`](https://github.com/apache/openwhisk-package-kafka) and [`cloudant`](https://github.com/apache/openwhisk-package-cloudant) feeds can be installed individually using the `make` command.
 
 ```bash
 make create-provider-alarms

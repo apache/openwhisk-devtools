@@ -28,7 +28,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 
 /**
- * Parts copied from https://github.com/apache/incubator-openwhisk-runtime-java/blob/master/core/javaAction/proxy/src/main/java/openwhisk/java/action/JarLoader.java
+ * Parts copied from https://github.com/apache/openwhisk-runtime-java/blob/master/core/javaAction/proxy/src/main/java/openwhisk/java/action/JarLoader.java
  *
  */
 public class JarLoader extends URLClassLoader implements Invoker{

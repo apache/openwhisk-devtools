@@ -4,7 +4,7 @@
     "description": "Apache OpenWhisk NodeJS Runtime",
     "repository": {
         "type": "git",
-        "url": "git@github.com:apache/incubator-openwhisk-runtime-nodejs.git"
+        "url": "git@github.com:apache/openwhisk-runtime-nodejs.git"
     },
     "license": "Apache-2.0",
     "dependencies": {
