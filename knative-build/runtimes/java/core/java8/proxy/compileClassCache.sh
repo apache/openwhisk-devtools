@@ -33,10 +33,6 @@ set -x
 #    Enables class sharing. This option can take a number of suboptions, some of which are cache utilities.
 #    - cacheDir=<directory>: Sets the directory in which cache data is read and written.
 #### Construct Class Cache with HTTP Server classes by starting the server ####
-#java "-Xshareclasses:cacheDir=/javaSharedCache/" "-Xquickstart" -verbose:class -verbose:sizes "-jar" "/javaAction/build/libs/javaAction-all.jar" &
-#HTTP_PID=$!
-#sleep 2
-#kill $HTTP_PID
 
 JAVA_STANDARD_OPTIONS="-Dfile.encoding=UTF-8"
 # #### Construct Class Cache with HTTP Server classes by starting the server ####
