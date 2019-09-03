@@ -20,9 +20,9 @@ if [ $1 ]
 then
     while read test; do
         echo "building test (directory):" $test
-        # cd $test
+        cd $test
         #scancode/scanCode.py --config scancode/ASF-Release.cfg ../$fn
-        #cd ..
+        cd ..
     done < $1
 else
     echo "ERROR: Argument not present: Test listing (.txt)"

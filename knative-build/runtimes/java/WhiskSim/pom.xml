@@ -52,7 +52,7 @@
     <plugins>
       <!-- build the JAR using latest -->
       <!-- NOTE: if we use default JAR plugin we instead get version 2.4 'maven-jar-plugin:2.4:jar' -->
-      <!-- <plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.0.2</version>
@@ -63,7 +63,7 @@
             </manifest>
           </archive>
         </configuration>
-      </plugin> -->
+      </plugin>
       <!-- force dependencies to be packaged in JAR file -->
       <plugin>
           <artifactId>maven-assembly-plugin</artifactId>
