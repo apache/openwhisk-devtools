@@ -59,6 +59,7 @@ public class App
         // create Options object
         Options options = new Options();
 
+        // Option(String opt, String longOpt, boolean hasArg, String description)
         // add verbose option
         Option help = new Option( "h", "help", false, "print utility help" );
         Option verbose = new Option( "v", "verbose", false, "enable verbose output" );

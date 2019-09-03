@@ -33,6 +33,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
+    <!-- skip testCompile -->
+    <maven.test.skip>true</maven.test.skip>
   </properties>
 
   <dependencies>
@@ -46,11 +48,11 @@
   </dependencies>
 
   <build>
-    <finalName>WhiskSim</finalName>
+    <finalName>WhiskSim-NoDeps</finalName>
     <plugins>
       <!-- build the JAR using latest -->
       <!-- NOTE: if we use default JAR plugin we instead get version 2.4 'maven-jar-plugin:2.4:jar' -->
-      <plugin>
+      <!-- <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.0.2</version>
@@ -61,7 +63,7 @@
             </manifest>
           </archive>
         </configuration>
-      </plugin>
+      </plugin> -->
       <!-- force dependencies to be packaged in JAR file -->
       <plugin>
           <artifactId>maven-assembly-plugin</artifactId>
@@ -74,6 +76,8 @@
             </execution>
           </executions>
           <configuration>
+            <finalName>WhiskSim</finalName>
+            <appendAssemblyId>false</appendAssemblyId>
             <descriptorRefs>
               <descriptorRef>jar-with-dependencies</descriptorRef>
             </descriptorRefs>
