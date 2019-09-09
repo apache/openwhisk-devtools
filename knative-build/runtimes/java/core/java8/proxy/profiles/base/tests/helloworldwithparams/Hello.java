@@ -15,4 +15,17 @@
  * limitations under the License.
  */
 
-compile.gson=com.google.code.gson:gson:2.6.2
+import com.google.gson.JsonObject;
+public class Hello {
+  public static JsonObject main(JsonObject args) {
+    String name = "stranger";
+    String place = "somewhere";
+    if (args.has("name"))
+      name = args.getAsJsonPrimitive("name").getAsString();
+    if (args.has("place"))
+      place = args.getAsJsonPrimitive("place").getAsString();
+    JsonObject response = new JsonObject();
+    response.addProperty("greeting", "Hello " + name + " from " + place + "!");
+    return response;
+  }
+}

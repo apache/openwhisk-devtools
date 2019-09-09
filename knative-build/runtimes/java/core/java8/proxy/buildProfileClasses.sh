@@ -15,16 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+set -x
 
-if [ $1 ]
-then
-    while read test; do
-        echo "building test (directory):" $test
-        cd $test
-        #scancode/scanCode.py --config scancode/ASF-Release.cfg ../$fn
-        cd ..
-    done < $1
-else
-    echo "ERROR: Argument not present: Test listing (.txt)"
-    exit 1
-fi
+cd profiles/base/tests
+# Clean out previous build artifacts
+ ./clean_all.sh
+
+ # Create new build artifacts
+ ./build_all.sh
+
+ cd ../../..
