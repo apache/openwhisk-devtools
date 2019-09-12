@@ -38,8 +38,12 @@ JAVA_STANDARD_OPTIONS="-Dfile.encoding=UTF-8"
 # #### Construct Class Cache with HTTP Server classes by starting the server ####
 JAVA_EXTENDED_OPTIONS="-Xshareclasses:cacheDir=/javaSharedCache/ -Xquickstart"
 JAVA_VERBOSE_OPTIONS="-verbose:class -verbose:sizes"
+JAVA_JVM_KILL_DELAY=5s
 
+echo "Creating shared class cache with Proxy and 'base' profile libraries..."
 java $JAVA_VERBOSE_OPTIONS $JAVA_STANDARD_OPTIONS $JAVA_EXTENDED_OPTIONS "-jar" "/javaAction/build/libs/javaAction-all.jar" &
 HTTP_PID=$!
-sleep 2
+echo "Sleeping (${JAVA_JVM_KILL_DELAY}) allowing cache to be populated before killing JVM process (${HTTP_PID})..."
+sleep $JAVA_JVM_KILL_DELAY
+echo "Killing JVM process (${HTTP_PID})..."
 kill $HTTP_PID
