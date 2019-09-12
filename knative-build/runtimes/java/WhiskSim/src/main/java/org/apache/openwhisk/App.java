@@ -36,33 +36,6 @@ import org.apache.commons.io.FileUtils;
 // Formatter: https://github.com/redhat-developer/vscode-java/wiki/Formatter-settings
 public class App
 {
-   /**
-    * Open and reads a text file containing a list of "test" (subdirectories) to init/run
-    */
-    // private List<String> readTestFile(String filename)
-    // {
-    //     System.out.println("readTestFile():" + filename );
-    //     List<String> records = new ArrayList<String>();
-    //     try
-    //     {
-    //         BufferedReader reader = new BufferedReader(new FileReader(filename));
-    //         String line;
-    //         while ((line = reader.readLine()) != null)
-    //         {
-    //             System.out.println("readTestFile(): line=[" + line + "]" );
-    //             records.add(line);
-    //         }
-    //         reader.close();
-    //         return records;
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         System.err.format("Unable to read test file '%s'.", filename);
-    //         e.printStackTrace();
-    //         return null;
-    //     }
-    // }
-
     private JSONObject readJSON(String filename) throws Exception {
         File file = new File(filename);
         String content = FileUtils.readFileToString(file, "utf-8");
