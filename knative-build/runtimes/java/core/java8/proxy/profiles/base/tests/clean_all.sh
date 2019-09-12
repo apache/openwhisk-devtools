@@ -17,7 +17,6 @@
 #
 set +x
 
-echo "Entering for loop..."
 for f in *; do
     # if the file is a directory
     if [ -d ${f} ]; then

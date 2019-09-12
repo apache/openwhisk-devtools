@@ -17,22 +17,6 @@
 #
 set +x
 
-# if [ $1 ]
-# then
-#     while read test; do
-#         echo "building test (directory):" $test
-#         cd $test
-#         ls -al *.jar
-#         javac -verbose -classpath gson-2.8.5.jar Hello.java
-#         jar cvf hello.jar *.class
-#         base64 hello.jar > hello.jar.base64
-#         cd ..
-#     done < $1
-# else
-#     echo "ERROR: Argument not present: Test listing (.txt)"
-#     exit 1
-# fi
-
 for f in *; do
     # if the file is a directory
     if [ -d ${f} ]; then

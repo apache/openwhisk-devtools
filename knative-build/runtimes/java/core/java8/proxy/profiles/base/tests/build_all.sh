@@ -17,18 +17,17 @@
 #
 set +x
 
-echo "Entering for loop..."
 for f in *; do
     # if the file is a directory
     if [ -d ${f} ]; then
         echo "Compiling Test: ${f}"
         cd $f
         ls -al *.jar
-        echo "Compiling Test..."
+        echo "Compiling Class..."
         javac -verbose -classpath ../../libs/gson-2.8.5.jar Hello.java
         echo "Creating JAR..."
         jar cvf hello.jar *.class
-        echo "Babse64 encoding JAR..."
+        echo "Base64 encoding JAR..."
         base64 hello.jar > hello.jar.base64
         cd ..
     fi
