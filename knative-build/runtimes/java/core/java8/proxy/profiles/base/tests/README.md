@@ -1,4 +1,4 @@
-#!/bin/bash
+<!--
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -15,20 +15,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-set +x
+-->
 
-for f in *; do
-    # if the file is a directory
-    if [ -d ${f} ]; then
-        echo "Compiling Test: ${f}"
-        cd $f
-        ls -al *.jar
-        echo "Compiling Class..."
-        javac -verbose -classpath ../../libs/gson-2.8.5.jar Hello.java
-        echo "Creating JAR..."
-        jar cvf hello.jar *.class
-        echo "Base64 encoding JAR..."
-        base64 hello.jar > hello.jar.base64
-        cd ..
-    fi
-done
+# OpenWhisk Runtimes for Knative
+
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+
+This repository contains tests that comprise the sample Java functions that are used to prepare the Java runtime
+shared class cache.
+
+## Test Manual build and execution
+
+### Building
+
+TBD
+
+### Executing
+
+#### OpenWhisk runtime build
+
+```
+curl -d "@openwhisk-data-init.json" -H "Content-Type: application/json" -X POST http://localhost:8080/init
+
+curl -d "@openwhisk-data-run.json" -H "Content-Type: application/json" -X POST http://localhost:8080/run
+```

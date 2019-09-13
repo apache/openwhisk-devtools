@@ -20,15 +20,14 @@ set +x
 for f in *; do
     # if the file is a directory
     if [ -d ${f} ]; then
-        echo "Compiling Test: ${f}"
+        echo "Updating 'code' payload with base64 encoded archive data: ${f}"
         cd $f
-        ls -al *.jar
-        echo "Compiling Class..."
-        javac -verbose -classpath ../../libs/gson-2.8.5.jar Hello.java
-        echo "Creating JAR..."
-        jar cvf hello.jar *.class
-        echo "Base64 encoding JAR..."
-        base64 hello.jar > hello.jar.base64
+            sed "s#BASE64_ENCODED_JAR#$(cat hello.jar.base64)#" openwhisk-data-init.json.tmpl > openwhisk-data-init.json
+            sed "s#BASE64_ENCODED_JAR#$(cat hello.jar.base64)#" knative-data-init.json.tmpl > knative-data-init.json
+            sed "s#BASE64_ENCODED_JAR#$(cat hello.jar.base64)#" knative-data-init-run.json.tmpl > native-data-init-run.json
+            sed "s#BASE64_ENCODED_JAR#$(cat hello.jar.base64)#" payload-knative-init.http.tmpl > payload-knative-init.http
+            sed "s#BASE64_ENCODED_JAR#$(cat hello.jar.base64)#" payload-knative-init-run.http.tmpl > payload-knative-init-run.http
+            sed "s#BASE64_ENCODED_JAR#$(cat hello.jar.base64)#" payload-openwhisk-init.http.tmpl > payload-openwhisk-init.http
         cd ..
     fi
 done

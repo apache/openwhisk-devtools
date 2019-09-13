@@ -25,6 +25,12 @@ for f in *; do
         rm Hello.class
         rm Hello.jar
         rm hello.jar.base64
+        rm openwhisk-data-init.json
+        rm knative-data-init.json
+        rm knative-data-init-run.json
+        rm payload-knative-init.http
+        rm payload-knative-init-run.http
+        rm payload-openwhisk-init.http
         cd ..
     fi
 done
