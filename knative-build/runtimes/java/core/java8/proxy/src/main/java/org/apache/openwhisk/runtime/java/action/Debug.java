@@ -16,7 +16,7 @@
  */
 package org.apache.openwhisk.runtime.java.action;
 
-import java.time.*;
+import java.util.Map;
 
 public class Debug {
 
@@ -50,8 +50,6 @@ public class Debug {
     private static String FQ_METHOD = "";
     private static String METHOD = "";
     private static long currentTime = 0;
-    //private static long startTime = 0;
-    //private static long stopTime = 0;
 
     private static long updateContext(){
         currentTime = System.nanoTime();
@@ -99,11 +97,20 @@ public class Debug {
     public static long end() { return end("",-1);}
     public static long end(long startTime) { return end("", startTime);}
 
-    public static long end(String msg, long startTime){
+    public static long end(String msg, long startTime) {
         currentTime = updateContext();
         String formattedMsg = formatMessage(functionEndMarker, msg, startTime);
         System.out.println(formattedMsg);
         return currentTime;
+    }
+
+    public static void printEnv() {
+        Map<String, String> envVars = System.getenv();
+        long ts = System.nanoTime();
+        System.out.printf("%sEnvironment Variables (%d):%s\n", prefixFGColor, ts, bodyFGColor);
+        for (String key : envVars.keySet()) {
+            System.out.printf(">> %s=\"%s\"%n", key, envVars.get(key));
+        }
     }
 
 }
