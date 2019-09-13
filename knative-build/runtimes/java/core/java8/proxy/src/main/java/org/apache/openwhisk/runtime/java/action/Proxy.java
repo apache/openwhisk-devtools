@@ -41,14 +41,33 @@ import com.sun.net.httpserver.HttpServer;
 public class Proxy {
     private HttpServer server;
     private JarLoader loader = null;
+    private boolean allowMultipleInits = false;
 
     public Proxy(int port) throws IOException {
         long startTime = Debug.start();
+        Debug.printEnv();
         this.server = HttpServer.create(new InetSocketAddress(port), -1);
         this.server.createContext("/init", new InitHandler());
         this.server.createContext("/run", new RunHandler());
         this.server.setExecutor(null); // creates a default executor
+
+        // Default is false; used primarily for establishing boot shared class cache
+        checkMultipleInitEnabled();
+
         Debug.end(startTime);
+    }
+
+    private void checkMultipleInitEnabled() {
+        String strMultipleInit = System.getenv("OW_ALLOW_MULTIPLE_INIT");
+        System.out.printf("OW_ALLOW_MULTIPLE_INIT=%s\n", strMultipleInit);
+
+        // Determine if we allow multiple "init" calls (i.e., Java container reuse); default:false
+        if(strMultipleInit!=null)
+            this.allowMultipleInits = Boolean.parseBoolean(strMultipleInit);
+
+        if(this.allowMultipleInits){
+            System.out.println("Multiple '/init' allowed.");
+        }
     }
 
     public void start() {
@@ -79,7 +98,8 @@ public class Proxy {
     private class InitHandler implements HttpHandler {
         public void handle(HttpExchange t) throws IOException {
             long startTime = Debug.start();
-            if (loader != null) {
+
+            if (loader != null && !allowMultipleInits)  {
                 String errorMessage = "Cannot initialize the action more than once.";
                 System.err.println(errorMessage);
                 Proxy.writeError(t, errorMessage);
@@ -108,7 +128,12 @@ public class Proxy {
 
                         // Start up the custom classloader. This also checks that the
                         // main method exists.
-                        loader = new JarLoader(jarPath, mainClass);
+                        if( loader == null)
+                            loader = new JarLoader(jarPath, mainClass);
+                        else {
+                            loader.addJAR(jarPath);
+                            loader.loadMainClassAndMethod(mainClass);
+                        }
 
                         Proxy.writeResponse(t, 200, "OK");
                         return;
@@ -151,7 +176,8 @@ public class Proxy {
                 for(Map.Entry<String, JsonElement> entry : entrySet){
                     try {
                         if(!entry.getKey().equalsIgnoreCase("value"))
-                            env.put(String.format("__OW_%s", entry.getKey().toUpperCase()), entry.getValue().getAsString());
+                            env.put(String.format("__OW_%s", entry.getKey().toUpperCase()),
+                                    entry.getValue().getAsString());
                     } catch (Exception e) {}
                 }
 
@@ -169,12 +195,13 @@ public class Proxy {
                 Proxy.writeResponse(t, 200, output.toString());
                 return;
             } catch (InvocationTargetException ite) {
-                // These are exceptions from the action, wrapped in ite because
-                // of reflection
+                // When you invoke a method using reflection (as we do for the Action function)
+                // and it throws an exception, you must check for it using InvocationTargetException as follows:
                 Throwable underlying = ite.getCause();
                 underlying.printStackTrace(System.err);
                 Proxy.writeError(t,
-                        "An error has occured while invoking the action (see logs for details): " + underlying);
+                        "An error has occurred while invoking the action (see logs for details): "
+                                + underlying);
             } catch (Exception e) {
                 e.printStackTrace(System.err);
                 Proxy.writeError(t, "An error has occurred (see logs for details): " + e);

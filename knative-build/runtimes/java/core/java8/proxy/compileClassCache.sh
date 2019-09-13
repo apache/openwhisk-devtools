@@ -40,6 +40,8 @@ JAVA_EXTENDED_OPTIONS="-Xshareclasses:cacheDir=/javaSharedCache/ -Xquickstart"
 JAVA_VERBOSE_OPTIONS="-verbose:class -verbose:sizes"
 JAVA_JVM_KILL_DELAY=5s
 
+export OW_ALLOW_MULTIPLE_INIT=true
+
 echo "Creating shared class cache with Proxy and 'base' profile libraries..."
 java $JAVA_VERBOSE_OPTIONS $JAVA_STANDARD_OPTIONS $JAVA_EXTENDED_OPTIONS "-jar" "/javaAction/build/libs/javaAction-all.jar" &
 HTTP_PID=$!
