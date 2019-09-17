@@ -28,7 +28,13 @@ for f in *; do
         echo "Creating JAR..."
         jar cvf hello.jar *.class
         echo "Base64 encoding JAR..."
-        base64 hello.jar > hello.jar.base64
+        unameOut="$(uname -s)"
+        case "${unameOut}" in
+            Linux*)   B64_WRAP="-w0";;
+            Darwin*)  B64_WRAP="";;
+        esac
+        #base64 -w0 hello.jar > hello.jar.base64
+        base64 $B64_WRAP hello.jar > hello.jar.base64
         cd ..
     fi
 done
