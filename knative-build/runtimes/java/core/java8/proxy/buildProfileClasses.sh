@@ -21,7 +21,14 @@ cd profiles/base/tests
 # Clean out previous build artifacts
  ./clean_all.sh
 
- # Create new build artifacts
+ # Create new build artifacts (e.g., JAR, ZIP, and their base64 encodings)
  ./build_all.sh
+
+ # Update the HTTP (body) payloads for OW and Knative (with base64 encoded archives)
+./update_payloads.sh
+
+# execute the functions that will cause the JVM cache to be populated for the profile
+# (e.g., invoke the /init and /run methods for each profile's "test" functions).
+./exec_tests.sh
 
  cd ../../..

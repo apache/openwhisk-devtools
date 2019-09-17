@@ -23,7 +23,7 @@ for f in *; do
         echo "Cleaning up build artifacts for test: '${f}'"
         cd $f
         rm Hello.class
-        rm Hello.jar
+        rm hello.jar
         rm hello.jar.base64
         rm openwhisk-data-init.json
         rm knative-data-init.json
