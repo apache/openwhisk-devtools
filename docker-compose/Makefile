@@ -23,6 +23,7 @@ OPENWHISK_VERSION ?= master
 OPENWHISK_PROJECT_HOME ?= $(CURDIR)/openwhisk-src
 OPENWHISK_CATALOG_HOME ?= $(CURDIR)/openwhisk-catalog
 WSK_CLI ?= $(OPENWHISK_PROJECT_HOME)/bin/wsk
+WSK_CLI_VERSION ?= latest
 WSK_CONFIG_FILE=$(CURDIR)/.wskprops
 OPEN_WHISK_DB_PREFIX ?= local_
 TMP_HOME ?= ~
@@ -146,12 +147,12 @@ download-cli:
 	if [ ! -e "$(WSK_CLI)" ]; then \
         if [ "$(UNAME_STR)" = "Darwin" ]; then \
           echo "downloading cli for mac" ; \
-          curl -s -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
+          curl -s -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/openwhisk-cli/releases/download/$(WSK_CLI_VERSION)/OpenWhisk_CLI-$(WSK_CLI_VERSION)-mac-amd64.zip ; \
             cd $(OPENWHISK_PROJECT_HOME)/bin ; \
         unzip -o wsk.zip; \
         elif [ "$(UNAME_STR)" = "Linux" ]; then \
           echo "downloading cli for linux" ; \
-          curl -s -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
+          curl -s -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/openwhisk-cli/releases/download/$(WSK_CLI_VERSION)/OpenWhisk_CLI-$(WSK_CLI_VERSION)-linux-amd64.tgz ; \
             cd $(OPENWHISK_PROJECT_HOME)/bin ; \
             tar -xf wsk.tgz ; \
         fi; \
