@@ -36,6 +36,7 @@ RUN cd /javaAction \
 	&& rm -rf .classpath .gitignore .gradle .project .settings Dockerfile build \
 	&& ./gradlew oneJar \
 	&& rm -rf /javaAction/src \
+	&& ./gradlew copyDependencies \
 	&& ./compileClassCache.sh
 
 CMD ["java", "-Dfile.encoding=UTF-8", "-Xshareclasses:cacheDir=/javaSharedCache,readonly", "-Xquickstart", "-jar", "/javaAction/build/libs/javaAction-all.jar"]
