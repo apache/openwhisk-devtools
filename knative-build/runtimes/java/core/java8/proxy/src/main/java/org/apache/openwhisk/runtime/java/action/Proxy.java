@@ -42,6 +42,8 @@ public class Proxy {
     private HttpServer server;
     private JarLoader loader = null;
     private boolean allowMultipleInits = false;
+    private static final String OW_AUTO_INIT = "OW_AUTO_INIT";
+    private static final String OW_AUTO_INIT_MAIN = "OW_AUTO_INIT_MAIN";
 
     public Proxy(int port) throws IOException {
         long startTime = Debug.start();
@@ -158,8 +160,26 @@ public class Proxy {
         public void handle(HttpExchange t) throws IOException {
             long startTime = Debug.start();
             if (loader == null) {
-                Proxy.writeError(t, "Cannot invoke an uninitialized action.");
-                return;
+                // check if the Jar file contents are set in the enviorment
+                // OW_AUTO_INIT: Base64 encoded Jar file contents
+                // OW_AUTO_INIT_MAIN: name of the function in the "OW_AUTO_INIT" to call as the action handler
+                String ow_auto_init = System.getenv(OW_AUTO_INIT);
+                String ow_auto_init_main = System.getenv(OW_AUTO_INIT_MAIN);
+                if (ow_auto_init == null || ow_auto_init.isEmpty()) {
+                    Proxy.writeError(t, "Cannot invoke an uninitialized action.");
+                    return;
+                } else {
+                    try {
+                        InputStream jarIs = new ByteArrayInputStream(ow_auto_init.getBytes(StandardCharsets.UTF_8));
+                        Path jarPath = JarLoader.saveBase64EncodedFile(jarIs);
+                        loader = new JarLoader(jarPath, ow_auto_init_main);
+                    } catch (Exception e) {
+                        e.printStackTrace(System.err);
+                        writeLogMarkers();
+                        Proxy.writeError(t, "An error has occurred (see logs for details): " + e);
+                        return;
+                    }
+                }
             }
 
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
