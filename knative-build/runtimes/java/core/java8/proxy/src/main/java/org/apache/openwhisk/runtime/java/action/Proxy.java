@@ -161,7 +161,7 @@ public class Proxy {
             long startTime = Debug.start();
             if (loader == null) {
                 // check if the Jar file contents are set in the enviorment
-                // OW_AUTO_INIT: Base64 encoded Jar file contents
+                // OW_AUTO_INIT: Jar file with absolute/relative path
                 // OW_AUTO_INIT_MAIN: name of the function in the "OW_AUTO_INIT" to call as the action handler
                 String ow_auto_init = System.getenv(OW_AUTO_INIT);
                 String ow_auto_init_main = System.getenv(OW_AUTO_INIT_MAIN);
@@ -170,9 +170,10 @@ public class Proxy {
                     return;
                 } else {
                     try {
-                        InputStream jarIs = new ByteArrayInputStream(ow_auto_init.getBytes(StandardCharsets.UTF_8));
-                        Path jarPath = JarLoader.saveBase64EncodedFile(jarIs);
-                        loader = new JarLoader(jarPath, ow_auto_init_main);
+//                        InputStream jarIs = new ByteArrayInputStream(ow_auto_init.getBytes(StandardCharsets.UTF_8));
+//                        Path jarPath = JarLoader.saveBase64EncodedFile(jarIs);
+//                        loader = new JarLoader(jarPath, ow_auto_init_main);
+                        loader = new JarLoader(ow_auto_init, ow_auto_init_main);
                     } catch (Exception e) {
                         e.printStackTrace(System.err);
                         writeLogMarkers();
