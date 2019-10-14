@@ -137,7 +137,7 @@ docker-pull-full:
 	docker pull $(DOCKER_IMAGE_PREFIX)/java8action:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.3:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-ruby-v2.5:${DOCKER_IMAGE_TAG}
-	docker pull $(DOCKER_IMAGE_PREFIX)/actionloop-golang-v1.11:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-golang-v1.11:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-dotnet-v2.2:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-ballerina-v0.990.2:${DOCKER_IMAGE_TAG}
