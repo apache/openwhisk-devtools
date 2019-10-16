@@ -27,6 +27,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -173,7 +174,8 @@ public class Proxy {
 //                        InputStream jarIs = new ByteArrayInputStream(ow_auto_init.getBytes(StandardCharsets.UTF_8));
 //                        Path jarPath = JarLoader.saveBase64EncodedFile(jarIs);
 //                        loader = new JarLoader(jarPath, ow_auto_init_main);
-                        loader = new JarLoader(ow_auto_init, ow_auto_init_main);
+                        Path jarPath = Paths.get(ow_auto_init);
+                        loader = new JarLoader(jarPath, ow_auto_init_main);
                     } catch (Exception e) {
                         e.printStackTrace(System.err);
                         writeLogMarkers();
