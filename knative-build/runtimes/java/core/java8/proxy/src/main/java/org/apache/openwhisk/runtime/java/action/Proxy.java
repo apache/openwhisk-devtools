@@ -171,9 +171,6 @@ public class Proxy {
                     return;
                 } else {
                     try {
-//                        InputStream jarIs = new ByteArrayInputStream(ow_auto_init.getBytes(StandardCharsets.UTF_8));
-//                        Path jarPath = JarLoader.saveBase64EncodedFile(jarIs);
-//                        loader = new JarLoader(jarPath, ow_auto_init_main);
                         Path jarPath = Paths.get(ow_auto_init);
                         loader = new JarLoader(jarPath, ow_auto_init_main);
                     } catch (Exception e) {
