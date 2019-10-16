@@ -419,7 +419,7 @@ hello-world-perf-test: create-hello-world-function
 
 	docker run --rm \
 	    --net openwhisk_default \
-	    --link controller jordi/ab ab -k -n 2000 -c 20 \
+	    --link controller jordi/ab -k -n 2000 -c 20 \
 	    -m POST -H "Authorization:Basic MjNiYzQ2YjEtNzFmNi00ZWQ1LThjNTQtODE2YWE0ZjhjNTAyOjEyM3pPM3haQ0xyTU42djJCS0sxZFhZRnBYbFBrY2NPRnFtMTJDZEFzTWdSVTRWck5aOWx5R1ZDR3VNREdJd1A=" \
 	            -H "Content-Type:application/json" \
 	            http://controller:8888/api/v1/namespaces/guest/actions/hello-perf?blocking=true
