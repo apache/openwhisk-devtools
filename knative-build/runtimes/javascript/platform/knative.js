@@ -93,6 +93,7 @@ function createInitDataFromEnvironment(env) {
         // TODO: default to empty?
         initdata.actionName = (typeof env.__OW_ACTION_NAME === 'undefined') ? "" : env.__OW_ACTION_NAME;
         initdata.raw = (typeof env.__OW_ACTION_RAW === 'undefined') ? false : env.__OW_ACTION_RAW.toLowerCase() === "true";
+        initdata.url = (typeof env.__OW_PROJECT_URL === 'undefined') ? "" : env.__OW_PROJECT_URL;
 
         DEBUG.dumpObject(initdata, "initdata");
         return initdata;
@@ -135,6 +136,9 @@ function preProcessInitData(initdata, valuedata, activationdata) {
                     throw ("Invalid Init. data; expected boolean for key 'raw'.");
                 }
             }
+            if (initdata.url && typeof initdata.url === 'string') {
+                valuedata.url = initdata.url;
+            }
 
             // Action name is a special case, as we have a key collision on "name" between init. data and request
             // param. data (as they both appear within "body.value") so we must save it to its final location
@@ -163,7 +167,7 @@ function preProcessInitData(initdata, valuedata, activationdata) {
  * Pre-process HTTP request information and make it available as parameter data to the action function
  * by moving it to where the route handlers expect it to be (i.e., in the JSON value data map).
  *
- * See: https://github.com/apache/incubator-openwhisk/blob/master/docs/webactions.md#http-context
+ * See: https://github.com/apache/openwhisk/blob/master/docs/webactions.md#http-context
  *
  * HTTP Context
  * ============
@@ -249,6 +253,78 @@ function preProcessActivationData(env, activationdata) {
 }
 
 /**
+ * For actions having dependency on third party NPM modules, NodeJS runtime would
+ * install those NPM modules and package them as part of the action source using this function.
+ * In this function, runtime reads url from the initialization JSON payload,
+ * if the url points to an existing directory, run:
+ *      cd initdata.url && npm install --production && zip -r action.zip . && base64 action.zip
+ * Packaging actions as NodeJS module with NPM libraries are treated as zip actions by the runtime.
+ * Zipped actions must contain either package.json or index.js at the root.
+ * This validation is left to the user and not enforced while initializing the action.
+ */
+function marshalResources(initData, valueData) {
+    DEBUG.functionStart();
+    try {
+        // check if url is set and assigned some string value
+        if (typeof initData.url === "string" && initData.url !== undefined) {
+            const fs = require('fs');
+            if (fs.existsSync(initData.url)) {
+                const stats = fs.lstatSync(initData.url);
+                // check if specified url is an existing directory
+                if (stats.isDirectory()) {
+                    // import spawnSync routine from child_process NPM module
+                    // spawnSync spawns a new process using the given command and does not return until
+                    // the child process is fully closed/finished executing.
+                    // Note: Be very careful changing any of the child_process and spwanSync functionality
+                    DEBUG.dumpObject("Starting to install NPM modules from " + initData.url, "process packaging - npm", "marshalResources")
+                    const {spawnSync} = require('child_process'),
+                        npm = spawnSync('npm', ['install', '--production'], {cwd: initData.url});
+                    DEBUG.dumpObject(`stdout: ${npm.stdout.toString().trim()}`, "npm install", "marshalResources");
+                    DEBUG.dumpObject(`stderr: ${npm.stderr.toString().trim()}`, "npm install", "marshalResources");
+                    if (npm.status !== 0) {
+                        throw (npm.error);
+                    }
+
+                    var zipFile = "action.zip";
+                    // note here we are using same instance of spwanSync as we used for running npm install
+                    // to make sure the execution of zip command follows right after npm install closes (sequential)
+                    DEBUG.dumpObject("Starting to compress action resources at " + initData.url, "process packaging - zip", "marshalResources")
+                    const compressFile = spawnSync('zip', ['-r', zipFile, '.'], {cwd: initData.url});
+                    DEBUG.dumpObject(`stdout: ${compressFile.stdout.toString().trim()}`, "zip -r action.zip *", "marshalResources");
+                    DEBUG.dumpObject(`stderr: ${compressFile.stderr.toString().trim()}`, "zip -r action.zip *", "marshalResources");
+                    if (compressFile.status !== 0) {
+                        throw (compressFile.error);
+                    }
+
+                    // and same here, making sure base64 command follows right after zip command finishes by
+                    // using the same spawnSync instance of child_process.
+                    DEBUG.dumpObject("Starting to decode compressed action resource", "process packaging - base64", "marshalResources")
+                    const code = spawnSync('base64', [initData.url + '/' + zipFile]);
+                    DEBUG.dumpObject(`stdout: ${code.stdout.toString().trim()}`, "base64 action.zip", "marshalResources");
+                    DEBUG.dumpObject(`stderr: ${code.stderr.toString().trim()}`, "base64 action.zip", "marshalResources");
+                    if (code.status !== 0) {
+                        throw (code.error);
+                    }
+
+                    // assign base64 encoded zip file content to action code before initializing the action
+                    initData.code = code.stdout.toString().trim();
+                    valueData.code = initData.code;
+
+                    // mark this action as binary so that run routine can decode it appropriately
+                    initData.binary = true;
+                    valueData.binary = true;
+                }
+            }
+        }
+    } catch (e) {
+        console.error(e);
+        DEBUG.functionEndError("");
+        throw("Unable to marshall NPM resources: ");
+    }
+    DEBUG.functionEnd()
+}
+
+/**
  * Pre-process the incoming http request data, moving it to where the
  * route handlers expect it to be for an openwhisk runtime.
  */
@@ -268,6 +344,8 @@ function preProcessRequest(req){
         if (hasInitData(req)) {
             preProcessInitData(initData, valueData, activationData);
         }
+
+        marshalResources(initData, valueData);
 
         if(hasActivationData(req)) {
             // process HTTP request header and body to make it available to function as parameter data

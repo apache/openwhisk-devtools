@@ -2,7 +2,7 @@ UNAME_STR ?= $(shell uname)
 
 # detect local ip of host as this is needed within containers to find the OpenWhisk API container
 ifeq ("$(UNAME_STR)","Linux")
-	LOCAL_IP=$(shell route | grep default | tr -s " " | cut -d " " -f 8 | xargs /sbin/ifconfig | grep "inet addr:" | cut -d ":" -f 2 | cut -d " " -f 1)
+	LOCAL_IP=$(shell LANG=en_US.utf8; route | grep default | tr -s " " | cut -d " " -f 8 | xargs /sbin/ifconfig | grep "inet addr:" | cut -d ":" -f 2 | cut -d " " -f 1)
 	# inet addr: not present, trying with inet.
 	ifeq ($(LOCAL_IP), )
 		LOCAL_IP=$(shell route | grep default | tr -s " " | cut -d " " -f 8 | xargs /sbin/ifconfig | grep "inet " | tr -s " " | cut -d " " -f 3)
@@ -18,12 +18,15 @@ endif
 DOCKER_HOST_IP ?= $(shell echo ${DOCKER_HOST} | grep -o "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" || echo ${LOCAL_IP})
 DOCKER_REGISTRY ?= ""
 DOCKER_IMAGE_PREFIX ?= openwhisk
+DOCKER_IMAGE_TAG ?= nightly
 OPENWHISK_VERSION ?= master
 OPENWHISK_PROJECT_HOME ?= $(CURDIR)/openwhisk-src
 OPENWHISK_CATALOG_HOME ?= $(CURDIR)/openwhisk-catalog
 WSK_CLI ?= $(OPENWHISK_PROJECT_HOME)/bin/wsk
+WSK_CLI_VERSION ?= latest
 WSK_CONFIG_FILE=$(CURDIR)/.wskprops
 OPEN_WHISK_DB_PREFIX ?= local_
+TMP_HOME ?= ~
 
 DOCKER_KERNEL ?= $(shell docker version --format "{{.Server.KernelVersion}}")
 DOCKER_COMPOSE_FILE=docker-compose.yml
@@ -56,7 +59,7 @@ download-src:
 		echo "Skipping downloading the code as OPENWHISK_PROJECT_HOME is set to " $(OPENWHISK_PROJECT_HOME); \
 	else \
 		rm -rf $(CURDIR)/openwhisk-src; \
-		curl -o ./openwhisk-src.tar.gz -L https://github.com/apache/incubator-openwhisk/archive/$(OPENWHISK_VERSION).tar.gz; \
+		curl -s -o ./openwhisk-src.tar.gz -L https://github.com/apache/openwhisk/archive/$(OPENWHISK_VERSION).tar.gz; \
 		echo "Unpacking tarball."; \
 	    mkdir -p $(OPENWHISK_PROJECT_HOME); \
 	    tar -xf ./openwhisk-src.tar.gz --strip 1 -C $(OPENWHISK_PROJECT_HOME); \
@@ -67,7 +70,7 @@ download-src:
 download-catalog:
 	if [ "$(OPENWHISK_CATALOG_HOME)" = "$(CURDIR)/openwhisk-catalog" ]; then \
 	    rm -rf $(CURDIR)/openwhisk-catalog*; \
-	    curl -O ./openwhisk-catalog.tar.gz -L https://api.github.com/repos/apache/incubator-openwhisk-catalog/tarball/master > ./openwhisk-catalog.tar.gz; \
+	    curl -s -O ./openwhisk-catalog.tar.gz -L https://api.github.com/repos/apache/openwhisk-catalog/tarball/master > ./openwhisk-catalog.tar.gz; \
 	    mkdir openwhisk-catalog; \
 	    tar -xf ./openwhisk-catalog.tar.gz --strip 1 -C openwhisk-catalog; \
 	else \
@@ -77,7 +80,7 @@ download-catalog:
 .PHONY: quick-start-pause
 quick-start-pause:
 	echo "waiting for the Whisk invoker to come up ... "
-	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8085/ping); do printf '.'; sleep 5; done
+	until $$(curl -s --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8085/ping); do printf '.'; sleep 5; done
 	echo " ... OK"
 	sleep 30
 
@@ -107,49 +110,49 @@ docker_pull_full:
 docker-build:
 	echo "building the OpenWhisk core docker images ... "
 	cd $(OPENWHISK_PROJECT_HOME) && \
-		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX)
+		./gradlew distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX) -PdockerImageTag=${DOCKER_IMAGE_TAG}
 
 .PHONY: docker-pull-lean
 docker-pull-lean:
-	docker pull $(DOCKER_IMAGE_PREFIX)/controller
-	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action
-	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton
+	docker pull $(DOCKER_IMAGE_PREFIX)/controller:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton:${DOCKER_IMAGE_TAG}
 
 .PHONY: docker-pull
 docker-pull:	docker-pull-lean
 	echo "pulling the docker images short list... "
-	docker pull $(DOCKER_IMAGE_PREFIX)/invoker
+	docker pull $(DOCKER_IMAGE_PREFIX)/invoker:${DOCKER_IMAGE_TAG}
 
 .PHONY: docker-pull-full
 docker-pull-full:
 	echo "pulling the docker images full list ... "
-	docker pull $(DOCKER_IMAGE_PREFIX)/controller
-	docker pull $(DOCKER_IMAGE_PREFIX)/invoker
-	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v8
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v10
-	docker pull $(DOCKER_IMAGE_PREFIX)/python2action
-	docker pull $(DOCKER_IMAGE_PREFIX)/python3action
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v4.2
-	docker pull $(DOCKER_IMAGE_PREFIX)/java8action
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.3
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-ruby-v2.5
-	docker pull $(DOCKER_IMAGE_PREFIX)/actionloop-golang-v1.11
-	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-dotnet-v2.2
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-ballerina-v0.990.2
+	docker pull $(DOCKER_IMAGE_PREFIX)/controller:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/invoker:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v8:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v10:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/python2action:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/python3action:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v4.2:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/java8action:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.3:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-ruby-v2.5:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-golang-v1.11:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-dotnet-v2.2:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-ballerina-v0.990.2:${DOCKER_IMAGE_TAG}
 
 download-cli:
 	echo "downloading the CLI tool ... "
 	if [ ! -e "$(WSK_CLI)" ]; then \
         if [ "$(UNAME_STR)" = "Darwin" ]; then \
           echo "downloading cli for mac" ; \
-          curl -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-mac-amd64.zip ; \
+          curl -s -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.zip -L https://github.com/apache/openwhisk-cli/releases/download/$(WSK_CLI_VERSION)/OpenWhisk_CLI-$(WSK_CLI_VERSION)-mac-amd64.zip ; \
             cd $(OPENWHISK_PROJECT_HOME)/bin ; \
         unzip -o wsk.zip; \
         elif [ "$(UNAME_STR)" = "Linux" ]; then \
           echo "downloading cli for linux" ; \
-          curl -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/incubator-openwhisk-cli/releases/download/latest/OpenWhisk_CLI-latest-linux-amd64.tgz ; \
+          curl -s -o $(OPENWHISK_PROJECT_HOME)/bin/wsk.tgz -L https://github.com/apache/openwhisk-cli/releases/download/$(WSK_CLI_VERSION)/OpenWhisk_CLI-$(WSK_CLI_VERSION)-linux-amd64.tgz ; \
             cd $(OPENWHISK_PROJECT_HOME)/bin ; \
             tar -xf wsk.tgz ; \
         fi; \
@@ -207,31 +210,32 @@ check-kafka-ports:
 
 .PHONY: setup
 setup:
-	mkdir -p ~/tmp/openwhisk
-	> ~/tmp/openwhisk/local.env
-	printf "DOCKER_BINARY=$(DOCKER_BINARY)\n" >> ~/tmp/openwhisk/local.env
-	printf "DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP)\n" >> ~/tmp/openwhisk/local.env
-	printf "DOCKER_REGISTRY=$(DOCKER_REGISTRY)\n" >> ~/tmp/openwhisk/local.env
-	printf "DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX)\n" >> ~/tmp/openwhisk/local.env
+	mkdir -p $(TMP_HOME)/tmp/openwhisk
+	> $(TMP_HOME)/tmp/openwhisk/local.env
+	printf "DOCKER_BINARY=$(DOCKER_BINARY)\n" >> $(TMP_HOME)/tmp/openwhisk/local.env
+	printf "DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP)\n" >> $(TMP_HOME)/tmp/openwhisk/local.env
+	printf "DOCKER_REGISTRY=$(DOCKER_REGISTRY)\n" >> $(TMP_HOME)/tmp/openwhisk/local.env
+	printf "DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX)\n" >> $(TMP_HOME)/tmp/openwhisk/local.env
+	printf "DOCKER_IMAGE_TAG=$(DOCKER_IMAGE_TAG)\n" >> $(TMP_HOME)/tmp/openwhisk/local.env
 
 	echo "  ... preparing api-gateway configuration"
-	rm -rf ~/tmp/openwhisk/api-gateway-config
-	mkdir -p ~/tmp/openwhisk/api-gateway-config/api-gateway
-	mkdir -p ~/tmp/openwhisk/api-gateway-ssl
-	mkdir -p ~/tmp/openwhisk/minio
-	cp -r ./apigateway/* ~/tmp/openwhisk/api-gateway-config/api-gateway/
-	cp -r ./apigateway/rclone ~/tmp/openwhisk
-       
+	rm -rf $(TMP_HOME)/tmp/openwhisk/api-gateway-config
+	mkdir -p $(TMP_HOME)/tmp/openwhisk/api-gateway-config/api-gateway
+	mkdir -p $(TMP_HOME)/tmp/openwhisk/api-gateway-ssl
+	mkdir -p $(TMP_HOME)/tmp/openwhisk/minio
+	cp -r ./apigateway/* $(TMP_HOME)/tmp/openwhisk/api-gateway-config/api-gateway/
+	cp -r ./apigateway/rclone $(TMP_HOME)/tmp/openwhisk
  
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up minio 2>&1 > ~/tmp/openwhisk/setup.log &
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up minio 2>&1 > $(TMP_HOME)/tmp/openwhisk/setup.log &
+
 	echo "pinging minio..."
 	until (curl --silent http://$(DOCKER_HOST_IP):9001/ > /dev/null); do printf '.'; sleep 5; done
 	echo " ... OK"
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk run --rm --no-deps apigateway rclone mkdir minio:api-gateway
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk run --rm --no-deps apigateway rclone copy --exclude .git /etc/api-gateway/ minio:api-gateway/
-	# $(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop minio
-	# $(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f minio
-	
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk run --rm --no-deps apigateway rclone mkdir minio:api-gateway
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk run --rm --no-deps apigateway rclone copy --exclude .git /etc/api-gateway/ minio:api-gateway/
+	# $(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop minio
+	# $(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f minio
+
 	# Check if the user has provided SSL certificates, if not generate them
 	if [ -f "$(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/openwhisk-server-key.pem" ] && \
 		[ -f "$(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/openwhisk-server-cert.pem" ]; then \
@@ -239,37 +243,37 @@ setup:
 	else \
 		$(OPENWHISK_PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files; \
 	fi;
-	mkdir -p ~/tmp/openwhisk/api-gateway-ssl
-	cp $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/*.pem ~/tmp/openwhisk/api-gateway-ssl
+	mkdir -p $(TMP_HOME)/tmp/openwhisk/api-gateway-ssl
+	cp $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/*.pem $(TMP_HOME)/tmp/openwhisk/api-gateway-ssl
 
 .PHONY: gw
 gw:
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up apigateway
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up apigateway
 
 .PHONY: restart
 restart: stop rm start-docker-compose
 
 .PHONY: restart-controller
 restart-controller:
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop controller
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f controller
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up controller 2>&1 >> ~/tmp/openwhisk/docker-compose.log &
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop controller
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f controller
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up controller 2>&1 >> $(TMP_HOME)/tmp/openwhisk/docker-compose.log &
 	echo "waiting for the controller to see the invoker is 'up' ... "
 	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "up"); do printf '.'; sleep 5; done
 
 .PHONY: restart-invoker
 restart-invoker:
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop invoker
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f invoker
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop invoker
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f invoker
 	echo "waiting for the invoker to be marked 'down' ... "
 	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "down"); do printf '.'; sleep 5; done
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up invoker 2>&1 >> ~/tmp/openwhisk/docker-compose.log &
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up invoker 2>&1 >> $(TMP_HOME)/tmp/openwhisk/docker-compose.log &
 	echo "waiting for the invoker to be marked Healthy ... "
 	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "up"); do printf '.'; sleep 5; done
 
 .PHONY: start-docker-compose
 start-docker-compose:
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk -f $(DOCKER_COMPOSE_FILE) up 2>&1 > ~/tmp/openwhisk/docker-compose.log &
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk -f $(DOCKER_COMPOSE_FILE) up 2>&1 > $(TMP_HOME)/tmp/openwhisk/docker-compose.log &
 
 .PHONY: wait-for-docker-compose-up
 wait-for-docker-compose-up:
@@ -277,8 +281,8 @@ wait-for-docker-compose-up:
 	sleep 1;
 	@trycount=0; \
 	trycounttimeout=30; \
-	up=`$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk ps | grep Up -c`; \
-	servicescount=`$(shell cat ~/tmp/openwhisk/local.env) docker-compose -f $(DOCKER_COMPOSE_FILE) config --services | wc -l | xargs`; \
+	up=`$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk ps | grep Up -c`; \
+	servicescount=`$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose -f $(DOCKER_COMPOSE_FILE) config --services | wc -l | xargs`; \
 	docker_ps() { \
 		docker ps --format 'table {{.Image}}\t{{.Status}}' --filter "label=com.docker.compose.project=openwhisk" -a; \
 	}; \
@@ -295,7 +299,7 @@ wait-for-docker-compose-up:
 	until [ "$$up" -eq "$$servicescount" ]; do \
 		echo_output; \
 	  sleep 1; \
-	  up=`$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk ps | grep Up -c`; \
+	  up=`$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk ps | grep Up -c`; \
 	  if [ "$$up" != "$$servicescount" ]; then \
 	    if [ "$$trycount" -eq "$$trycounttimeout" ]; then \
 				echo "\n$$(docker_ps)"; \
@@ -311,11 +315,11 @@ wait-for-docker-compose-up:
 
 .PHONY: stop
 stop:
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop
 
 .PHONY: rm
 rm:
-	$(shell cat ~/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f
 
 .PHONY: init-couchdb
 init-couchdb:
@@ -323,13 +327,13 @@ init-couchdb:
 	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):5984/_all_dbs); do printf '.'; sleep 5; done
 	echo "initializing the database ... on $(DOCKER_HOST_IP)"
 	# make sure the src files are in a shared folder for docker
-	mkdir -p ~/tmp/openwhisk
-	rm -rf ~/tmp/openwhisk/src
-	rsync -a $(OPENWHISK_PROJECT_HOME)/* ~/tmp/openwhisk/src --exclude .git --exclude build --exclude tests
+	mkdir -p $(TMP_HOME)/tmp/openwhisk
+	rm -rf $(TMP_HOME)/tmp/openwhisk/src
+	rsync -a $(OPENWHISK_PROJECT_HOME)/* $(TMP_HOME)/tmp/openwhisk/src --exclude .git --exclude build --exclude tests
 	echo 'Setting up db using ansible container....'; \
     compose_network=$$(docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f '{{range $$index, $$element := .NetworkSettings.Networks}}{{$$index}}{{end}}' | head -n 1); \
     db_ip_address=$$(docker-compose --project-name openwhisk ps -q db 2>/dev/null | xargs docker inspect -f "{{.NetworkSettings.Networks.$${compose_network}.IPAddress}}"); \
-	docker run --rm -v ~/tmp/openwhisk/src:/openwhisk -w /openwhisk/ansible \
+	docker run --rm -v $(TMP_HOME)/tmp/openwhisk/src:/openwhisk -w /openwhisk/ansible \
 		--network="$${compose_network}" -t \
 		--add-host="db:$${db_ip_address}" \
 		ddragosd/ansible:2.4.0.0-debian8  \
@@ -339,7 +343,8 @@ init-couchdb:
 .PHONY: init-whisk-cli
 init-whisk-cli:
 	echo "waiting for the Whisk controller to come up ... "
-	until $$(curl --output /dev/null --silent --head --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
+	# removed --head from this curl because of an upstream change https://github.com/apache/openwhisk/pull/4494
+	until $$(curl --output /dev/null --silent --fail http://$(DOCKER_HOST_IP):8888/ping); do printf '.'; sleep 5; done
 	echo "initializing CLI properties into $(WSK_CONFIG_FILE)"
 	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) property set --auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i
 
@@ -354,7 +359,7 @@ init-api-management:
 
 .PHONY: init-catalog
 init-catalog:
-	OPENWHISK_HOME=$(OPENWHISK_PROJECT_HOME) $(OPENWHISK_CATALOG_HOME)/packages/installCatalog.sh \
+	OPENWHISK_HOME=$(OPENWHISK_PROJECT_HOME) $(OPENWHISK_CATALOG_HOME)/packages/installCatalogUsingWskDeploy.sh \
 	  `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.whisk.system` \
 	  $(DOCKER_HOST_IP):443 \
 	  $(WSK_CLI)
@@ -366,9 +371,9 @@ destroy: stop rm
 	echo "cleaning dangling docker volumes ... "
 	docker volume ls -qf dangling=true | xargs docker volume rm
 	if [ "$(UNAME_STR)" = "Linux" ]; then \
-	  sudo rm -rf ~/tmp/openwhisk ;\
+	  sudo rm -rf $(TMP_HOME)/tmp/openwhisk ;\
 	else \
-	  rm -rf ~/tmp/openwhisk ;\
+	  rm -rf $(TMP_HOME)/tmp/openwhisk ;\
 	fi;
 	rm -rf ./openwhisk-master*
 
@@ -386,13 +391,13 @@ hello-world: create-hello-world-function
 	echo "$$(tput setaf 4)invoking the function ...$$(tput sgr0)"
 	res=`WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i action invoke hello --blocking --result` \
 	    && echo "invocation result:" $$res \
-	    && (echo $$res | grep "Hello, World") || (WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i action delete hello && tail -n 200 ~/tmp/openwhisk/invoker/logs/invoker-local_logs.log ~/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
+	    && (echo $$res | grep "Hello, World") || (WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i action delete hello && tail -n 200 $(TMP_HOME)/tmp/openwhisk/invoker/logs/invoker-local_logs.log $(TMP_HOME)/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
 
 	echo "$$(tput setaf 4)creating an API from the hello function ...$$(tput sgr0)"
 	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i action update "/guest/hello" --web true
 	web_action=`WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i api create /hello /world get hello --response-type json | tail -n 1` \
 	    && echo "invoking: " $$web_action \
-	    && (echo $$web_action | xargs curl -sS | grep "Hello, World") || (echo "Error invoking the web action" && tail -n 200 ~/tmp/openwhisk/invoker/logs/invoker-local_logs.log ~/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
+	    && (echo $$web_action | xargs curl -sS | grep "Hello, World") || (echo "Error invoking the web action" && tail -n 200 $(TMP_HOME)/tmp/openwhisk/invoker/logs/invoker-local_logs.log $(TMP_HOME)/tmp/openwhisk/controller/logs/controller-local_logs.log && exit 1)
 	WSK_CONFIG_FILE=$(WSK_CONFIG_FILE) $(WSK_CLI) -i api list /hello
 
 	echo "$$(tput setaf 1)deleting the API ...$$(tput sgr0)"
@@ -414,7 +419,7 @@ hello-world-perf-test: create-hello-world-function
 
 	docker run --rm \
 	    --net openwhisk_default \
-	    --link controller jordi/ab ab -k -n 2000 -c 20 \
+	    --link controller jordi/ab -k -n 2000 -c 20 \
 	    -m POST -H "Authorization:Basic MjNiYzQ2YjEtNzFmNi00ZWQ1LThjNTQtODE2YWE0ZjhjNTAyOjEyM3pPM3haQ0xyTU42djJCS0sxZFhZRnBYbFBrY2NPRnFtMTJDZEFzTWdSVTRWck5aOWx5R1ZDR3VNREdJd1A=" \
 	            -H "Content-Type:application/json" \
 	            http://controller:8888/api/v1/namespaces/guest/actions/hello-perf?blocking=true
@@ -442,10 +447,12 @@ create-provider-kafka: check-kafka-ports setup-providers $(addsuffix kafka,$(CRE
 
 .PHONY: setup-providers
 setup-providers:
-	printf "OPENWHISK_HOME=$(realpath $(OPENWHISK_PROJECT_HOME))\n" > ~/tmp/openwhisk/providers.env
-	printf "ENDPOINT_AUTH=`cat $(realpath $(OPENWHISK_PROJECT_HOME))/ansible/files/auth.whisk.system`\n" >> ~/tmp/openwhisk/providers.env
-	printf "HOST_MACHINE=$(DOCKER_HOST_IP)\n" >> ~/tmp/openwhisk/providers.env
-	printf "DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP)\n" >> ~/tmp/openwhisk/providers.env
+	printf "OPENWHISK_HOME=$(realpath $(OPENWHISK_PROJECT_HOME))\n" > $(TMP_HOME)/tmp/openwhisk/providers.env
+	printf "ENDPOINT_AUTH=`cat $(realpath $(OPENWHISK_PROJECT_HOME))/ansible/files/auth.whisk.system`\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
+	printf "HOST_MACHINE=$(DOCKER_HOST_IP)\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
+	printf "DOCKER_COMPOSE_HOST=$(DOCKER_HOST_IP)\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
+	printf "DOCKER_IMAGE_PREFIX=$(DOCKER_IMAGE_PREFIX)\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
+	printf "DOCKER_IMAGE_TAG=$(DOCKER_IMAGE_TAG)\n" >> $(TMP_HOME)/tmp/openwhisk/providers.env
 
 .PHONY: $(addprefix download-package-,$(PACKAGES))
 $(addprefix download-package-,$(PACKAGES)):
@@ -454,7 +461,7 @@ $(addprefix download-package-,$(PACKAGES)):
 	echo "Downloading package" $(PACKAGE_NAME) "into" $(PACKAGE_HOME)
 	rm -rf ./openwhisk-package-$(PACKAGE_NAME)*
 	if [ "$(PACKAGE_HOME)" = "./openwhisk-package-$(PACKAGE_NAME)" ]; then \
-	    curl -O ./openwhisk-package-$(PACKAGE_NAME).tar.gz -L https://api.github.com/repos/apache/incubator-openwhisk-package-$(PACKAGE_NAME)/tarball/master > ./openwhisk-package-$(PACKAGE_NAME).tar.gz; \
+	    curl -s -O ./openwhisk-package-$(PACKAGE_NAME).tar.gz -L https://api.github.com/repos/apache/openwhisk-package-$(PACKAGE_NAME)/tarball/master > ./openwhisk-package-$(PACKAGE_NAME).tar.gz; \
 	    mkdir openwhisk-package-$(PACKAGE_NAME); \
 	    tar -xf ./openwhisk-package-$(PACKAGE_NAME).tar.gz --strip 1 -C openwhisk-package-$(PACKAGE_NAME); \
 	else \
@@ -466,14 +473,14 @@ $(addprefix install-package-,$(PACKAGES)):
 	$(eval PACKAGE_NAME:= $(shell echo $(@) | cut -b 17-))
 	$(eval PACKAGE_HOME := $(PACKAGE_$(shell echo $(PACKAGE_NAME) |  tr 'a-z' 'A-Z')_HOME))
 	cd $(PACKAGE_HOME) && \
-	$(shell cat ~/tmp/openwhisk/providers.env) ./installCatalog.sh $(realpath $(OPENWHISK_PROJECT_HOME))/ansible/files/auth.whisk.system $(DOCKER_HOST_IP) "http://$(DOCKER_HOST_IP):5984" $(OPEN_WHISK_DB_PREFIX) $(DOCKER_HOST_IP)
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/providers.env) ./installCatalogUsingWskDeploy.sh $(realpath $(OPENWHISK_PROJECT_HOME))/ansible/files/auth.whisk.system $(DOCKER_HOST_IP) "http://$(DOCKER_HOST_IP):5984" $(OPEN_WHISK_DB_PREFIX) $(DOCKER_HOST_IP)
 
 .PHONY: $(addprefix start-provider-,$(PACKAGES))
 $(addprefix start-provider-,$(PACKAGES)):
 	$(eval PACKAGE_NAME:= $(shell echo $(@) | cut -b 16-))
-	$(shell cat ~/tmp/openwhisk/providers.env) docker-compose -f docker-compose.yml -f docker-compose.packages.yml --project-name openwhisk up --no-recreate $(PACKAGE_NAME)provider 2>&1 > ~/tmp/openwhisk/docker-provider-compose.log &
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/providers.env) docker-compose -f docker-compose.yml -f docker-compose.packages.yml --project-name openwhisk up --no-recreate $(PACKAGE_NAME)provider 2>&1 > $(TMP_HOME)/tmp/openwhisk/docker-provider-compose.log &
 
 .PHONY: $(addprefix stop-provider-,$(PACKAGES))
 $(addprefix stop-provider-,$(PACKAGES)): setup-providers
 	$(eval PACKAGE_NAME:= $(shell echo $(@) | cut -b 15-))
-	$(shell cat ~/tmp/openwhisk/providers.env) docker-compose -f docker-compose.yml -f docker-compose.packages.yml --project-name openwhisk stop $(PACKAGE_NAME)provider
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/providers.env) docker-compose -f docker-compose.yml -f docker-compose.packages.yml --project-name openwhisk stop $(PACKAGE_NAME)provider

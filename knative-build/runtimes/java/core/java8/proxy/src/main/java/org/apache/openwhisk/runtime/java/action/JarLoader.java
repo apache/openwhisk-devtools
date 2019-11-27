@@ -35,8 +35,8 @@ import java.util.Map;
 import com.google.gson.JsonObject;
 
 public class JarLoader extends URLClassLoader {
-    private final Class<?> mainClass;
-    private final Method mainMethod;
+    private Class<?> mainClass = null;
+    private Method mainMethod = null;
 
     public static Path saveBase64EncodedFile(InputStream encoded) throws Exception {
         Base64.Decoder decoder = Base64.getDecoder();
@@ -55,7 +55,10 @@ public class JarLoader extends URLClassLoader {
     public JarLoader(Path jarPath, String entrypoint)
             throws MalformedURLException, ClassNotFoundException, NoSuchMethodException, SecurityException {
         super(new URL[] { jarPath.toUri().toURL() });
+        loadMainClassAndMethod(entrypoint);
+    }
 
+    public void loadMainClassAndMethod(String entrypoint) throws NoSuchMethodException, ClassNotFoundException {
         final String[] splittedEntrypoint = entrypoint.split("#");
         final String entrypointClassName = splittedEntrypoint[0];
         final String entrypointMethodName = splittedEntrypoint.length > 1 ? splittedEntrypoint[1] : "main";
@@ -69,7 +72,20 @@ public class JarLoader extends URLClassLoader {
             throw new NoSuchMethodException("main");
         }
 
-        this.mainMethod = m;
+        mainMethod = m;
+    }
+
+    public void addJAR(Path jarPath) throws MalformedURLException {
+        if(jarPath!=null){
+            try{
+                this.addURL(jarPath.toUri().toURL());
+            } catch (MalformedURLException e){
+                System.err.format("Invalid JAR file path. [%s]", jarPath);
+                throw e;
+            }
+        } else {
+            System.err.format("Invalid JAR file path. [%s]", jarPath);
+        }
     }
 
     public JsonObject invokeMain(JsonObject arg, Map<String, String> env) throws Exception {

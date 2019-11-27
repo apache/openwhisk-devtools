@@ -1,0 +1,27 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  name: java-8-helloworld
+spec:
+  serviceAccountName: openwhisk-runtime-builder
+  source:
+    git:
+      url: "https://github.com/apache/openwhisk-devtools.git"
+      revision: "master"
+  template:
+    name: openwhisk-java-runtime
+    arguments:
+      - name: TARGET_IMAGE_NAME
+        value: "docker.io/${DOCKER_USERNAME}/java-8-helloworld"
+      - name: DOCKERFILE
+        value: "./knative-build/runtimes/java/core/java8/Dockerfile"
+      - name: OW_RUNTIME_DEBUG
+        value: "true"
+      - name: OW_ACTION_NAME
+        value: "java-helloworld"
+      - name: OW_ACTION_MAIN
+        value: "Hello"
+      - name: OW_ACTION_BINARY
+        value: "true"
+      - name: OW_ACTION_CODE
+        value: "UEsDBBQACAgIABljwUoAAAAAAAAAAAAAAAAJAAQATUVUQS1JTkYv/soAAAMAUEsHCAAAAAACAAAAAAAAAFBLAwQUAAgICAAZY8FKAAAAAAAAAAAAAAAAFAAAAE1FVEEtSU5GL01BTklGRVNULk1G803My0xLLS7RDUstKs7Mz7NSMNQz4OVyLkpNLElN0XWqBAlY6BnEmxkoaPgXJSbnpCo45xcV5BcllgCVa/Jy8XIBAFBLBwhiwEEKQwAAAEQAAABQSwMEFAAICAgACmPBSgAAAAAAAAAAAAAAAAsAAABIZWxsby5jbGFzc31T227TQBA9k5tdx6HBtCkUUhpuTdK0Bkq5NFUlioQQSqFSUCV428Qr4+JL5DgVfAp/AS+pRCU+gG9CiFmLgFTSWvLM7J6Zc2Zn7R+/vn0H8ABtAxaqOpZ0XDegYVmZmoEbuKnhlloweFvDHQOGCleUr+toKN9U+KqGloY1QmHbC71kh5CtNw4IuWeRIwmzHS+Ur0ZBT8ZvRM/nnVwgvJCwVe/0o8B2o8j1pe0Oo9B+yeZ171D2k3bjPJBQ6iai/2FPDFJODesEoxuN4r587ikN44X0/Wj9UBwJE5cwR9CHSSxCV8bcQCgCacLGXRP3cF/DhsmT2CQsnq3JBG4sZeKFLmFB8do+09ndJOat3ZHnO4q6kOoum3iIRwSqmXiMTRNPsEXIpxih/K96wl0+TchDfC+GhPl65zTUbrwjWK5Mng5Ve/uxF3iJd8SH3piWPHWOf4t4lNVzEwjFVGrS1ly98b8In1sMBjJ0CGtTezhjXlyoJ9GEuigcZz+OBjJOPhFWphBNoT5ADRf5E1ZPBqTumu08r6rsiX2+eQz6ygGhwraQbmYwgwVc/pP6ETlk2e9YmU7Tyo6R+4xSGuTHKHROoL09hr7XsmZOYHBYtMwxSqv8WhfYjDE7Rrn1JeVVGousgpQzD5PjCv8mS9CxzapXGNFBP1HROI9wNa269htQSwcIevrqgf8BAACRAwAAUEsBAhQAFAAICAgAGWPBSgAAAAACAAAAAAAAAAkABAAAAAAAAAAAAAAAAAAAAE1FVEEtSU5GL/7KAABQSwECFAAUAAgICAAZY8FKYsBBCkMAAABEAAAAFAAAAAAAAAAAAAAAAAA9AAAATUVUQS1JTkYvTUFOSUZFU1QuTUZQSwECFAAUAAgICAAKY8FKevrqgf8BAACRAwAACwAAAAAAAAAAAAAAAADCAAAASGVsbG8uY2xhc3NQSwUGAAAAAAMAAwC2AAAA+gIAAAAA"

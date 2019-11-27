@@ -15,14 +15,22 @@
  * limitations under the License.
  */
 
+import groovy.io.FileType
+
 apply plugin: 'java'
+
+ext {
+    profile = "base"
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile 'com.google.code.gson:gson:2.6.2'
+    //compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.google.code.gson:gson:2.8.5'
+    compile 'org.json:json:20190722'
 }
 
 jar {
@@ -31,11 +39,34 @@ jar {
     }
 }
 
+task copyDependencies(type: Copy) {
+  println "Task: copyDependencies"
+  def target = "profiles/$profile/libs"
+
+  from configurations.compile
+  into target
+
+  doLast {
+    dumpDir(".")
+    dumpDir(target)
+  }
+}
+
+def dumpDir(dir) {
+  println "dumpDir('"+ dir + "'):"
+  new File(dir).listFiles().sort{ it.name }.reverse().each { def f ->
+    println ">> " + f.name
+    }
+}
+
 task oneJar(type: Jar) {
+    outputs.upToDateWhen { false }
     manifest.from jar.manifest
     classifier = 'all'
     from {
-        configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
     } {
         exclude "META-INF/*.SF"
         exclude "META-INF/*.DSA"

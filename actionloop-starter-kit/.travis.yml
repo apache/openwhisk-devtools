@@ -1,5 +1,19 @@
-# Licensed to the Apache Software Foundation (ASF) under one or more contributor
-# license agreements; and to You under the Apache License, Version 2.0.
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
 sudo: required
 group: deprecated-2017Q3
@@ -24,12 +38,12 @@ deploy:
     on:
       tags: true
       all_branches: true
-      repo: apache/incubator-openwhisk-runtime-python
+      repo: apache/openwhisk-runtime-python
   - provider: script
     script: "./tools/travis/publish.sh openwhisk 3 latest && ./tools/travis/publish.sh openwhisk 3-ai latest && ./tools/travis/publish.sh openwhisk 3-loop latest"
     on:
       branch: master
-      repo: apache/incubator-openwhisk-runtime-python
+      repo: apache/openwhisk-runtime-python
 env:
   global:
   - secure: Ac7MlWUpsLwmbcjCigDf+vftiXAEJbf78FVm2QCd4IeFqlRiNbQm3bWRXOOW3Zqh4R4o/wSFpFq0qKPrI9WJjOcxD0GxFboq2iGWTegddfDbENV/IBmjurl6NzYY6dUB7GUSmHYy6tdKnxMhjHzZCn2m4OVWltcMtnOV0G+uYvbnre7vXfb67duzJF+mYpJJ7rC0wGh+N50bYvm0BTtPcQMYJibq6sDTY8Lr1b74QGdM/sODre69CbuiwAA7Ed0hajEcMkv8YnwY0De/PL7hthUyCWSD+i1AhtD+3odA64yX/pAbBzfCcqPoI0Nt5ZmAAUKLJ9pAHCc74dlmYzj9wj1z5TS0nLOE2l++vNvgsA3/c+lqrBv6hc9FmSKx4yfNdFCakVLEfdRJw/45ibIRN5dCW5tDdIx8aciBV8c0CyYgSLRvtVuvw5IX7fbwhHOZ8ftTRzCHS0Nd9zs4x3za+1aucWFQEyrkPtXZIiqeuV7yI4S7yYhGeJy/3KmuN7ljDiTElZb/W9W22ryw/UwCyyZBGnvhomAwInS3E51Jv8GuOU9FVliGzGs2yLuVQ1FjIZ25Au5W4TLTor/jE+dxOlH4u25neqsKBxzG4iyJs3AfJnycD8op7JbTG64OqpVvaB8A4N3P416IxGALSFVv2BWSLY4qWBRVKHbZAHn2tTg=

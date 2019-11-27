@@ -1,5 +1,19 @@
-# Licensed to the Apache Software Foundation (ASF) under one or more contributor
-# license agreements; and to You under the Apache License, Version 2.0.
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 apiVersion: build.knative.dev/v1alpha1
 kind: BuildTemplate
 metadata:
@@ -51,13 +65,21 @@ spec:
       if [ -z ${OW_PROJECT_URL} ]; then
         OW_ACTION_CODE="${OW_ACTION_CODE}"
       else
-        TEMPDIR="knative-"$((1 + RANDOM % 100))
-        TEMPFILE=`basename "${OW_PROJECT_URL}"`
-        mkdir $TEMPDIR
-        cd $TEMPDIR
-        wget -O $TEMPFILE "${OW_PROJECT_URL}"
-        OW_ACTION_CODE=`cat $TEMPFILE`
-        cd ..
+        if [ -f ${OW_PROJECT_URL} ]; then
+          if [ ${OW_ACTION_BINARY} ]; then
+            OW_ACTION_CODE=`base64 ${OW_PROJECT_URL}`
+          else
+            OW_ACTION_CODE=`cat ${OW_PROJECT_URL}`
+          fi
+        else
+            TEMPDIR="knative-"$((1 + RANDOM % 100))
+            TEMPFILE=`basename "${OW_PROJECT_URL}"`
+            mkdir $TEMPDIR
+            cd $TEMPDIR
+            wget -O $TEMPFILE "${OW_PROJECT_URL}"
+            OW_ACTION_CODE=`cat $TEMPFILE`
+            cd ..
+        fi
       fi
       cat <<EOF >> ${DOCKERFILE}
         ENV __OW_RUNTIME_DEBUG "${OW_RUNTIME_DEBUG}"
@@ -68,6 +90,7 @@ spec:
         ENV __OW_ACTION_BINARY "${OW_ACTION_BINARY}"
         ENV __OW_HTTP_METHODS "${OW_HTTP_METHODS}"
         ENV __OW_ACTION_RAW "${OW_ACTION_RAW}"
+        ENV __OW_PROJECT_URL "${OW_PROJECT_URL}"
       EOF
   - name: build-openwhisk-nodejs-runtime
     image: "gcr.io/kaniko-project/executor:latest"

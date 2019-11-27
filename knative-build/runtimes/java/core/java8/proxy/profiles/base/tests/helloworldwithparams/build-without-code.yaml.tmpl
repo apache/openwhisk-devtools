@@ -1,0 +1,19 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  name: java-8-helloworld-with-params
+spec:
+  serviceAccountName: openwhisk-runtime-builder
+  source:
+    git:
+      url: "https://github.com/apache/openwhisk-devtools.git"
+      revision: "master"
+  template:
+    name: openwhisk-java-runtime
+    arguments:
+      - name: TARGET_IMAGE_NAME
+        value: "docker.io/${DOCKER_USERNAME}/java-8-helloworld-with-params"
+      - name: DOCKERFILE
+        value: "./knative-build/runtimes/java/core/java8/Dockerfile"
+      - name: OW_RUNTIME_DEBUG
+        value: "true"

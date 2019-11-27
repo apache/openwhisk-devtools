@@ -18,8 +18,8 @@
 package main
 
 import (
-	"github.com/apache/incubator-openwhisk-wskdeploy/cmd"
-    "github.com/apache/incubator-openwhisk-wskdeploy/utils"
+	"github.com/apache/openwhisk-wskdeploy/cmd"
+    "github.com/apache/openwhisk-wskdeploy/utils"
 	"github.com/hashicorp/terraform/helper/schema"
 	"log"
 )
