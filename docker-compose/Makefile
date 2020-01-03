@@ -241,7 +241,7 @@ setup:
 		[ -f "$(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/openwhisk-server-cert.pem" ]; then \
 			echo "using certificates present in $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/"; \
 	else \
-		$(OPENWHISK_PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files; \
+		env bash $(OPENWHISK_PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files; \
 	fi;
 	mkdir -p $(TMP_HOME)/tmp/openwhisk/api-gateway-ssl
 	cp $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/*.pem $(TMP_HOME)/tmp/openwhisk/api-gateway-ssl
