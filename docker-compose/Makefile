@@ -2,10 +2,10 @@ UNAME_STR ?= $(shell uname)
 
 # detect local ip of host as this is needed within containers to find the OpenWhisk API container
 ifeq ("$(UNAME_STR)","Linux")
-	LOCAL_IP=$(shell LANG=en_US.utf8; route | grep default | tr -s " " | cut -d " " -f 8 | xargs /sbin/ifconfig | grep "inet addr:" | cut -d ":" -f 2 | cut -d " " -f 1)
+	LOCAL_IP=$(shell LANG=en_US.utf8; route | grep default | tr -s " " | cut -d " " -f 8 | xargs env ifconfig | grep "inet addr:" | cut -d ":" -f 2 | cut -d " " -f 1)
 	# inet addr: not present, trying with inet.
 	ifeq ($(LOCAL_IP), )
-		LOCAL_IP=$(shell route | grep default | tr -s " " | cut -d " " -f 8 | xargs /sbin/ifconfig | grep "inet " | tr -s " " | cut -d " " -f 3)
+		LOCAL_IP=$(shell route | grep default | tr -s " " | cut -d " " -f 8 | xargs env ifconfig | grep "inet " | tr -s " " | cut -d " " -f 3)
 	endif
 else
 	LOCAL_IP ?= $(shell ifconfig | grep "inet " | grep -v 127.0.0.1 | cut -d\  -f2 | head -1)
@@ -241,7 +241,7 @@ setup:
 		[ -f "$(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/openwhisk-server-cert.pem" ]; then \
 			echo "using certificates present in $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/"; \
 	else \
-		$(OPENWHISK_PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files; \
+		env bash $(OPENWHISK_PROJECT_HOME)/ansible/files/genssl.sh $(DOCKER_HOST_IP) server $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files; \
 	fi;
 	mkdir -p $(TMP_HOME)/tmp/openwhisk/api-gateway-ssl
 	cp $(OPENWHISK_PROJECT_HOME)/ansible/roles/nginx/files/*.pem $(TMP_HOME)/tmp/openwhisk/api-gateway-ssl
