@@ -273,7 +273,7 @@ restart-invoker:
 
 .PHONY: start-docker-compose
 start-docker-compose:
-	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk -f $(DOCKER_COMPOSE_FILE) up --abort-on-container-exit 2>&1 > $(TMP_HOME)/tmp/openwhisk/docker-compose.log &
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk -f $(DOCKER_COMPOSE_FILE) up 2>&1 > $(TMP_HOME)/tmp/openwhisk/docker-compose.log &
 
 .PHONY: wait-for-docker-compose-up
 wait-for-docker-compose-up:
