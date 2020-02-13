@@ -39,5 +39,4 @@ before_install:
   - ${TOOL}/.travis/setup.sh
 
 script:
-  - ./tools/travis/scancode.sh
-  - ${TOOL}/.travis/build.sh
+  -  ./tools/travis/scancode.sh && ${TOOL}/.travis/build.sh
