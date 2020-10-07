@@ -382,7 +382,7 @@ init-api-management:
 
 .PHONY: init-catalog
 init-catalog:
-	OPENWHISK_HOME=$(OPENWHISK_PROJECT_HOME) $(OPENWHISK_CATALOG_HOME)/packages/installCatalogUsingWskDeploy.sh \
+	OPENWHISK_HOME=$(OPENWHISK_PROJECT_HOME) $(OPENWHISK_CATALOG_HOME)/packages/installCatalogUsingWskdeploy.sh \
 	  `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.whisk.system` \
 	  $(DOCKER_HOST_IP):443 \
 	  $(WSK_CLI)
@@ -496,7 +496,7 @@ $(addprefix install-package-,$(PACKAGES)):
 	$(eval PACKAGE_NAME:= $(shell echo $(@) | cut -b 17-))
 	$(eval PACKAGE_HOME := $(PACKAGE_$(shell echo $(PACKAGE_NAME) |  tr 'a-z' 'A-Z')_HOME))
 	cd $(PACKAGE_HOME) && \
-	$(shell cat $(TMP_HOME)/tmp/openwhisk/providers.env) ./installCatalogUsingWskDeploy.sh $(realpath $(OPENWHISK_PROJECT_HOME))/ansible/files/auth.whisk.system $(DOCKER_HOST_IP) "http://$(DOCKER_HOST_IP):5984" $(OPEN_WHISK_DB_PREFIX) $(DOCKER_HOST_IP)
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/providers.env) ./installCatalogUsingWskdeploy.sh $(realpath $(OPENWHISK_PROJECT_HOME))/ansible/files/auth.whisk.system $(DOCKER_HOST_IP) "http://$(DOCKER_HOST_IP):5984" $(OPEN_WHISK_DB_PREFIX) $(DOCKER_HOST_IP)
 
 .PHONY: $(addprefix start-provider-,$(PACKAGES))
 $(addprefix start-provider-,$(PACKAGES)):
