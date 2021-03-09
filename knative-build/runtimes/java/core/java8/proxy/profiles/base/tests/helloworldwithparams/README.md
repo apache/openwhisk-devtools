@@ -33,7 +33,7 @@ curl -H "Host: java-helloworld-with-params.default.example.com" -d '{"value": {"
 
 #### Initialize the runtime
 
-You have an option to initialize the runtime with the function and other configuration data if its not initialized (i.e. built using [build-without-code.yaml.tmpl](build-without-code.yaml.tmpl))
+You have an option to initialize the runtime with the function and other configuration data if it's not initialized (i.e. built using [build-without-code.yaml.tmpl](build-without-code.yaml.tmpl))
 
 ```
 curl -H "Host: java-helloworld-with-params.default.example.com" -d "@knative-data-init.json" -H "Content-Type: application/json" http://localhost/

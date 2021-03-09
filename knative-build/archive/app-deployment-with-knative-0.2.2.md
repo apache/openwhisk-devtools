@@ -338,7 +338,7 @@ default     1         4d
 
 **Note: We are deploying this application under `default` namespace. We had deployed `helloworld-go` under the same `default` namespace. We have noticed a limitation with Kubernetes on Docker which restricts number of pods under one single namespace. Please make sure that there are no pods exist under `default` and if they do, delete them all using `kubectl delete --all pods --namespace=default`**
 
-Create a file named `service.yaml` and copy the following defintion. Make sure to replace `{DOCKER_USERNAME}` with your own Docker Hub username:
+Create a file named `service.yaml` and copy the following definition. Make sure to replace `{DOCKER_USERNAME}` with your own Docker Hub username:
 
 ```yaml
 apiVersion: serving.knative.dev/v1alpha1
