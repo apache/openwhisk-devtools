@@ -161,7 +161,7 @@ public class Proxy {
         public void handle(HttpExchange t) throws IOException {
             long startTime = Debug.start();
             if (loader == null) {
-                // check if the Jar file contents are set in the enviorment
+                // check if the Jar file contents are set in the environment
                 // OW_AUTO_INIT: Jar file with absolute/relative path
                 // OW_AUTO_INIT_MAIN: name of the function in the "OW_AUTO_INIT" to call as the action handler
                 String ow_auto_init = System.getenv(OW_AUTO_INIT);
