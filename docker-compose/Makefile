@@ -485,7 +485,7 @@ $(addprefix download-package-,$(PACKAGES)):
 	echo "Downloading package" $(PACKAGE_NAME) "into" $(PACKAGE_HOME)
 	rm -rf ./openwhisk-package-$(PACKAGE_NAME)*
 	if [ "$(PACKAGE_HOME)" = "./openwhisk-package-$(PACKAGE_NAME)" ]; then \
-	    curl -s -O ./openwhisk-package-$(PACKAGE_NAME).tar.gz -L https://api.github.com/repos/apache/openwhisk-package-$(PACKAGE_NAME)/tarball/master > ./openwhisk-package-$(PACKAGE_NAME).tar.gz; \
+	    curl -s --output ./openwhisk-package-$(PACKAGE_NAME).tar.gz -L https://api.github.com/repos/apache/openwhisk-package-$(PACKAGE_NAME)/tarball/master; \
 	    mkdir openwhisk-package-$(PACKAGE_NAME); \
 	    tar -xf ./openwhisk-package-$(PACKAGE_NAME).tar.gz --strip 1 -C openwhisk-package-$(PACKAGE_NAME); \
 	else \
@@ -497,7 +497,14 @@ $(addprefix install-package-,$(PACKAGES)):
 	$(eval PACKAGE_NAME:= $(shell echo $(@) | cut -b 17-))
 	$(eval PACKAGE_HOME := $(PACKAGE_$(shell echo $(PACKAGE_NAME) |  tr 'a-z' 'A-Z')_HOME))
 	cd $(PACKAGE_HOME) && \
-	$(shell cat $(TMP_HOME)/tmp/openwhisk/providers.env) ./installCatalogUsingWskdeploy.sh $(realpath $(OPENWHISK_PROJECT_HOME))/ansible/files/auth.whisk.system $(DOCKER_HOST_IP) "http://$(DOCKER_HOST_IP):5984" $(OPEN_WHISK_DB_PREFIX) $(DOCKER_HOST_IP)
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/providers.env) ./installCatalog.sh $(realpath $(OPENWHISK_PROJECT_HOME))/ansible/files/auth.whisk.system $(DOCKER_HOST_IP) "http://$(DOCKER_HOST_IP):5984" $(OPEN_WHISK_DB_PREFIX) $(DOCKER_HOST_IP)
+
+### Separate target for alarms because the installation requires an additional parameter
+install-package-alarms:
+	$(eval PACKAGE_NAME:= $(shell echo $(@) | cut -b 17-))
+	$(eval PACKAGE_HOME := $(PACKAGE_$(shell echo $(PACKAGE_NAME) |  tr 'a-z' 'A-Z')_HOME))
+	cd $(PACKAGE_HOME) && \
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/providers.env) ./installCatalog.sh $(realpath $(OPENWHISK_PROJECT_HOME))/ansible/files/auth.whisk.system $(DOCKER_HOST_IP) $(DOCKER_HOST_IP) "http://$(DOCKER_HOST_IP):5984" $(OPEN_WHISK_DB_PREFIX) $(DOCKER_HOST_IP) \
 
 .PHONY: $(addprefix start-provider-,$(PACKAGES))
 $(addprefix start-provider-,$(PACKAGES)):
