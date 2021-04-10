@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+SHELL:=/bin/bash
 UNAME_STR ?= $(shell uname)
 
 # detect local ip of host as this is needed within containers to find the OpenWhisk API container
