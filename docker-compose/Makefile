@@ -88,7 +88,7 @@ download-src:
 download-catalog:
 	if [ "$(OPENWHISK_CATALOG_HOME)" = "$(CURDIR)/openwhisk-catalog" ]; then \
 	    rm -rf $(CURDIR)/openwhisk-catalog*; \
-	    curl -s -O ./openwhisk-catalog.tar.gz -L https://api.github.com/repos/apache/openwhisk-catalog/tarball/master > ./openwhisk-catalog.tar.gz; \
+	    curl -s --output ./openwhisk-catalog.tar.gz -L https://api.github.com/repos/apache/openwhisk-catalog/tarball/master; \
 	    mkdir openwhisk-catalog; \
 	    tar -xf ./openwhisk-catalog.tar.gz --strip 1 -C openwhisk-catalog; \
 	else \
