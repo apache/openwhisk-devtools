@@ -304,7 +304,7 @@ wait-for-docker-compose-up:
 	echo "Waiting till all containers are powered up... ";
 	sleep 1;
 	@trycount=0; \
-	trycounttimeout=30; \
+	trycounttimeout=60; \
 	up=`$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk ps | grep Up -c`; \
 	servicescount=`$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose -f $(DOCKER_COMPOSE_FILE) config --services | wc -l | xargs`; \
 	docker_ps() { \
