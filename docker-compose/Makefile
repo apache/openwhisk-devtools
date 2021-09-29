@@ -146,23 +146,21 @@ docker-pull-full:
 	echo "pulling the docker images full list ... "
 	docker pull $(DOCKER_IMAGE_PREFIX)/controller:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/invoker:${DOCKER_IMAGE_TAG}
-	docker pull $(DOCKER_IMAGE_PREFIX)/nodejs6action:${DOCKER_IMAGE_TAG}
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v8:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v10:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v12:${DOCKER_IMAGE_TAG}
-	docker pull $(DOCKER_IMAGE_PREFIX)/python2action:${DOCKER_IMAGE_TAG}
-	docker pull $(DOCKER_IMAGE_PREFIX)/python3action:${DOCKER_IMAGE_TAG}
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v4.2:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-nodejs-v14:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-python-v3.7:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v5.1:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v5.3:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-swift-v5.4:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/java8action:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.3:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v7.4:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-php-v8.0:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-ruby-v2.5:${DOCKER_IMAGE_TAG}
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-golang-v1.11:${DOCKER_IMAGE_TAG}
-	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton:${DOCKER_IMAGE_TAG}
+	docker pull $(DOCKER_IMAGE_PREFIX)/action-golang-v1.15:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-dotnet-v2.2:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-dotnet-v3.1:${DOCKER_IMAGE_TAG}
-	docker pull $(DOCKER_IMAGE_PREFIX)/action-ballerina-v0.990.2:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/action-rust-v1.34:${DOCKER_IMAGE_TAG}
 	docker pull $(DOCKER_IMAGE_PREFIX)/dockerskeleton:${DOCKER_IMAGE_TAG}
 
